@@ -4,7 +4,7 @@ import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
 export const metadata: Metadata = {
   title:
-    "Admin | Dashboard ",
+    "Admin | Dashboard",
   description: "Admin Dashboard for Sueen Nature",
 };
 
