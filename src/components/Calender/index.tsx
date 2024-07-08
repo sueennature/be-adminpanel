@@ -1,198 +1,107 @@
-'use client';
+'use client'
+// pages/calendar.js
+import { useState } from 'react';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import styled from 'styled-components';
 
-import React, {useEffect, useState} from "react";
-import {DayPilot, DayPilotCalendar} from "@daypilot/daypilot-lite-react";
+const CalendarWrapper = styled.div`
+  .react-calendar {
+    width: 100%;
+    max-width: 1100px;
+    margin: auto;
+    border: 1px solid #a0a096;
+    border-radius: 10px;
+    padding: 10px;
+  }
 
-export default function Calendar() {
+  .react-calendar__tile--now {
+    background: #fffae6 !important;
+    color: #d64545;
+  }
 
-    const styles = {
-        wrap: {
-            display: "flex"
-        },
-        left: {
-            marginRight: "10px"
-        },
-        main: {
-            flexGrow: "1"
-        }
-    };
+  .react-calendar__tile--active {
+    background: #d64545 !important;
+    color: white !important;
+  }
 
-    const colors = [
-        {name: "Green", id: "#6aa84f"},
-        {name: "Blue", id: "#3d85c6"},
-        {name: "Turquoise", id: "#00aba9"},
-        {name: "Light Blue", id: "#56c5ff"},
-        {name: "Yellow", id: "#f1c232"},
-        {name: "Orange", id: "#e69138"},
-        {name: "Red", id: "#cc4125"},
-        {name: "Light Red", id: "#ff0000"},
-        {name: "Purple", id: "#af8ee5"},
-    ];
+  .booked {
+    background-color: #ff5252;
+    color: white;
+  }
 
-    const participants = [
-        {name: "1", id: 1},
-        {name: "2", id: 2},
-        {name: "3", id: 3},
-        {name: "4", id: 4},
-    ];
+  .tile-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 
-    const [calendar, setCalendar] = useState<DayPilot.Calendar>();
+  .tile-content span {
+    font-size: 10px;
+  }
+`;
 
-    const editEvent = async (e: DayPilot.Event) => {
-        const form = [
-            {name: "Event text", id: "text", type: "text"},
-            {name: "Event color", id: "backColor", type: "select", options: colors},
-            {name: "Number of participants", id: "tags.participants", type: "select", options: participants},
-        ];
+// Helper function to generate dates within a range
+const generateDateRange = (start: string | number | Date, end: number | Date) => {
+  const dates = [];
+  let currentDate = new Date(start);
+  while (currentDate <= end) {
+    dates.push(new Date(currentDate));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  return dates;
+};
 
-        const modal = await DayPilot.Modal.form(form, e.data);
-        if (modal.canceled) { return; }
-        e.data.text = modal.result.text;
-        e.data.backColor = modal.result.backColor;
-        e.data.tags.participants = modal.result.tags.participants;
-        calendar?.events.update(e);
-    };
+const CalendarPage = () => {
+  const [date, setDate] = useState(new Date());
+  const johnDoeBooking = generateDateRange(new Date(2024, 6, 9), new Date(2024, 7, 9));
+  const bookedDates = [
+    ...johnDoeBooking.map(d => ({ date: d, refNo: '12345', name: 'John Doe' })),
+    { date: new Date(2024, 6, 11), refNo: '12346', name: 'Jane Smith' },
+    { date: new Date(2024, 6, 15), refNo: '12347', name: 'Alice Brown' },
+  ];
 
-    const contextMenu = new DayPilot.Menu({
-        items: [
-            {
-                text: "Delete",
-                onClick: async args => {
-                    calendar?.events.remove(args.source);
-                },
-            },
-            {
-                text: "-"
-            },
-            {
-                text: "Edit...",
-                onClick: async args => {
-                    await editEvent(args.source);
-                }
-            }
-        ]
-    });
+  const tileClassName = ({ date, view }:any) => {
+    if (view === 'month') {
+      if (bookedDates.find(d => d.date.toDateString() === date.toDateString())) {
+        return 'booked';
+      }
+    }
+  };
 
-    const onBeforeEventRender = (args: DayPilot.CalendarBeforeEventRenderArgs) => {
-        args.data.areas = [
-            {
-                top: 5,
-                right: 5,
-                width: 20,
-                height: 20,
-                symbol: "icons/daypilot.svg#minichevron-down-2",
-                fontColor: "#fff",
-                backColor: "#00000033",
-                style: "border-radius: 25%; cursor: pointer;",
-                toolTip: "Show context menu",
-                action: "ContextMenu",
-            },
-        ];
+  const tileContent = ({ date, view }:any) => {
+    if (view === 'month') {
+      const booking = bookedDates.find(d => d.date.toDateString() === date.toDateString());
+      if (booking) {
+        return (
+          <div className="tile-content">
+            <span>{booking.refNo}</span>
+            <span>{booking.name}</span>
+          </div>
+        );
+      }
+    }
+  };
 
+  const handleDateChange = (value :any) => {
+    setDate(value);
+  };
 
-        const participants = args.data.tags?.participants || 0;
-        if (participants > 0) {
-            args.data.areas.push({
-                bottom: 5,
-                left: 5,
-                width: 24,
-                height: 24,
-                action: "None",
-                backColor: "#00000033",
-                fontColor: "#fff",
-                text: participants,
-                style: "border-radius: 50%; border: 2px solid #fff; font-size: 18px; text-align: center;",
-            });
-        }
-    };
+  return (
+    <CalendarWrapper className='h-[90vh]'>
+      <h1>Room Management Calendar</h1>
+      <Calendar
+        onChange={handleDateChange} // Adjusted onChange handler
+        value={date}
+        tileClassName={tileClassName}
+        tileContent={tileContent}
+      />
+      <div>
+        <h2>Selected Date: {date.toDateString()}</h2>
+      </div>
+    </CalendarWrapper>
+  );
+};
 
-    const initialConfig: DayPilot.CalendarConfig = {
-        viewType: "Week",
-        durationBarVisible: false,
-    };
-
-    const [config, setConfig] = useState(initialConfig);
-
-    useEffect(() => {
-
-        if (!calendar || calendar?.disposed()) {
-            return;
-        }
-        const events: DayPilot.EventData[] = [
-            {
-                id: 1,
-                text: "Event 1",
-                start: "2024-10-02T10:30:00",
-                end: "2024-10-02T13:00:00",
-                tags: {
-                    participants: 2,
-                }
-            },
-            {
-                id: 2,
-                text: "Event 2",
-                start: "2024-10-03T09:30:00",
-                end: "2024-10-03T11:30:00",
-                backColor: "#6aa84f",
-                tags: {
-                    participants: 1,
-                }
-            },
-            {
-                id: 3,
-                text: "Event 3",
-                start: "2024-10-03T12:00:00",
-                end: "2024-10-03T15:00:00",
-                backColor: "#f1c232",
-                tags: {
-                    participants: 3,
-                }
-            },
-            {
-                id: 4,
-                text: "Event 4",
-                start: "2024-10-01T11:30:00",
-                end: "2024-10-01T14:30:00",
-                backColor: "#cc4125",
-                tags: {
-                    participants: 2,
-                }
-            },
-        ];
-
-        const startDate = "2024-10-01";
-
-        calendar.update({startDate, events});
-    }, [calendar]);
-
-    const onTimeRangeSelected = async (args: DayPilot.CalendarTimeRangeSelectedArgs) => {
-        const modal = await DayPilot.Modal.prompt("Create a new event:", "Event 1");
-        calendar?.clearSelection();
-        if (modal.canceled) {
-            return;
-        }
-        // console.log("modal.result", modal.result, calendar);
-        calendar?.events.add({
-            start: args.start,
-            end: args.end,
-            id: DayPilot.guid(),
-            text: modal.result,
-            tags: {
-                participants: 1,
-            }
-        });
-    };
-
-    return (
-        <div>
-            <DayPilotCalendar
-                {...config}
-                onTimeRangeSelected={onTimeRangeSelected}
-                onEventClick={async args => { await editEvent(args.e); }}
-                contextMenu={contextMenu}
-                onBeforeEventRender={onBeforeEventRender}
-                controlRef={setCalendar}
-            />
-        </div>
-    )
-}
+export default CalendarPage;
