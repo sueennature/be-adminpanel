@@ -9,8 +9,8 @@ import { useRouter } from "next/navigation";
 import Login from "@/components/Login/Login";
 export const metadata: Metadata = {
   title:
-    "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Home for TailAdmin Dashboard Template",
+    "Admin | Dashboard",
+  description: "Admin Dashboard for Sueen Nature",
 };
 
 export default function Home() {
