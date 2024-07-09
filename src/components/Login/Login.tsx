@@ -17,7 +17,7 @@ export default function Login() {
   return (
      <div className="rounded-sm border min-h-screen bg-white items-center flex justify-center  ">
             <div className="h-full flex items-center justify-center">
-           <div className="flex items-center justify-center shadow-md shadow-black/25 h-full rounded-xl">
+           <div className="flex items-center justify-center shadow-md shadow-black/55 h-full rounded-xl">
            <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <h2 className="mb-9 text-2xl font-bold text-black sm:text-title-xl2">
                 Sign In to Sueen Admin Panel
