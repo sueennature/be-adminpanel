@@ -102,7 +102,7 @@ console.log(sidebarOpen)
   return (
     <ClickOutside onClick={() => setSidebarOpen(false)}>
      <aside
-  className={`fixed left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden  duration-300 ease-linear bg-slate-800  ${
+  className={`fixed h-full left-0 top-0 z-9999 flex w-72.5 flex-col overflow-y-hidden  duration-300 ease-linear bg-slate-800  ${
     sidebarOpen ? 'translate-x-0 ' : '-translate-x-full lg:translate-x-0'
   }`}
 >

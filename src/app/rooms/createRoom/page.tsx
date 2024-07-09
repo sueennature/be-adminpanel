@@ -7,7 +7,7 @@ const CreateRoomPage = () => {
   return (
     <DefaultLayout>
         <Breadcrumb pageName={'Rooms'} firstLink={"/rooms"} secondLink={"/rooms/createRoom"} pageNameTwo={'Create'}/>
-        <div className='text-black text-xl mb-4 font-bold '>Create room</div>
+        <div className='text-black text-xl mt-8 mb-2 font-bold '>Create room</div>
         <CreateRoom/>
     </DefaultLayout>
   )

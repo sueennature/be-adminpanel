@@ -4,9 +4,7 @@ import SelectGroupOne from '../SelectGroup/SelectGroupOne'
 const CreateRoom = () => {
   return (
     <div className="flex flex-col gap-9">
-    {/* <!-- Contact Form --> */}
     <div className="rounded-sm border border-stroke bg-white shadow-default ">
-
       <form action="#">
         <div className="p-6.5">
             <div className="w-full mb-6.5 ">
@@ -149,17 +147,18 @@ const CreateRoom = () => {
                 />
                 </div>
             </div>
-          {/* <div className="mb-6">
-            <label className="mb-3 block text-sm font-medium text-black ">
-              Short Description
-            </label>
-            <textarea
-              rows={6}
-              placeholder="Type short description"
-              className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
-            ></textarea>
-          </div> */}
-
+          <div className="mb-6">
+            <div>
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Attach file
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                />
+              </div>
+          </div>
           <div className="mb-6">
             <label className="mb-3 block text-sm font-medium text-black ">
               Description

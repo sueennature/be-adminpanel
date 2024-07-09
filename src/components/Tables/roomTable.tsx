@@ -26,6 +26,7 @@ const RoomTable = () => {
     const [rooms, setRooms] = React.useState<RoomData[]>([]);
     const [nameFilter, setNameFilter] = React.useState<string>('');
     const [idFilter, setIdFilter] = React.useState<string>('');
+    const [roomsSelection, setRoomsSelection] = React.useState<number[]>([]);;
 
     React.useEffect(() => {
         setRooms(roomData);
@@ -36,6 +37,22 @@ const RoomTable = () => {
         String(room.id).toLowerCase().includes(idFilter.toLowerCase())
     );
 
+    const handleSelectAll = (e:React.ChangeEvent<HTMLInputElement>)=>{
+        if(e.target.checked){
+            const allRoomIds = filteredRooms.map(room => room.id);
+            setRoomsSelection(allRoomIds)
+        }else{
+            setRoomsSelection([]);
+        }
+    }
+
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, roomId: number) => {
+        if (e.target.checked) {
+            setRoomsSelection(prevSelected => [...prevSelected, roomId]);
+        } else {
+            setRoomsSelection(prevSelected => prevSelected.filter(id => id !== roomId));
+        }
+    };
   return (
     <div>
     <div className='flex items-center justify-between mb-4'>
@@ -47,13 +64,13 @@ const RoomTable = () => {
                 onChange={(e) => setNameFilter(e.target.value)}
                 className='px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
             />
-            <input
+            {/* <input
                 type='text'
                 placeholder='Search by ID'
                 value={idFilter}
                 onChange={(e) => setIdFilter(e.target.value)}
                 className='px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-            />
+            /> */}
         </div>
         <div className='text-blue-400 cursor-pointer'>
             <Link href='/rooms/createRoom'>
@@ -71,6 +88,8 @@ const RoomTable = () => {
                                 <input
                                     id="checkbox-all-search"
                                     type="checkbox"
+                                    onChange={handleSelectAll}
+                                    checked={roomsSelection.length === filteredRooms.length}
                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                 />
                                 <label htmlFor="checkbox-all-search" className="sr-only">
@@ -88,6 +107,7 @@ const RoomTable = () => {
                         <th scope="col" className="px-6 py-3">Features</th>
                         <th scope="col" className="px-6 py-3">Beds</th>
                         <th scope="col" className="px-6 py-3">Size</th>
+                        <th scope="col" className="px-6 py-3">Bathrooms</th>
                         <th scope="col" className="px-6 py-3">Images</th>
                         <th scope="col" className="px-6 py-3">Action</th>
                     </tr>
@@ -103,6 +123,9 @@ const RoomTable = () => {
                                     <input
                                         id={`checkbox-table-search-${room.id}`}
                                         type="checkbox"
+                                        checked={roomsSelection.includes(room.id)}
+                                        onChange={(e) => handleCheckboxChange(e, room.id)}
+                                    
                                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                     />
                                     <label htmlFor={`checkbox-table-search-${room.id}`} className="sr-only">

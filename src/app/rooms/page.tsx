@@ -6,10 +6,11 @@ const Rooms = () => {
   
 
     return (
-        <DefaultLayout>
+         <DefaultLayout>
           <Breadcrumb pageName="Rooms" pageNameTwo={""}  firstLink={'/rooms'}/>
             <RoomTable/>
         </DefaultLayout>
+    
         
     );
 };
