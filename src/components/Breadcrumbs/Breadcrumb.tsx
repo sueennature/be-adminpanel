@@ -4,16 +4,21 @@ interface BreadcrumbProps {
   firstLink?: any;
   secondLink?: any;
   pageNameTwo?: string;
+  hidingHeader? : boolean;
 }
 const Breadcrumb = ({
   pageName,
   pageNameTwo,
   firstLink,
   secondLink,
+  hidingHeader,
 }: BreadcrumbProps) => {
   return (
     <div className="mb-6 flex flex-col gap-3 bg-gray sm:flex-row sm:items-center sm:justify-between">
-      <h2 className="text-title-md2 font-semibold text-black ">Dashboard {pageName ? ` / ${pageName}` : ""} {pageNameTwo ? `/ ${pageNameTwo}` : ""}</h2>
+      {/* <h2 className="text-title-md2 font-semibold text-black ">Dashboard {pageName ? ` / ${pageName}` : ""} {pageNameTwo ? `/ ${pageNameTwo}` : ""}</h2> */}
+      {!hidingHeader && (
+        <h2 className="text-title-md2 font-semibold text-black capitalize ">{pageNameTwo ? pageNameTwo : pageName ? pageName : "Dashboard" }</h2>
+      )}
 
       <nav>
         <ol className="flex items-center gap-2">

@@ -1,5 +1,5 @@
 import React from 'react'
-import SelectGroupOne from '../SelectGroup/SelectGroupOne'
+import SelectGroupOne from '../../SelectGroup/SelectGroupOne'
 
 const CreateRoom = () => {
   return (

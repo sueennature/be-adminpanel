@@ -1,0 +1,36 @@
+
+[
+    {
+      "id": 1,
+      "fname": "John",
+      "lname": "Doe",
+      "email": "john@gmail.com",
+      "telephone": 13244444,
+      "nationality":"Foreign",
+      "Address": "Main, Colombo",
+      "guest_fname": "Alice",
+      "guest_lname": "Sarah",
+      "guest_email": "alice@gmail.com",
+      "guest_telephone": 213232323,
+      "guest_address": "Main, Usa",
+      "guest_natioanlity": "Local"
+
+    },
+    {
+        "id": 2,
+        "fname": "Vimal",
+        "lname": "Doe",
+        "email": "vimal@gmail.com",
+        "telephone": 13233244,
+        "nationality":"Foreign",
+        "Address": "Main, Trinco",
+        "guest_fname": "Sarah",
+        "guest_lname": "Connor",
+        "guest_email": "sarah@gmail.com",
+        "guest_telephone": 213213213323,
+        "guest_address": "Main, Aus",
+        "guest_natioanlity": "Foreign"
+  
+      }
+  ]
+  

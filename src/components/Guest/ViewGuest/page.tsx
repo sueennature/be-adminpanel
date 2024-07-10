@@ -1,68 +1,70 @@
 'use client'
 import React from 'react';
-import roomData from '../../components/Datatables/roomsData.json';
+import guestData from '../../../components/Datatables/guestsData.json';
 import Image from 'next/image';
 import { Edit, Trash, Eye, Plus } from 'react-feather';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 
-interface RoomData {
+interface GuestData {
     id: number;
-    name: string;
-    noOfRoom: number;
-    maxAdults: number;
-    maxChilds: number;
-    description: string;
-    features: string[];
-    beds: string;
-    size: string;
-    bathroom: string;
-    images: string[];
-    action: string;
+    fname: string;
+    lname: string;
+    email: string;
+    telephone: number;
+    nationality:string;
+    Address: string;
+    guest_fname: string;
+    guest_lname: string;
+    guest_email: string;
+    guest_telephone: number;
+    guest_address: string;
+    guest_natioanlity: string; 
 }
 
-const RoomTable = () => {
 
-    const [rooms, setRooms] = React.useState<RoomData[]>([]);
+const ViewGuest = () => {
+
+    const [guests, setGuests] = React.useState<GuestData[]>([]);
     const [nameFilter, setNameFilter] = React.useState<string>('');
     const [idFilter, setIdFilter] = React.useState<string>('');
-    const [roomsSelection, setRoomsSelection] = React.useState<number[]>([]);;
+    const [guestSelection, setGuestSelection] = React.useState<number[]>([]);;
     const router = useRouter();
 
     React.useEffect(() => {
-        setRooms(roomData);
+        setGuests(guestData);
     }, []);
 
-    const filteredRooms = rooms.filter(room =>
-        room.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-        String(room.id).toLowerCase().includes(idFilter.toLowerCase())
+    const filteredGuests= guests.filter(guest =>
+        guest.fname.toLowerCase().includes(nameFilter.toLowerCase()) &&
+        String(guest.id).toLowerCase().includes(idFilter.toLowerCase())
     );
 
     const handleSelectAll = (e:React.ChangeEvent<HTMLInputElement>)=>{
         if(e.target.checked){
-            const allRoomIds = filteredRooms.map(room => room.id);
-            setRoomsSelection(allRoomIds)
+            const allGuestIds = filteredGuests.map(guest => guest.id);
+            setGuestSelection(allGuestIds)
         }else{
-            setRoomsSelection([]);
+            setGuestSelection([]);
         }
     }
 
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, roomId: number) => {
         if (e.target.checked) {
-            setRoomsSelection(prevSelected => [...prevSelected, roomId]);
+            setGuestSelection(prevSelected => [...prevSelected, roomId]);
         } else {
-            setRoomsSelection(prevSelected => prevSelected.filter(id => id !== roomId));
+            setGuestSelection(prevSelected => prevSelected.filter(id => id !== roomId));
         }
     };
 
 
     const handleEditPush =(roomData: any)=>{
-        router.push(`/rooms/update/${roomData.id}`)
+        router.push(`/guest/update/${roomData.id}`)
     }
 
     const handleViewPush =(roomData: any)=>{
-        router.push(`/rooms/view/${roomData.id}`)
+        router.push(`/guest/view/${roomData.id}`)
     }
   return (
     <div>
@@ -84,7 +86,7 @@ const RoomTable = () => {
             /> */}
         </div>
         <div className='text-blue-400 cursor-pointer'>
-            <Link href='/rooms/createRoom'>
+            <Link href='/guest/create'>
                 <Plus />
             </Link>
         </div>
@@ -100,7 +102,7 @@ const RoomTable = () => {
                                     id="checkbox-all-search"
                                     type="checkbox"
                                     onChange={handleSelectAll}
-                                    checked={roomsSelection.length === filteredRooms.length}
+                                    checked={guestSelection.length === filteredGuests.length}
                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                 />
                                 <label htmlFor="checkbox-all-search" className="sr-only">
@@ -109,66 +111,63 @@ const RoomTable = () => {
                             </div>
                         </th>
                         <th scope="col" className="px-6 py-3">id</th>
-                        <th scope="col" className="px-6 py-3">Name
-                        </th>
-                        <th scope="col" className="px-6 py-3">No of Room</th>
-                        <th scope="col" className="px-6 py-3">Max Adults</th>
-                        <th scope="col" className="px-6 py-3"> Max Childs</th>
-                        <th scope="col" className="px-6 py-3">Description</th>
-                        <th scope="col" className="px-6 py-3">Features</th>
-                        <th scope="col" className="px-6 py-3">Beds</th>
-                        <th scope="col" className="px-6 py-3">Size</th>
-                        <th scope="col" className="px-6 py-3">Bathrooms</th>
-                        <th scope="col" className="px-6 py-3">Images</th>
+                        <th scope="col" className="px-6 py-3">First Name</th>
+                        <th scope="col" className="px-6 py-3">Last  Name</th>
+                        <th scope="col" className="px-6 py-3">Email</th>
+                        <th scope="col" className="px-6 py-3">Address</th>
+                        <th scope="col" className="px-6 py-3">Telephone</th>
+                        <th scope="col" className="px-6 py-3">Nationality</th>
+                        <th scope="col" className="px-6 py-3">Guest First Name</th>
+                        <th scope="col" className="px-6 py-3">Guest Last Name</th>
+                        <th scope="col" className="px-6 py-3">Guest Email</th>
+                        <th scope="col" className="px-6 py-3">Guest Telephone</th>
+                        <th scope="col" className="px-6 py-3">Guest Address</th>
+                        <th scope="col" className="px-6 py-3">Guest Nationality</th>
                         <th scope="col" className="px-6 py-3">Action</th>
+
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredRooms.map((room) => (
+                    {filteredGuests.map((guest) => (
                         <tr
-                            key={room.id}
+                            key={guest.id}
                             className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-black"
                         >
                             <td className="w-4 p-4">
                                 <div className="flex items-center">
                                     <input
-                                        id={`checkbox-table-search-${room.id}`}
+                                        id={`checkbox-table-search-${guest.id}`}
                                         type="checkbox"
-                                        checked={roomsSelection.includes(room.id)}
-                                        onChange={(e) => handleCheckboxChange(e, room.id)}
+                                        checked={guestSelection.includes(guest.id)}
+                                        onChange={(e) => handleCheckboxChange(e, guest.id)}
                                     
                                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                     />
-                                    <label htmlFor={`checkbox-table-search-${room.id}`} className="sr-only">
+                                    <label htmlFor={`checkbox-table-search-${guest.id}`} className="sr-only">
                                         checkbox
                                     </label>
                                 </div>
                             </td>
-                            <td className="px-6 py-4">{room.id}</td>
-                            <td className="px-6 py-4">{room.name}</td>
-                            <td className="px-6 py-4">{room.noOfRoom}</td>
-                            <td className="px-6 py-4">{room.maxAdults}</td>
-                            <td className="px-6 py-4">{room.maxChilds}</td>
-                            <td className="px-6 py-4">{room.description}</td>
-                            <td className="px-6 py-4">{room.features.join(', ')}</td>
-                            <td className="px-6 py-4">{room.beds}</td>
-                            <td className="px-6 py-4">{room.size}</td>
-                            <td className="px-6 py-4">{room.bathroom}</td>
-                            <td className="px-6 py-4" style={{ minWidth: '200px' }}>
-                                <div className="flex items-center gap-2">
-                                    {room.images.map((image, index) => (
-                                        <div key={index} className="flex-shrink-0">
-                                            <Image src={image} alt={room.name} width={50} height={50} />
-                                        </div>
-                                    ))}
-                                </div>
-                            </td>
+                            <td className="px-6 py-4">{guest.id}</td>
+                            <td className="px-6 py-4">{guest.fname}</td>
+                            <td className="px-6 py-4">{guest.lname}</td>
+                            <td className="px-6 py-4">{guest.email}</td>
+                            <td className="px-6 py-4">{guest.Address}</td>
+                            <td className="px-6 py-4">{guest.telephone}</td>
+                            <td className="px-6 py-4">{guest.nationality}</td>
+                            <td className="px-6 py-4">{guest.guest_fname}</td>
+                            <td className="px-6 py-4">{guest.guest_lname}</td>
+                            <td className="px-6 py-4">{guest.guest_email}</td>
+                            <td className="px-6 py-4">{guest.guest_telephone}</td>
+                            <td className="px-6 py-4">{guest.guest_address}</td>
+                            <td className="px-6 py-4">{guest.guest_natioanlity}</td>
+                            
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-4 ">
-                                    <button onClick={()=>handleEditPush(room)}  className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                    <button onClick={()=>handleEditPush(guest)}  className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                                         <Edit />
                                     </button>
-                                    <button onClick={()=>handleViewPush(room)} className="font-medium text-green-600 dark:text-red-500 hover:underline">
+                                    <button onClick={()=>handleViewPush(guest)} className="font-medium text-green-600 dark:text-red-500 hover:underline">
                                     <Eye /> 
                                     </button>
                                     <a href="#" className="font-medium text-rose-600  hover:underline">
@@ -187,4 +186,4 @@ const RoomTable = () => {
   )
 }
 
-export default RoomTable
+export default ViewGuest
