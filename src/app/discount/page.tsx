@@ -1,4 +1,5 @@
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb'
+import CheckAvailability from '@/components/Discounts/CheckAvailability'
 import ViewDiscount from '@/components/Discounts/ViewDiscount/page'
 import DefaultLayout from '@/components/Layouts/DefaultLayout'
 import React from 'react'
@@ -9,6 +10,7 @@ const ViewDiscountPage = () => {
        <DefaultLayout>
        <Breadcrumb pageName={'Discounts'} pageNameTwo='Views' firstLink={"/discount"}/>
          <ViewDiscount/>
+         <CheckAvailability/>
      </DefaultLayout>
    )
 

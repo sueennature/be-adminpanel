@@ -5,11 +5,19 @@ import Image from 'next/image';
 import { Edit, Trash, Eye, Plus } from 'react-feather';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { CSVLink } from 'react-csv';
 
 
-
+interface DiscountData {
+    id: number;
+    discount: number;
+    description: string;
+    startDate: string;
+    endDate: string;
+    
+}
 const ViewDiscount = () => {
-    const [discounts, setDiscounts] = React.useState<any[]>([]);
+    const [discounts, setDiscounts] = React.useState<DiscountData[]>([]);
     const [nameFilter, setNameFilter] = React.useState<string>('');
     const [discountsSelection, setDiscountsSelection] = React.useState<number[]>([]);
     const [currentPage, setCurrentPage] = React.useState<number>(1);
@@ -21,14 +29,14 @@ const ViewDiscount = () => {
         setDiscounts(discountData);
     }, []);
 
-    const filteredActivities = discounts.filter(activity =>
+    const filteredDiscounts = discounts.filter(activity =>
         // activity.discount.toLowerCase().includes(nameFilter.toLowerCase()) &&
         String(activity.id).toLowerCase().includes(idFilter.toLowerCase())
     );
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredActivities.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = filteredDiscounts.slice(indexOfFirstItem, indexOfLastItem);
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
@@ -67,7 +75,14 @@ const ViewDiscount = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-
+    const csvData = filteredDiscounts.map(({ id,discount,description,startDate,endDate}) => ({
+        id,
+        discount,
+        description,
+        startDate,
+        endDate,
+        
+    }));
     return (
         <div>
             <div className="flex items-center justify-between mb-4">
@@ -195,13 +210,18 @@ const ViewDiscount = () => {
                     </button>
                     <button
                         onClick={nextPage}
-                        disabled={indexOfLastItem >= filteredActivities.length}
+                        disabled={indexOfLastItem >= filteredDiscounts.length}
                         className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-md cursor-pointer"
                     >
                         Next
                     </button>
                   </div>
                 </div>
+            </div>
+            <div className='flex justify-end w-full mt-7 '>
+                <CSVLink data={csvData} filename={"Discounts.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+                    Export as CSV
+                </CSVLink>
             </div>
         </div>
     );

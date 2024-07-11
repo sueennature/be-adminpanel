@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Edit, Trash, Eye, Plus } from 'react-feather';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { CSVLink } from 'react-csv';
 
 
 interface GuestData {
@@ -88,6 +89,21 @@ const ViewGuest = () => {
     const handleViewPush =(roomData: any)=>{
         router.push(`/guest/view/${roomData.id}`)
     }
+    const csvData = filteredGuests.map(({ id, fname, lname, email, telephone, nationality, Address, guest_fname, guest_lname,guest_email,guest_telephone, guest_address, guest_natioanlity,  }) => ({
+        id,
+        fname,
+        lname,
+        email,
+        telephone,
+        nationality,
+        Address,
+        guest_fname,
+        guest_lname,
+        guest_email,
+        guest_telephone,
+        guest_address,
+        guest_natioanlity, 
+    }));
   return (
     <div>
     <div className='flex items-center justify-between mb-4'>
@@ -234,7 +250,12 @@ const ViewGuest = () => {
                     </button>
                   </div>
                 </div>
-    </div>
+        </div>
+        <div className='flex justify-end w-full mt-7 '>
+                <CSVLink data={csvData} filename={"Guests.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+                    Export as CSV
+                </CSVLink>
+            </div>
     </div>
    
   )

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Edit, Trash, Eye, Plus } from 'react-feather';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { CSVLink } from 'react-csv';
 
 interface ActivityData {
     id: number;
@@ -74,7 +75,13 @@ const ViewActivity = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-
+    const csvData = filteredActivities.map(({ id,name,description, amount}) => ({
+        id,
+        name,
+        description,
+        amount,
+        
+    }));
     return (
         <div>
             <div className="flex items-center justify-between mb-4">
@@ -209,6 +216,11 @@ const ViewActivity = () => {
                     </button>
                   </div>
                 </div>
+            </div>
+            <div className='flex justify-end w-full mt-7 '>
+                <CSVLink data={csvData} filename={"Activities.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+                    Export as CSV
+                </CSVLink>
             </div>
         </div>
     );
