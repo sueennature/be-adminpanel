@@ -4,16 +4,16 @@ import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Next.js Calender | TailAdmin - Next.js Dashboard Template",
+  title: "Admin | Dashboard",
   description:
-    "This is Next.js Calender page for TailAdmin  Tailwind CSS Admin Dashboard Template",
+    "Admin Dashboard for Sueen Nature",
 };
 
 const CalendarPage = () => {
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Booking Calendar" firstLink={"/calendar"}/>
-      <Calendar />
+      <Calendar/>
     </DefaultLayout>
   );
 };

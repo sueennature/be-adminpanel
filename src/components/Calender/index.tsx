@@ -1,107 +1,102 @@
-'use client'
-// pages/calendar.js
-import { useState } from 'react';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
-import styled from 'styled-components';
+'use client';
+import eventsData from '../../components/Datatables/eventData.json'; // Import booking event JSON data
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { Calendar, View, Views, dayjsLocalizer } from 'react-big-calendar';
+import dayjs from 'dayjs';
+import React, { useCallback, useState, useEffect } from 'react';
 
-const CalendarWrapper = styled.div`
-  .react-calendar {
-    width: 100%;
-    max-width: 1100px;
-    margin: auto;
-    border: 1px solid #a0a096;
-    border-radius: 10px;
-    padding: 10px;
-  }
+interface Event {
+  color: string;
+  start: Date;
+  end: Date;
+  refNo: string;
+  personName: string;
+}
 
-  .react-calendar__tile--now {
-    background: #fffae6 !important;
-    color: #d64545;
-  }
+const localizer = dayjsLocalizer(dayjs);
 
-  .react-calendar__tile--active {
-    background: #d64545 !important;
-    color: white !important;
-  }
+const Home = () => {
+  const [view, setView] = useState<View>(Views.MONTH);
+  const [events, setEvents] = useState<Event[]>([]);
 
-  .booked {
-    background-color: #ff5252;
-    color: white;
-  }
-
-  .tile-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .tile-content span {
-    font-size: 10px;
-  }
-`;
-
-// Helper function to generate dates within a range
-const generateDateRange = (start: string | number | Date, end: number | Date) => {
-  const dates = [];
-  let currentDate = new Date(start);
-  while (currentDate <= end) {
-    dates.push(new Date(currentDate));
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-  return dates;
-};
-
-const CalendarPage = () => {
-  const [date, setDate] = useState(new Date());
-  const johnDoeBooking = generateDateRange(new Date(2024, 6, 9), new Date(2024, 7, 9));
-  const bookedDates = [
-    ...johnDoeBooking.map(d => ({ date: d, refNo: '12345', name: 'John Doe' })),
-    { date: new Date(2024, 6, 11), refNo: '12346', name: 'Jane Smith' },
-    { date: new Date(2024, 6, 15), refNo: '12347', name: 'Alice Brown' },
-  ];
-
-  const tileClassName = ({ date, view }:any) => {
-    if (view === 'month') {
-      if (bookedDates.find(d => d.date.toDateString() === date.toDateString())) {
-        return 'booked';
+  useEffect(() => {
+    // Fetch or load events data from JSON file
+    const fetchEventsData = async () => {
+      try {
+        // Assuming eventsData is directly imported JSON array
+        const eventsWithColors: Event[] = eventsData.map((event: any) => ({
+          ...event,
+          start: new Date(event.start), // Ensure start date is a Date object
+          end: new Date(event.end),     // Ensure end date is a Date object
+          color: getRandomColor(),
+        }));
+        setEvents(eventsWithColors);
+        console.log('Events from JSON:', eventsWithColors);
+      } catch (error) {
+        console.error('Error fetching events data:', error);
       }
+    };
+
+    fetchEventsData();
+  }, []); // Empty dependency array ensures useEffect runs only once
+
+  const handleOnChangeView = (selectedView: View) => {
+    setView(selectedView);
+  };
+
+  const [date, setDate] = useState<Date>(new Date());
+  
+  const onNavigate = useCallback((newDate: Date) => {
+    console.log('Navigating to new date:', newDate); // Debugging log
+    setDate(newDate);
+  }, []);
+
+  const getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
     }
+    return color;
   };
 
-  const tileContent = ({ date, view }:any) => {
-    if (view === 'month') {
-      const booking = bookedDates.find(d => d.date.toDateString() === date.toDateString());
-      if (booking) {
-        return (
-          <div className="tile-content">
-            <span>{booking.refNo}</span>
-            <span>{booking.name}</span>
-          </div>
-        );
-      }
-    }
-  };
-
-  const handleDateChange = (value :any) => {
-    setDate(value);
-  };
-
-  return (
-    <CalendarWrapper className='h-[90vh]'>
-      <h1>Room Management Calendar</h1>
-      <Calendar
-        onChange={handleDateChange} // Adjusted onChange handler
-        value={date}
-        tileClassName={tileClassName}
-        tileContent={tileContent}
+  const EventComponent = ({ event }: { event: Event }) => (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div
+        style={{
+          backgroundColor: event.color,
+          width: '10px',
+          height: '10px',
+          borderRadius: '50%',
+          marginRight: '5px',
+        }}
       />
       <div>
-        <h2>Selected Date: {date.toDateString()}</h2>
+        <div>Ref No: {event.refNo}</div>
+        <div>Person: {event.personName}</div>
       </div>
-    </CalendarWrapper>
+    </div>
+  );
+
+  return (
+    <Calendar
+      date={date}
+      onNavigate={onNavigate}
+      localizer={localizer}
+      events={events}
+      view={view}
+      defaultView={Views.MONTH}
+      views={['month', 'week', 'day']}
+      showMultiDayTimes
+      style={{ height: 500 }}
+      onView={handleOnChangeView}
+      components={{
+        event: EventComponent,
+      }}
+    />
   );
 };
 
-export default CalendarPage;
+export default Home;
+
+
