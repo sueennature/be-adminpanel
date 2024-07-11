@@ -1,71 +1,65 @@
 'use client'
 import React from 'react';
-import roomData from '../../components/Datatables/roomsData.json';
+import activityData from '../../../components/Datatables/activityData.json';
 import Image from 'next/image';
 import { Edit, Trash, Eye, Plus } from 'react-feather';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-interface RoomData {
+interface ActivityData {
     id: number;
     name: string;
-    noOfRoom: number;
-    maxAdults: number;
-    maxChilds: number;
     description: string;
-    features: string[];
-    beds: string;
-    size: string;
-    bathroom: string;
-    images: string[];
-    action: string;
+    amount: number;
+    image: string;
+    
 }
 
-const RoomTable = () => {
-    const [rooms, setRooms] = React.useState<RoomData[]>([]);
+const ViewActivity = () => {
+    const [activities, setActivities] = React.useState<ActivityData[]>([]);
     const [nameFilter, setNameFilter] = React.useState<string>('');
-    const [roomsSelection, setRoomsSelection] = React.useState<number[]>([]);
+    const [activitiesSelection, setActivitiesSelection] = React.useState<number[]>([]);
     const [currentPage, setCurrentPage] = React.useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
     const router = useRouter();
     const [idFilter, setIdFilter] = React.useState<string>('');
 
     React.useEffect(() => {
-        setRooms(roomData);
+        setActivities(activityData);
     }, []);
 
-    const filteredRooms = rooms.filter(room =>
-        room.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-        String(room.id).toLowerCase().includes(idFilter.toLowerCase())
+    const filteredActivities = activities.filter(activity =>
+        activity.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
+        String(activity.id).toLowerCase().includes(idFilter.toLowerCase())
     );
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredRooms.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = filteredActivities.slice(indexOfFirstItem, indexOfLastItem);
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
-            const allRoomIds = currentItems.map((room) => room.id);
-            setRoomsSelection(allRoomIds);
+            const allActivityds = currentItems.map((activity) => activity.id);
+            setActivitiesSelection(allActivityds);
         } else {
-            setRoomsSelection([]);
+            setActivitiesSelection([]);
         }
     };
 
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, roomId: number) => {
         if (e.target.checked) {
-            setRoomsSelection((prevSelected) => [...prevSelected, roomId]);
+            setActivitiesSelection((prevSelected) => [...prevSelected, roomId]);
         } else {
-            setRoomsSelection((prevSelected) => prevSelected.filter((id) => id !== roomId));
+            setActivitiesSelection((prevSelected) => prevSelected.filter((id) => id !== roomId));
         }
     };
 
     const handleEditPush = (roomData: any) => {
-        router.push(`/rooms/update/${roomData.id}`);
+        router.push(`/activity/update/${roomData.id}`);
     };
 
     const handleViewPush = (roomData: any) => {
-        router.push(`/rooms/view/${roomData.id}`);
+        router.push(`/activity/view/${roomData.id}`);
     };
 
     const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -94,7 +88,7 @@ const RoomTable = () => {
                     />
                 </div>
                 <div className="text-blue-400 cursor-pointer">
-                    <Link href="/rooms/createRoom">
+                    <Link href="/activity/createActivity">
                         <Plus />
                     </Link>
                 </div>
@@ -111,7 +105,7 @@ const RoomTable = () => {
                                             id="checkbox-all-search"
                                             type="checkbox"
                                             onChange={handleSelectAll}
-                                            checked={roomsSelection.length === currentItems.length}
+                                            checked={activitiesSelection.length === currentItems.length}
                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
                                         <label htmlFor="checkbox-all-search" className="sr-only">
@@ -123,85 +117,56 @@ const RoomTable = () => {
                                     id
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Name
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    No of Room
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Max Adults
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Max Childs
+                                    Activity Name
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Description
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Features
+                                    Amount
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Beds
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Size
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Bathrooms
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Images
+                                    Image
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Action
                                 </th>
+                              
                             </tr>
                         </thead>
                         <tbody>
-                            {currentItems.map((room) => (
+                            {currentItems.map((activity) => (
                                 <tr
-                                    key={room.id}
+                                    key={activity.id}
                                     className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-black"
                                 >
                                     <td className="w-4 p-4">
                                         <div className="flex items-center">
                                             <input
-                                                id={`checkbox-table-search-${room.id}`}
+                                                id={`checkbox-table-search-${activity.id}`}
                                                 type="checkbox"
-                                                checked={roomsSelection.includes(room.id)}
-                                                onChange={(e) => handleCheckboxChange(e, room.id)}
+                                                checked={activitiesSelection.includes(activity.id)}
+                                                onChange={(e) => handleCheckboxChange(e, activity.id)}
                                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                             />
-                                            <label htmlFor={`checkbox-table-search-${room.id}`} className="sr-only">
+                                            <label htmlFor={`checkbox-table-search-${activity.id}`} className="sr-only">
                                                 checkbox
                                             </label>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">{room.id}</td>
-                                    <td className="px-6 py-4">{room.name}</td>
-                                    <td className="px-6 py-4">{room.noOfRoom}</td>
-                                    <td className="px-6 py-4">{room.maxAdults}</td>
-                                    <td className="px-6 py-4">{room.maxChilds}</td>
-                                    <td className="px-6 py-4">{room.description}</td>
-                                    <td className="px-6 py-4">{room.features.join(', ')}</td>
-                                    <td className="px-6 py-4">{room.beds}</td>
-                                    <td className="px-6 py-4">{room.size}</td>
-                                    <td className="px-6 py-4">{room.bathroom}</td>
+                                    <td className="px-6 py-4">{activity.id}</td>
+                                    <td className="px-6 py-4">{activity.name}</td>
+                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}>{activity.description}</td>
+                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}>LKR {(activity.amount).toLocaleString()}</td>
                                     <td className="px-6 py-4" style={{ minWidth: '200px' }}>
-                                <div className="flex items-center gap-2">
-                                    {room.images.map((image, index) => (
-                                        <div key={index} className="flex-shrink-0">
-                                            <Image src={image} alt={room.name} width={50} height={50} />
-                                        </div>
-                                    ))}
-                                </div>
-                            </td>                                    
+                                            <Image src={activity.image} alt={activity.image} width={50} height={50} />                            
+                                            </td>                                    
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-4 ">
-                                    <button onClick={()=>handleEditPush(room)}  className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                    <button onClick={()=>handleEditPush(activity)}  className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                                         <Edit />
                                     </button>
-                                    <button onClick={()=>handleViewPush(room)} className="font-medium text-green-600 dark:text-red-500 hover:underline">
+                                    <button onClick={()=>handleViewPush(activity)} className="font-medium text-green-600 dark:text-red-500 hover:underline">
                                     <Eye /> 
                                     </button>
                                     <a href="#" className="font-medium text-rose-600  hover:underline">
@@ -237,7 +202,7 @@ const RoomTable = () => {
                     </button>
                     <button
                         onClick={nextPage}
-                        disabled={indexOfLastItem >= filteredRooms.length}
+                        disabled={indexOfLastItem >= filteredActivities.length}
                         className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-md cursor-pointer"
                     >
                         Next
@@ -249,4 +214,4 @@ const RoomTable = () => {
     );
 };
 
-export default RoomTable;
+export default ViewActivity;

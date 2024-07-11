@@ -1,0 +1,18 @@
+
+[
+    {
+        "id": 1,
+        "discount": 244400,
+        "description": "discount",
+        "startDate": "2024-06-10 15:35:05",
+        "endDate":"2024-09-25 15:35:05"
+    },
+    {
+        "id": 2,
+        "discount": 2424400,
+        "description": "discount",
+        "startDate": "2024-06-10 15:35:05",
+        "endDate":"2024-09-25 15:35:05"
+    }
+  ]
+  
