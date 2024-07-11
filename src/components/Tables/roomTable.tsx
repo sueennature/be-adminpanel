@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Edit, Trash, Eye, Plus } from 'react-feather';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { CSVLink } from 'react-csv';
 
 interface RoomData {
     id: number;
@@ -28,6 +29,7 @@ const RoomTable = () => {
     const [currentPage, setCurrentPage] = React.useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
     const router = useRouter();
+ 
     const [idFilter, setIdFilter] = React.useState<string>('');
 
     React.useEffect(() => {
@@ -80,7 +82,19 @@ const RoomTable = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-
+    const csvData = filteredRooms.map(({ id, name, noOfRoom, maxAdults, maxChilds, description, features, beds, images,size, bathroom }) => ({
+        id,
+        name,
+        noOfRoom,
+        maxAdults,
+        maxChilds,
+        description,
+        features: features.join(', '),
+        beds,
+        images,
+        size,
+        bathroom,
+    }));
     return (
         <div>
             <div className="flex items-center justify-between mb-4">
@@ -102,7 +116,7 @@ const RoomTable = () => {
         
             <div className="bg-white">
                 <div className="overflow-x-auto shadow-md sm:rounded-lg">
-                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" >
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
                                 <th scope="col" className="p-4">
@@ -244,6 +258,13 @@ const RoomTable = () => {
                     </button>
                   </div>
                 </div>
+            </div>
+            <div className='flex justify-end w-full mt-7 '>
+            <div className='flex justify-end w-full mt-7 '>
+                <CSVLink data={csvData} filename={"rooms_data.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+                    Export as CSV
+                </CSVLink>
+            </div>
             </div>
         </div>
     );
