@@ -108,7 +108,7 @@ console.log(sidebarOpen)
 >
         {/* <!-- SIDEBAR HEADER --> */}
         <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-            <a className="text-lg flex items-center justify-between w-full">
+            <div className="text-lg flex items-center justify-between w-full">
               {" "}
               {/* Logo */}
               <Link href="/" >
@@ -116,7 +116,7 @@ console.log(sidebarOpen)
                   <span className="font-bold">Sueen Nature</span> <span>Admin</span>
                 </div>
               </Link>            
-            </a>
+            </div>
 
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}

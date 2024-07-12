@@ -1,0 +1,16 @@
+
+[
+    {
+        "id": 1,
+        "name":"test",
+        "description": "discount",
+        "rate": 244400
+    },
+    {
+        "id":2,
+        "name":"testTwo",
+        "description": "discountTwo",
+        "rate": 544400
+    }
+  ]
+  

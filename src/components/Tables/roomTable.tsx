@@ -260,11 +260,9 @@ const RoomTable = () => {
                 </div>
             </div>
             <div className='flex justify-end w-full mt-7 '>
-            <div className='flex justify-end w-full mt-7 '>
-                <CSVLink data={csvData} filename={"rooms_data.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+                <CSVLink data={csvData} filename={"Rooms.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
                     Export as CSV
                 </CSVLink>
-            </div>
             </div>
         </div>
     );
