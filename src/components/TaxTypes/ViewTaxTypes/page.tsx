@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import discountData from '../../../components/Datatables/discountData.json';
+import taxData from '../../../components/Datatables/taxData.json'
 import Image from 'next/image';
 import { Edit, Trash, Eye, Plus } from 'react-feather';
 import Link from 'next/link';
@@ -8,16 +8,16 @@ import { useRouter } from 'next/navigation';
 import { CSVLink } from 'react-csv';
 
 
-interface DiscountData {
+interface taxData {
     id: number;
-    discount: number;
+    name: number;
     description: string;
-    startDate: string;
-    endDate: string;
+    rate: number;
     
 }
-const ViewDiscount = () => {
-    const [discounts, setDiscounts] = React.useState<DiscountData[]>([]);
+
+const ViewTaxTypes = () => {
+    const [discounts, setDiscounts] = React.useState<any[]>([]);
     const [nameFilter, setNameFilter] = React.useState<string>('');
     const [discountsSelection, setDiscountsSelection] = React.useState<number[]>([]);
     const [currentPage, setCurrentPage] = React.useState<number>(1);
@@ -26,11 +26,11 @@ const ViewDiscount = () => {
     const [idFilter, setIdFilter] = React.useState<string>('');
 
     React.useEffect(() => {
-        setDiscounts(discountData);
+        setDiscounts(taxData);
     }, []);
 
     const filteredDiscounts = discounts.filter(activity =>
-        // activity.discount.toLowerCase().includes(nameFilter.toLowerCase()) &&
+        activity.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
         String(activity.id).toLowerCase().includes(idFilter.toLowerCase())
     );
 
@@ -56,11 +56,11 @@ const ViewDiscount = () => {
     };
 
     const handleEditPush = (roomData: any) => {
-        router.push(`/discount/update/${roomData.id}`);
+        router.push(`/taxtypes/update/${roomData.id}`);
     };
 
     const handleViewPush = (roomData: any) => {
-        router.push(`/discount/view/${roomData.id}`);
+        router.push(`/taxtypes/view/${roomData.id}`);
     };
 
     const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -75,12 +75,11 @@ const ViewDiscount = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-    const csvData = filteredDiscounts.map(({ id,discount,description,startDate,endDate}) => ({
+    const csvData = filteredDiscounts.map(({ id,name,description,rate}) => ({
         id,
-        discount,
+        name,
         description,
-        startDate,
-        endDate,
+        rate,
         
     }));
     return (
@@ -88,15 +87,17 @@ const ViewDiscount = () => {
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
                     <input
-                        type="number"
-                        placeholder="Search by Id"
-                        value={idFilter}
-                        onChange={(e) => setIdFilter(e.target.value)}
+                        type="text"
+                        placeholder="Search by Name"
+                        value={nameFilter
+
+                        }
+                        onChange={(e) => setNameFilter(e.target.value)}
                         className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
                 <div className="text-blue-400 cursor-pointer">
-                    <Link href="/discount/createDiscount">
+                    <Link href="/taxtypes/createtaxtype">
                         <Plus />
                     </Link>
                 </div>
@@ -125,18 +126,16 @@ const ViewDiscount = () => {
                                     id
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                   Discount
+                                   Name
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Description
                                 </th>
                               
                                 <th scope="col" className="px-6 py-3">
-                                    Start Date
+                                    Rate
                                 </th>
-                                <th scope="col" className="px-6 py-3">
-                                    End Date
-                                </th>
+                              
                                 <th scope="col" className="px-6 py-3">
                                     Action
                                 </th>
@@ -164,10 +163,9 @@ const ViewDiscount = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">{activity.id}</td>
-                                    <td className="px-6 py-4">{activity.discount}</td>
+                                    <td className="px-6 py-4">{activity.name}</td>
                                     <td className="px-6 py-4" style={{ minWidth: '200px' }}>{activity.description}</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {activity.startDate}</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {activity.endDate}</td>
+                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {(activity.rate.toLocaleString())}</td>
 
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-4 ">
@@ -219,7 +217,7 @@ const ViewDiscount = () => {
                 </div>
             </div>
             <div className='flex justify-end w-full mt-7 '>
-                <CSVLink data={csvData} filename={"Discounts.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+                <CSVLink data={csvData} filename={"Taxtypes.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
                     Export as CSV
                 </CSVLink>
             </div>
@@ -227,4 +225,4 @@ const ViewDiscount = () => {
     );
 };
 
-export default ViewDiscount;
+export default ViewTaxTypes;
