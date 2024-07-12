@@ -1,66 +1,66 @@
 'use client'
 import React from 'react';
-import activityData from '../../../components/Datatables/activityData.json';
+import taxData from '../../../components/Datatables/taxData.json'
 import Image from 'next/image';
 import { Edit, Trash, Eye, Plus } from 'react-feather';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CSVLink } from 'react-csv';
 
-interface ActivityData {
+
+interface taxData {
     id: number;
-    name: string;
+    name: number;
     description: string;
-    amount: number;
-    image: string;
+    rate: number;
     
 }
 
-const ViewActivity = () => {
-    const [activities, setActivities] = React.useState<ActivityData[]>([]);
+const ViewTaxTypes = () => {
+    const [discounts, setDiscounts] = React.useState<any[]>([]);
     const [nameFilter, setNameFilter] = React.useState<string>('');
-    const [activitiesSelection, setActivitiesSelection] = React.useState<number[]>([]);
+    const [discountsSelection, setDiscountsSelection] = React.useState<number[]>([]);
     const [currentPage, setCurrentPage] = React.useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
     const router = useRouter();
     const [idFilter, setIdFilter] = React.useState<string>('');
 
     React.useEffect(() => {
-        setActivities(activityData);
+        setDiscounts(taxData);
     }, []);
 
-    const filteredActivities = activities.filter(activity =>
+    const filteredDiscounts = discounts.filter(activity =>
         activity.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
         String(activity.id).toLowerCase().includes(idFilter.toLowerCase())
     );
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredActivities.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = filteredDiscounts.slice(indexOfFirstItem, indexOfLastItem);
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
-            const allActivityds = currentItems.map((activity) => activity.id);
-            setActivitiesSelection(allActivityds);
+            const allDiscountids = currentItems.map((activity) => activity.id);
+            setDiscountsSelection(allDiscountids);
         } else {
-            setActivitiesSelection([]);
+            setDiscountsSelection([]);
         }
     };
 
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, roomId: number) => {
         if (e.target.checked) {
-            setActivitiesSelection((prevSelected) => [...prevSelected, roomId]);
+            setDiscountsSelection((prevSelected) => [...prevSelected, roomId]);
         } else {
-            setActivitiesSelection((prevSelected) => prevSelected.filter((id) => id !== roomId));
+            setDiscountsSelection((prevSelected) => prevSelected.filter((id) => id !== roomId));
         }
     };
 
     const handleEditPush = (roomData: any) => {
-        router.push(`/activity/update/${roomData.id}`);
+        router.push(`/taxtypes/update/${roomData.id}`);
     };
 
     const handleViewPush = (roomData: any) => {
-        router.push(`/activity/view/${roomData.id}`);
+        router.push(`/taxtypes/view/${roomData.id}`);
     };
 
     const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -75,11 +75,11 @@ const ViewActivity = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-    const csvData = filteredActivities.map(({ id,name,description, amount}) => ({
+    const csvData = filteredDiscounts.map(({ id,name,description,rate}) => ({
         id,
         name,
         description,
-        amount,
+        rate,
         
     }));
     return (
@@ -89,13 +89,15 @@ const ViewActivity = () => {
                     <input
                         type="text"
                         placeholder="Search by Name"
-                        value={nameFilter}
+                        value={nameFilter
+
+                        }
                         onChange={(e) => setNameFilter(e.target.value)}
                         className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
                 <div className="text-blue-400 cursor-pointer">
-                    <Link href="/activity/createActivity">
+                    <Link href="/taxtypes/createtaxtype">
                         <Plus />
                     </Link>
                 </div>
@@ -112,7 +114,7 @@ const ViewActivity = () => {
                                             id="checkbox-all-search"
                                             type="checkbox"
                                             onChange={handleSelectAll}
-                                            checked={activitiesSelection.length === currentItems.length}
+                                            checked={discountsSelection.length === currentItems.length}
                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
                                         <label htmlFor="checkbox-all-search" className="sr-only">
@@ -124,17 +126,16 @@ const ViewActivity = () => {
                                     id
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Activity Name
+                                   Name
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Description
                                 </th>
+                              
                                 <th scope="col" className="px-6 py-3">
-                                    Amount
+                                    Rate
                                 </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Image
-                                </th>
+                              
                                 <th scope="col" className="px-6 py-3">
                                     Action
                                 </th>
@@ -152,7 +153,7 @@ const ViewActivity = () => {
                                             <input
                                                 id={`checkbox-table-search-${activity.id}`}
                                                 type="checkbox"
-                                                checked={activitiesSelection.includes(activity.id)}
+                                                checked={discountsSelection.includes(activity.id)}
                                                 onChange={(e) => handleCheckboxChange(e, activity.id)}
                                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                             />
@@ -164,10 +165,8 @@ const ViewActivity = () => {
                                     <td className="px-6 py-4">{activity.id}</td>
                                     <td className="px-6 py-4">{activity.name}</td>
                                     <td className="px-6 py-4" style={{ minWidth: '200px' }}>{activity.description}</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}>LKR {(activity.amount).toLocaleString()}</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}>
-                                            <Image src={activity.image} alt={activity.image} width={50} height={50} />                            
-                                            </td>                                    
+                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {(activity.rate.toLocaleString())}</td>
+
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-4 ">
                                     <button onClick={()=>handleEditPush(activity)}  className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
@@ -176,9 +175,9 @@ const ViewActivity = () => {
                                     <button onClick={()=>handleViewPush(activity)} className="font-medium text-green-600 dark:text-red-500 hover:underline">
                                     <Eye /> 
                                     </button>
-                                    <a href="#" className="font-medium text-rose-600  hover:underline">
+                                    <div className="font-medium text-rose-600  hover:underline">
                                       <Trash />
-                                    </a>
+                                    </div>
                                 </div>
                             </td>
                                 </tr>
@@ -209,7 +208,7 @@ const ViewActivity = () => {
                     </button>
                     <button
                         onClick={nextPage}
-                        disabled={indexOfLastItem >= filteredActivities.length}
+                        disabled={indexOfLastItem >= filteredDiscounts.length}
                         className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-md cursor-pointer"
                     >
                         Next
@@ -218,7 +217,7 @@ const ViewActivity = () => {
                 </div>
             </div>
             <div className='flex justify-end w-full mt-7 '>
-                <CSVLink data={csvData} filename={"Activities.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+                <CSVLink data={csvData} filename={"Taxtypes.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
                     Export as CSV
                 </CSVLink>
             </div>
@@ -226,4 +225,4 @@ const ViewActivity = () => {
     );
 };
 
-export default ViewActivity;
+export default ViewTaxTypes;
