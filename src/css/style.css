@@ -242,11 +242,10 @@ input[type="search"]::-webkit-search-cancel-button {
     display: none !important;
 }
 
-/* styles/custom-calendar.css */
-.rbc-btn-group button {
-    @apply bg-blue-500 text-white;
-  }
+
+ /* .rbc-event.rbc-event-allday.rbc-event-continues-after ,.rbc-event.rbc-event-allday.rbc-event-continues-prior{
+
+  } */
   
-  .rbc-btn-group button:hover {
-    @apply bg-blue-700;
-  }
+
+  

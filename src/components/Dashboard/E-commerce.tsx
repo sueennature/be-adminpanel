@@ -7,6 +7,7 @@ import ChatCard from "../Chat/ChatCard";
 import TableOne from "../Tables/TableOne";
 import CardDataStats from "../CardDataStats";
 import { Calendar, Clock, Plus, ArrowLeftCircle, ArrowRightCircle  } from 'react-feather';
+import DatePicker from "../Datepicker";
 
 const MapOne = dynamic(() => import("@/components/Maps/MapOne"), {
   ssr: false,
@@ -19,6 +20,8 @@ const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
 const ECommerce: React.FC = () => {
   return (
     <>
+
+       {/* dashboard cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
         <CardDataStats title="New Bookings" total="500" rate={""}  >
          <Calendar/>
@@ -35,7 +38,8 @@ const ECommerce: React.FC = () => {
       </div>
 
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
-        <ChartOne />
+        {/* <ChartOne /> */}
+        <DatePicker/>
         <ChartTwo />
         <ChartThree />
         <MapOne />
