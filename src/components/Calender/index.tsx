@@ -1,11 +1,11 @@
 "use client";
-"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
 import bookingsData from '../../components/Datatables/eventData.json'; // Replace with the path to your JSON file
+import roomsData from '../../components/Datatables/roomsTypes.json'; // Replace with the path to your JSON file
 
 interface Booking {
-  start: string; // Assuming start and end are ISO 8601 formatted strings
+  start: string;
   end: string;
   refNo: string;
   personName: string;
@@ -16,66 +16,89 @@ interface Room {
   id: string;
 }
 
-const rooms: Room[] = [
-  { id: "101" },
-  { id: "102" },
-  { id: "103" },
-  { id: "104" },
-  { id: "105" },
-  { id: "106" },
-  { id: "107" },
-  { id: "108" },
-  { id: "109" },
-  { id: "110" },
-  { id: "111" },
-  { id: "112" },
-  { id: "201" },
-  { id: "202" },
-  { id: "203" },
-  { id: "204" },
-  { id: "205" },
-  { id: "206" },
-  { id: "207" },
-  { id: "208" },
-  { id: "209" },
-  { id: "210" },
-  { id: "211" },
-  { id: "212" },
-  { id: "213" },
-  { id: "214" },
-];
-
-const getDaysInMonth = (month: number, year: number): number[] => {
-  return new Array(dayjs(`${year}-${month}-01`).daysInMonth())
-    .fill(null)
-    .map((_, index) => index + 1);
-};
+// const rooms: Room[] = [
+//   { id: "101" },
+//   { id: "102" },
+//   { id: "103" },
+//   { id: "104" },
+//   { id: "105" },
+//   { id: "106" },
+//   { id: "107" },
+//   { id: "108" },
+//   { id: "109" },
+//   { id: "110" },
+//   { id: "111" },
+//   { id: "112" },
+//   { id: "201" },
+//   { id: "202" },
+//   { id: "203" },
+//   { id: "204" },
+//   { id: "205" },
+//   { id: "206" },
+//   { id: "207" },
+//   { id: "208" },
+//   { id: "209" },
+//   { id: "210" },
+//   { id: "211" },
+//   { id: "212" },
+//   { id: "213" },
+//   { id: "214" },
+// ];
 
 const Home: React.FC = () => {
-  const currentMonth = dayjs().month() + 1; // Current month
-  const currentYear = dayjs().year(); // Current year
-
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState<number>(1);
+  const [selectedYear, setSelectedYear] = useState<number>(2024);
+  const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [popupContent, setPopupContent] = useState<{ refNo: string; personName: string } | null>(null);
+  const [hoveredCell, setHoveredCell] = useState<{ room: string; day: number } | null>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Simulate fetching data from JSON file
     // Replace with actual fetch logic in your application
     setBookings(bookingsData);
+    // Fetch rooms data
+    setRooms(roomsData.rooms);
   }, []);
 
-  // State to manage selected month and year
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const [selectedYear, setSelectedYear] = useState(currentYear);
+  useEffect(() => {
+    const { month: initialMonth, year: initialYear } = getMonthWithMostBookings(bookings);
+    setSelectedMonth(initialMonth);
+    setSelectedYear(initialYear);
+  }, [bookings]);
 
-  // State to manage popup visibility and content
-  const [showPopup, setShowPopup] = useState(false);
-  const [popupContent, setPopupContent] = useState<{ refNo: string; personName: string } | null>(null);
-  const [hoveredCell, setHoveredCell] = useState<{ room: string; day: number } | null>(null);
+  const getMonthWithMostBookings = (bookings: Booking[]): { month: number; year: number } => {
+    const bookingsCount: { [key: string]: number } = {};
 
-  // Ref for tracking the popup position
-  const popupRef = useRef<HTMLDivElement>(null);
+    bookings.forEach((booking) => {
+      const startDate = dayjs(booking.start);
+      const endDate = dayjs(booking.end);
 
-  // Function to navigate to previous month
+      for (
+        let date = startDate.startOf('month');
+        date.isBefore(endDate.endOf('month'));
+        date = date.add(1, 'month')
+      ) {
+        const key = `${date.year()}-${date.month() + 1}`;
+        if (bookingsCount[key]) {
+          bookingsCount[key]++;
+        } else {
+          bookingsCount[key] = 1;
+        }
+      }
+    });
+
+    const maxBookings = Object.entries(bookingsCount).reduce(
+      (max, entry) => (entry[1] > max[1] ? entry : max),
+      ["", 0]
+    );
+
+    const [year, month] = maxBookings[0].split("-").map(Number);
+    return { year, month };
+  };
+
   const goToPreviousMonth = () => {
     setSelectedMonth((prevMonth) => {
       const newMonth = prevMonth === 1 ? 12 : prevMonth - 1;
@@ -85,7 +108,6 @@ const Home: React.FC = () => {
     });
   };
 
-  // Function to navigate to next month
   const goToNextMonth = () => {
     setSelectedMonth((prevMonth) => {
       const newMonth = prevMonth === 12 ? 1 : prevMonth + 1;
@@ -95,7 +117,6 @@ const Home: React.FC = () => {
     });
   };
 
-  // Function to handle mouse enter event
   const handleMouseEnter = (roomId: string, day: number) => {
     const booking = bookings.find(
       (booking) =>
@@ -112,17 +133,20 @@ const Home: React.FC = () => {
     }
   };
 
-  // Function to handle mouse leave event
   const handleMouseLeave = () => {
     setShowPopup(false);
   };
 
-  // Function to get days for a specific month and year
   const getDaysForMonth = (month: number, year: number): number[] => {
-    return new Array(dayjs(`${year}-${month}-01`).daysInMonth())
-      .fill(null)
-      .map((_, index) => index + 1);
+    if (month !== undefined && year !== undefined) {
+      const formattedMonth = month.toString().padStart(2, '0');
+      const daysInMonth = dayjs(`${year}-${formattedMonth}-01`).daysInMonth();
+      return new Array(daysInMonth).fill(null).map((_, index) => index + 1);
+    }
+    return [];
   };
+  
+  
 
   return (
     <div className="h-screen p-4">
@@ -139,7 +163,7 @@ const Home: React.FC = () => {
               <tbody>
                 {rooms.map((room) => (
                   <tr key={room.id}>
-                    <td className="border px-2 py-1 text-xs">#{room.id}</td>
+                    <td className="border px-2 py-1 text-xs">{room.id}</td>
                   </tr>
                 ))}
               </tbody>
@@ -164,16 +188,18 @@ const Home: React.FC = () => {
                   d="M2 10l8 8l1.4-1.4L5.8 11H18V9H5.8l5.6-5.6L10 2z"
                 />
               </svg>
-              Previous Month
+              Previous
             </button>
             <h2 className="text-lg font-semibold">
-              {dayjs(`${selectedYear}-${selectedMonth}-01`).format('MMMM YYYY')}
+              {selectedMonth !== undefined && selectedYear !== undefined && (
+                dayjs(`${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-01`).format('MMMM YYYY')
+              )}
             </h2>
             <button
               className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md flex items-center"
               onClick={goToNextMonth}
             >
-              Next Month{' '}
+              Next{' '}
               <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 20 20"><path fill="#3B82F6" d="M8.6 3.4L14.2 9H2v2h12.2l-5.6 5.6L10 18l8-8l-8-8z"/></svg>
             </button>
           </div>
@@ -193,7 +219,7 @@ const Home: React.FC = () => {
                   <tr key={room.id}>
                     {getDaysForMonth(selectedMonth, selectedYear).map((day) => (
                       <td
-                        key={day}
+                        key={`${room.id}-${day}`}
                         className={`border px-2 py-1 ${bookings.find(
                           (booking) =>
                             booking.room === room.id &&
@@ -202,7 +228,7 @@ const Home: React.FC = () => {
                             dayjs(booking.start).month() + 1 === selectedMonth &&
                             dayjs(booking.start).year() === selectedYear
                         )
-                          ? 'bg-blue-500 text-white cursor-pointer'
+                          ? 'bg-blue-500 text-white border-black cursor-pointer'
                           : 'cursor-pointer'}`}
                         style={{ width: '1rem', height: '1.55rem' }} // Adjust width and height as needed
                         onMouseEnter={() => handleMouseEnter(room.id, day)}
@@ -238,32 +264,6 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
