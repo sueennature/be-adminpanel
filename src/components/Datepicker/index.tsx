@@ -31,7 +31,8 @@ const Datepicker: React.FC = () => {
     const updatedFilteredBookings = bookings.filter(booking =>
       isDateInRange(startDate!, booking.start, booking.end) ||
       isDateInRange(endDate!, booking.start, booking.end) ||
-      (startDate! <= new Date(booking.start) && endDate! >= new Date(booking.end))
+      (startDate! <= new Date(booking.start) && endDate! >= new Date(booking.end)) ||
+      new Date(booking.start).toDateString() === startDate!.toDateString()
     );
     setFilteredBookings(updatedFilteredBookings);
   }, [startDate, endDate, bookings]);
@@ -41,16 +42,20 @@ const Datepicker: React.FC = () => {
     setIsArrowUp(showCount === filteredBookings.length && filteredBookings.length > 0);
   }, [showCount, filteredBookings.length]);
 
-  const handleDateChange: CalendarProps['onChange'] = (value) => {
-    if (Array.isArray(value) && value.length === 2) {
-      // If a range is selected
-      setStartDate(value[0]);
-      setEndDate(value[1]);
-    } else {
-      // If a single date is selected or clear selection
-      setStartDate(value instanceof Date ? value : new Date());
-      setEndDate(value instanceof Date ? value : new Date());
-    }
+  const handleDateChange: CalendarProps['onClickDay'] = (value) => {
+    // Update both start and end date to the clicked date
+    setStartDate(value);
+    setEndDate(value);
+
+    // Update filtered bookings to include those starting on the selected date
+    const updatedFilteredBookings = bookings.filter(booking =>
+      isDateInRange(value, booking.start, booking.end) ||
+      new Date(booking.start).toDateString() === value.toDateString()
+    );
+    setFilteredBookings(updatedFilteredBookings);
+
+    // Reset show count
+    setShowCount(3);
   };
 
   const isDateInRange = (date: Date, start: string, end: string) => {
@@ -97,8 +102,7 @@ const Datepicker: React.FC = () => {
       
       <div className="w-full max-w-xl border-b pb-6 border-slate-300">
         <Calendar
-          onChange={handleDateChange}
-          selectRange={true} // Enable range selection
+          onClickDay={handleDateChange} // Use onClickDay for single date click
           value={[startDate, endDate]}
           tileContent={renderTileContent}
         />
@@ -141,6 +145,9 @@ const Datepicker: React.FC = () => {
 };
 
 export default Datepicker;
+
+
+
 
 
 
