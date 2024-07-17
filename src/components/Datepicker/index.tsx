@@ -13,7 +13,7 @@ interface Booking {
   room: string;
 }
 
-const Dashboard: React.FC = () => {
+const Datepicker: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | null>(new Date()); // Default to today
   const [endDate, setEndDate] = useState<Date | null>(new Date()); // Default to today
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -140,7 +140,7 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default Datepicker;
 
 
 
