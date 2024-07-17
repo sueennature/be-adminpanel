@@ -6,7 +6,9 @@ import { Edit, Trash, Eye, Plus } from 'react-feather';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CSVLink } from 'react-csv';
-
+import { useSelector, useDispatch } from 'react-redux'
+import { decrement, increment } from '../../../store/slice'
+import type { RootState } from '../../../store/store'
 
 interface DiscountData {
     id: number;
@@ -24,7 +26,8 @@ const ViewDiscount = () => {
     const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
     const router = useRouter();
     const [idFilter, setIdFilter] = React.useState<string>('');
-
+  const count = useSelector((state: RootState) => state.counter.value)
+  const dispatch = useDispatch()
     React.useEffect(() => {
         setDiscounts(discountData);
     }, []);
@@ -223,6 +226,21 @@ const ViewDiscount = () => {
                     Export as CSV
                 </CSVLink>
             </div>
+            <div>
+        <button
+          aria-label="Increment value"
+          onClick={() => dispatch(increment())}
+        >
+          Increment
+        </button>
+        <span>{count}</span>
+        <button
+          aria-label="Decrement value"
+          onClick={() => dispatch(decrement())}
+        >
+          Decrement
+        </button>
+      </div>
         </div>
     );
 };
