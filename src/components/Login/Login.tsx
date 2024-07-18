@@ -12,8 +12,10 @@ export default function Login() {
   const router = useRouter();
 
   const handleNavigate =()=>{
-    router.push("/home")
-  }
+    // router.push("/home")
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('isLoggedIn', 'true');}
+    }
   return (
      <div className="rounded-sm border min-h-screen bg-white items-center flex justify-center  ">
             <div className="h-full flex items-center justify-center">
