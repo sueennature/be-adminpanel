@@ -3,6 +3,7 @@ import React from "react";
 import {  toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from "next/navigation";
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
 export default function Login() {
 
@@ -84,7 +85,7 @@ export default function Login() {
                     />
 
                     <span className="absolute right-4 top-4">
-                    <span className="cursor-pointer" onClick={()=> setVisible(!visible)} >{visible ? "🔓" : "🔒"}</span>
+                    <span className="cursor-pointer" onClick={()=> setVisible(!visible)} >{visible ?<FaEye/>: <FaEyeSlash/>}</span>
                     </span>
                   </div>
                 </div>
