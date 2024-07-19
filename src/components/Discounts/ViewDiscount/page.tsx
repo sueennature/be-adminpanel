@@ -227,19 +227,19 @@ const ViewDiscount = () => {
                 </CSVLink>
             </div>
             <div>
-        <button
+        {/* <button
           aria-label="Increment value"
           onClick={() => dispatch(increment())}
         >
           Increment
-        </button>
-        <span>{count}</span>
+        </button> */}
+        {/* <span>{count}</span>
         <button
           aria-label="Decrement value"
           onClick={() => dispatch(decrement())}
         >
           Decrement
-        </button>
+        </button> */}
       </div>
         </div>
     );

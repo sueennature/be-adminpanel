@@ -11,7 +11,7 @@ interface ActivityData {
     id: number;
     name: string;
     description: string;
-    amount: number;
+    price: number;
     image: string;
     
 }
@@ -75,11 +75,11 @@ const ViewActivity = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-    const csvData = filteredActivities.map(({ id,name,description, amount}) => ({
+    const csvData = filteredActivities.map(({ id,name,description, price}) => ({
         id,
         name,
         description,
-        amount,
+        price,
         
     }));
     return (
@@ -164,7 +164,7 @@ const ViewActivity = () => {
                                     <td className="px-6 py-4">{activity.id}</td>
                                     <td className="px-6 py-4">{activity.name}</td>
                                     <td className="px-6 py-4" style={{ minWidth: '200px' }}>{activity.description}</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}>LKR {(activity.amount).toLocaleString()}</td>
+                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}>LKR {(activity.price).toLocaleString()}</td>
                                     <td className="px-6 py-4" style={{ minWidth: '200px' }}>
                                             <Image src={activity.image} alt={activity.image} width={50} height={50} />                            
                                             </td>                                    
