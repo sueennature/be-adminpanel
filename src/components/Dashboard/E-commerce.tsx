@@ -8,6 +8,9 @@ import TableOne from "../Tables/TableOne";
 import CardDataStats from "../CardDataStats";
 import { Calendar, Clock, Plus, ArrowLeftCircle, ArrowRightCircle  } from 'react-feather';
 import DatePicker from "../Datepicker";
+import ReservationChart from "../BarChart";
+import AvailableRoomsProgressBar from "../AvailableRoomsProgressBar";
+import SoldRoomsProgressBar from "../SoldRoomsProgressBar";
 
 
 
@@ -18,7 +21,7 @@ const MapOne = dynamic(() => import("@/components/Maps/MapOne"), {
 const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
   ssr: false,
 });
-
+const totalRooms = 26; // Replace with your actual total room count
 const ECommerce: React.FC = () => {
   return (
     <>
@@ -42,6 +45,20 @@ const ECommerce: React.FC = () => {
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
           
       <DatePicker/> 
+      <div className="grid grid-rows-2 col-span-6 gap-4 md:gap-6 2xl:gap-6">
+      <ReservationChart/>
+      <div className="row-span-5 flex flex-row justify-between gap-2">
+        <div className="rounded-md border-none w-1/2  bg-slate-800 p-6 shadow-default">
+                <AvailableRoomsProgressBar totalRooms={totalRooms}/>
+        </div>
+        <div className="rounded-md w-1/2  border-none bg-slate-800 p-6 shadow-default">
+               <SoldRoomsProgressBar totalRooms={totalRooms}/>
+          
+        </div>
+
+      </div>
+      </div>
+      
         {/* <ChartTwo />
         
         <MapOne /> */}

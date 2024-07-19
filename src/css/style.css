@@ -246,6 +246,26 @@ input[type="search"]::-webkit-search-cancel-button {
  /* .rbc-event.rbc-event-allday.rbc-event-continues-after ,.rbc-event.rbc-event-allday.rbc-event-continues-prior{
 
   } */
+
+  /* progressbar in dshboard */
+  @keyframes fillProgressBar {
+    from {
+      width: 0%;
+    }
+    to {
+      width: var(--progress-width);
+    }
+  }
   
+  .progress-bar {
+    animation: fillProgressBar 2s ease-in-out forwards;
+  }
+  /* datapicker calendar in dashboard */
+  .react-calendar {
+    border: none !important;
+    width: 100% !important; /* Adjust this value as needed */
+    max-width: 500px !important; /* Optional: set a max width */
+    margin: 0 auto; /* Center the calendar */
+  }
 
   

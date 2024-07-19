@@ -100,8 +100,8 @@ const Datepicker: React.FC = () => {
     <div className="col-span-6 rounded-md border border-stroke bg-white p-6 shadow-default">
       <h2 className='text-title-md font-bold text-black pb-8'>Recent Booking Schedule</h2>
       
-      <div className="w-full max-w-xl border-b pb-6 border-slate-300">
-        <Calendar
+      <div className="w-full flex max-w-xl border-b pb-6 border-slate-300 justify-center items-center">
+        <Calendar 
           onClickDay={handleDateChange} // Use onClickDay for single date click
           value={[startDate, endDate]}
           tileContent={renderTileContent}
