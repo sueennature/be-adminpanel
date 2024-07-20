@@ -1,67 +1,60 @@
 'use client'
 import React from 'react';
-import taxData from '../../../components/Datatables/taxData.json'
+import roomData from '../../../components/Datatables/newsData.json';
 import Image from 'next/image';
 import { Edit, Trash, Eye, Plus } from 'react-feather';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CSVLink } from 'react-csv';
+import { StaticImport } from 'next/dist/shared/lib/get-img-props';
 
 
-interface taxData {
-    id: number;
-    name: number;
-    description: string;
-    percentage: number;
-    tax_type:string;
-    
-}
-
-const ViewTaxTypes = () => {
-    const [discounts, setDiscounts] = React.useState<any[]>([]);
+const ViewAllNews = () => {
+    const [news, setNews] = React.useState<any[]>([]);
     const [nameFilter, setNameFilter] = React.useState<string>('');
-    const [discountsSelection, setDiscountsSelection] = React.useState<number[]>([]);
+    const [newsSelection, setNewsSelection] = React.useState<number[]>([]);
     const [currentPage, setCurrentPage] = React.useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
     const router = useRouter();
+ 
     const [idFilter, setIdFilter] = React.useState<string>('');
 
     React.useEffect(() => {
-        setDiscounts(taxData);
+        setNews(roomData);
     }, []);
 
-    const filteredDiscounts = discounts.filter(activity =>
-        activity.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-        String(activity.id).toLowerCase().includes(idFilter.toLowerCase())
+    const filterednews = news.filter(room =>
+        room.title.toLowerCase().includes(nameFilter.toLowerCase()) &&
+        String(room.id).toLowerCase().includes(idFilter.toLowerCase())
     );
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredDiscounts.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = filterednews.slice(indexOfFirstItem, indexOfLastItem);
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
-            const allDiscountids = currentItems.map((activity) => activity.id);
-            setDiscountsSelection(allDiscountids);
+            const allRoomIds = currentItems.map((room) => room.id);
+            setNewsSelection(allRoomIds);
         } else {
-            setDiscountsSelection([]);
+            setNewsSelection([]);
         }
     };
 
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, roomId: number) => {
         if (e.target.checked) {
-            setDiscountsSelection((prevSelected) => [...prevSelected, roomId]);
+            setNewsSelection((prevSelected) => [...prevSelected, roomId]);
         } else {
-            setDiscountsSelection((prevSelected) => prevSelected.filter((id) => id !== roomId));
+            setNewsSelection((prevSelected) => prevSelected.filter((id) => id !== roomId));
         }
     };
 
     const handleEditPush = (roomData: any) => {
-        router.push(`/taxtypes/update/${roomData.id}`);
+        router.push(`/news/update/${roomData.id}`);
     };
 
     const handleViewPush = (roomData: any) => {
-        router.push(`/taxtypes/view/${roomData.id}`);
+        router.push(`/news/view/${roomData.id}`);
     };
 
     const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -76,13 +69,10 @@ const ViewTaxTypes = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-    const csvData = filteredDiscounts.map(({ id,name,description,percentage,tax_type}) => ({
+    const csvData = filterednews.map(({ id, title,  content }) => ({
         id,
-        name,
-        description,
-        tax_type,
-        percentage,
-        
+        title,
+        content,
     }));
     return (
         <div>
@@ -91,15 +81,13 @@ const ViewTaxTypes = () => {
                     <input
                         type="text"
                         placeholder="Search by Name"
-                        value={nameFilter
-
-                        }
+                        value={nameFilter}
                         onChange={(e) => setNameFilter(e.target.value)}
                         className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
                 <div className="text-blue-400 cursor-pointer">
-                    <Link href="/taxtypes/createtaxtype">
+                    <Link href="/news/create">
                         <Plus />
                     </Link>
                 </div>
@@ -107,7 +95,7 @@ const ViewTaxTypes = () => {
         
             <div className="bg-white">
                 <div className="overflow-x-auto shadow-md sm:rounded-lg">
-                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" >
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
                                 <th scope="col" className="p-4">
@@ -116,7 +104,7 @@ const ViewTaxTypes = () => {
                                             id="checkbox-all-search"
                                             type="checkbox"
                                             onChange={handleSelectAll}
-                                            checked={discountsSelection.length === currentItems.length}
+                                            checked={newsSelection.length === currentItems.length}
                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                         />
                                         <label htmlFor="checkbox-all-search" className="sr-only">
@@ -128,62 +116,66 @@ const ViewTaxTypes = () => {
                                     id
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                   Name
+                                    Title
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Description
+                                    Content
                                 </th>
-                              
+                             
+                            
                                 <th scope="col" className="px-6 py-3">
-                                    Percentage
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                    Tax Type
+                                    Images
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Action
                                 </th>
-                              
                             </tr>
                         </thead>
                         <tbody>
-                            {currentItems.map((activity) => (
+                            {currentItems.map((room) => (
                                 <tr
-                                    key={activity.id}
+                                    key={room.id}
                                     className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-black"
                                 >
                                     <td className="w-4 p-4">
                                         <div className="flex items-center">
                                             <input
-                                                id={`checkbox-table-search-${activity.id}`}
+                                                id={`checkbox-table-search-${room.id}`}
                                                 type="checkbox"
-                                                checked={discountsSelection.includes(activity.id)}
-                                                onChange={(e) => handleCheckboxChange(e, activity.id)}
+                                                checked={newsSelection.includes(room.id)}
+                                                onChange={(e) => handleCheckboxChange(e, room.id)}
                                                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                             />
-                                            <label htmlFor={`checkbox-table-search-${activity.id}`} className="sr-only">
+                                            <label htmlFor={`checkbox-table-search-${room.id}`} className="sr-only">
                                                 checkbox
                                             </label>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">{activity.id}</td>
-                                    <td className="px-6 py-4">{activity.name}</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}>{activity.description}</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {activity.percentage}%</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {activity.tax_type}</td>
-
-
+                                    <td className="px-6 py-4">{room.id}</td>
+                                    <td className="px-6 py-4">{room.title}</td>
+              
+                 
+                                    <td className="px-6 py-4">{room.content}</td>
+                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}>
+                                <div className="flex items-center gap-2">
+                                    {room.images.map((image: string | StaticImport, index: React.Key | null | undefined) => (
+                                        <div key={index} className="flex-shrink-0">
+                                            <Image src={image} alt={room.name} width={50} height={50} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </td>                                    
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-4 ">
-                                    <button onClick={()=>handleEditPush(activity)}  className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                    <button onClick={()=>handleEditPush(room)}  className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                                         <Edit />
                                     </button>
-                                    <button onClick={()=>handleViewPush(activity)} className="font-medium text-green-600 dark:text-red-500 hover:underline">
+                                    <button onClick={()=>handleViewPush(room)} className="font-medium text-green-600 dark:text-red-500 hover:underline">
                                     <Eye /> 
                                     </button>
-                                    <div className="font-medium text-rose-600  hover:underline">
+                                    <a href="#" className="font-medium text-rose-600  hover:underline">
                                       <Trash />
-                                    </div>
+                                    </a>
                                 </div>
                             </td>
                                 </tr>
@@ -214,7 +206,7 @@ const ViewTaxTypes = () => {
                     </button>
                     <button
                         onClick={nextPage}
-                        disabled={indexOfLastItem >= filteredDiscounts.length}
+                        disabled={indexOfLastItem >= filterednews.length}
                         className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-md cursor-pointer"
                     >
                         Next
@@ -223,7 +215,7 @@ const ViewTaxTypes = () => {
                 </div>
             </div>
             <div className='flex justify-end w-full mt-7 '>
-                <CSVLink data={csvData} filename={"Taxtypes.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+                <CSVLink data={csvData} filename={"news.csv"} className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
                     Export as CSV
                 </CSVLink>
             </div>
@@ -231,4 +223,4 @@ const ViewTaxTypes = () => {
     );
 };
 
-export default ViewTaxTypes;
+export default ViewAllNews;

@@ -1,14 +1,14 @@
 'use client'
-import React, { useState } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 import SelectGroupOne from '../../SelectGroup/SelectGroupOne'
 import { toast } from 'react-toastify';
 
 const UpdateActivity = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     activityName: '',
     price: '',
     description: '',
-    images: {}
+    images: []
   });
 
   const handleInputChange = (e:any) => {
@@ -19,19 +19,12 @@ const UpdateActivity = () => {
     });
   };
 
-  const handleFileChange = (e:any) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
       setFormData({
         ...formData,
-        images: { cupidatat_eb: reader.result }
+        images: Array.from(e.target.files)
       });
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
     }
   };
 
@@ -41,7 +34,7 @@ const UpdateActivity = () => {
       toast.error("Please fill All Fields")
     }
     console.log('Form submitted:', formData);
-    toast.success("User updated successfully")
+    toast.success("Activity  created successfully")
   };
 
   return (
@@ -86,6 +79,7 @@ const UpdateActivity = () => {
                 </label>
                 <input
                   type="file"
+                  multiple
                   onChange={handleFileChange}
                   className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />

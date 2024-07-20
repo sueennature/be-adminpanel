@@ -1,8 +1,8 @@
-import Image from 'next/image'
 import React from 'react'
+import Image from 'next/image'
 import flower from '../../../../public/images/flower.jpg'
 
-const ViewSingleTaxType = () => {
+const ViewSingleNews = () => {
   return (
     <div className=' '>
       <div className='bg-white p-4 rounded-lg'>
@@ -20,43 +20,38 @@ const ViewSingleTaxType = () => {
         </div>
         <div className='flex'>
           <div className='flex-1'>   
-            <div className='m-2'>Name</div>
+            <div className='m-2'>Title</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>Test</div>
+            <div className='m-2'>News Title</div>
            </div>
         </div>
+       
         <div className='flex'>
           <div className='flex-1'>   
-            <div className='m-2'>Description</div>
+            <div className='m-2'>Content</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>Glide c outing.</div>
+            <div className='m-2'>Welcome to sueen</div>
            </div>
         </div>
+
+      
         <div className='flex'>
           <div className='flex-1'>   
-            <div className='m-2'>Tax Type</div>
+            <div className='m-2'> Image</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>Private	</div>
+            <div className='m-2'>
+            <Image src={flower} alt="asd" width={100} height={100} />                            
+
+            </div>
            </div>
         </div>
-        <div className='flex'>
-          <div className='flex-1'>   
-            <div className='m-2'>Percentage</div>
-          </div>
-          <div className='flex-1'>     
-            <div className='m-2'>12	</div>
-           </div>
-        </div>
-    
-    
-    
       </div>
       </div>
     </div>
   )
 }
 
-export default ViewSingleTaxType
+export default ViewSingleNews

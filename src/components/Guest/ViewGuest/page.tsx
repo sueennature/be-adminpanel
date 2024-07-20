@@ -10,20 +10,20 @@ import { CSVLink } from 'react-csv';
 
 interface GuestData {
     id: number;
-    fname: string;
-    lname: string;
+    first_name: string;
+    last_name: string;
     email: string;
-    telephone: number;
-    nationality:string;
-    Address: string;
-    guest_fname: string;
-    guest_lname: string;
-    guest_email: string;
-    guest_telephone: number;
-    guest_address: string;
-    guest_natioanlity: string; 
-}
-
+    telephone: string;
+    address: string;
+    nationality: string;
+    identification_type: string;
+    identification_no: string;
+    identification_issue_date: string;
+    dob: string;
+    gender: string;
+    created_at: string;
+    profile_image: string;
+  }
 
 const ViewGuest = () => {
 
@@ -42,7 +42,7 @@ const ViewGuest = () => {
     }, []);
 
     const filteredGuests= guests.filter(guest =>
-        guest.fname.toLowerCase().includes(nameFilter.toLowerCase()) &&
+        guest.first_name.toLowerCase().includes(nameFilter.toLowerCase()) &&
         String(guest.id).toLowerCase().includes(idFilter.toLowerCase())
     );
 
@@ -63,7 +63,7 @@ const ViewGuest = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-
+ 
     const handleSelectAll = (e:React.ChangeEvent<HTMLInputElement>)=>{
         if(e.target.checked){
             const allGuestIds = currentItems.map(guest => guest.id);
@@ -89,21 +89,20 @@ const ViewGuest = () => {
     const handleViewPush =(roomData: any)=>{
         router.push(`/guest/view/${roomData.id}`)
     }
-    const csvData = filteredGuests.map(({ id, fname, lname, email, telephone, nationality, Address, guest_fname, guest_lname,guest_email,guest_telephone, guest_address, guest_natioanlity,  }) => ({
-        id,
-        fname,
-        lname,
-        email,
-        telephone,
-        nationality,
-        Address,
-        guest_fname,
-        guest_lname,
-        guest_email,
-        guest_telephone,
-        guest_address,
-        guest_natioanlity, 
-    }));
+    const csvData = filteredGuests.map(({
+        id, first_name, last_name, email, telephone, address, nationality,
+        identification_type, identification_no, identification_issue_date, dob, gender,
+        created_at
+      }) => ({
+        id, first_name, last_name, email, telephone, address, nationality,
+        identification_type, identification_no, identification_issue_date, dob, gender,
+        created_at
+      }));
+      const formatDate = (dateString: string) => {
+        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+      };
+    
   return (
     <div>
     <div className='flex items-center justify-between mb-4'>
@@ -148,19 +147,20 @@ const ViewGuest = () => {
                                 </label>
                             </div>
                         </th>
-                        <th scope="col" className="px-6 py-3">id</th>
+                        <th scope="col" className="px-6 py-3">Id</th>
                         <th scope="col" className="px-6 py-3">First Name</th>
-                        <th scope="col" className="px-6 py-3">Last  Name</th>
+                        <th scope="col" className="px-6 py-3">Last Name</th>
                         <th scope="col" className="px-6 py-3">Email</th>
-                        <th scope="col" className="px-6 py-3">Address</th>
                         <th scope="col" className="px-6 py-3">Telephone</th>
+                        <th scope="col" className="px-6 py-3">Address</th>
                         <th scope="col" className="px-6 py-3">Nationality</th>
-                        <th scope="col" className="px-6 py-3">Guest First Name</th>
-                        <th scope="col" className="px-6 py-3">Guest Last Name</th>
-                        <th scope="col" className="px-6 py-3">Guest Email</th>
-                        <th scope="col" className="px-6 py-3">Guest Telephone</th>
-                        <th scope="col" className="px-6 py-3">Guest Address</th>
-                        <th scope="col" className="px-6 py-3">Guest Nationality</th>
+                        <th scope="col" className="px-6 py-3">Identification Type</th>
+                        <th scope="col" className="px-6 py-3">Identification No</th>
+                        <th scope="col" className="px-6 py-3">Identification Issue Date</th>
+                        <th scope="col" className="px-6 py-3">DOB</th>
+                        <th scope="col" className="px-6 py-3">Gender</th>
+                        <th scope="col" className="px-6 py-3">Created At</th>
+                        <th scope="col" className="px-6 py-3">Profile Image</th>
                         <th scope="col" className="px-6 py-3">Action</th>
 
                     </tr>
@@ -187,19 +187,28 @@ const ViewGuest = () => {
                                 </div>
                             </td>
                             <td className="px-6 py-4">{guest.id}</td>
-                            <td className="px-6 py-4">{guest.fname}</td>
-                            <td className="px-6 py-4">{guest.lname}</td>
-                            <td className="px-6 py-4">{guest.email}</td>
-                            <td className="px-6 py-4">{guest.Address}</td>
-                            <td className="px-6 py-4">{guest.telephone}</td>
-                            <td className="px-6 py-4">{guest.nationality}</td>
-                            <td className="px-6 py-4">{guest.guest_fname}</td>
-                            <td className="px-6 py-4">{guest.guest_lname}</td>
-                            <td className="px-6 py-4">{guest.guest_email}</td>
-                            <td className="px-6 py-4">{guest.guest_telephone}</td>
-                            <td className="px-6 py-4">{guest.guest_address}</td>
-                            <td className="px-6 py-4">{guest.guest_natioanlity}</td>
-                            
+                  <td className="px-6 py-4">{guest.first_name}</td>
+                  <td className="px-6 py-4">{guest.last_name}</td>
+                  <td className="px-6 py-4">{guest.email}</td>
+                  <td className="px-6 py-4">{guest.telephone}</td>
+                  <td className="px-6 py-4">{guest.address}</td>
+                  <td className="px-6 py-4">{guest.nationality}</td>
+                  <td className="px-6 py-4">{guest.identification_type}</td>
+                  <td className="px-6 py-4">{guest.identification_no}</td>
+                  <td className="px-6 py-4">{formatDate(guest.identification_issue_date)}</td>
+                  <td className="px-6 py-4">{formatDate(guest.dob)}</td>
+                  <td className="px-6 py-4">{guest.gender}</td>
+                  <td className="px-6 py-4">{formatDate(guest.created_at)}</td>
+                  <td className="px-6 py-4">
+                    <Image
+                      src={guest.profile_image}
+                      alt="Profile Image"
+                      width={50}
+                      height={50}
+                      className="rounded-full"
+                    />
+                  </td>
+
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-4 ">
                                     <button onClick={()=>handleEditPush(guest)}  className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
