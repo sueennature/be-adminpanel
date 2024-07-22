@@ -8,6 +8,7 @@ import Loader from "@/components/common/Loader";
 import "react-big-calendar/lib/css/react-big-calendar.css";  //react calendar
 import { StoreProvider } from "@/store/StoreProvider";
 import ToastProvider from "./ToastProvider";
+import useAuth from "@/hooks/useAuth";
 
 export default function RootLayout({
   children,
@@ -22,7 +23,7 @@ export default function RootLayout({
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
-
+useAuth();
   return (
     <StoreProvider>
       
