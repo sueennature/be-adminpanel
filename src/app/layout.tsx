@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import Loader from "@/components/common/Loader";
 import "react-big-calendar/lib/css/react-big-calendar.css";  //react calendar
 import { StoreProvider } from "@/store/StoreProvider";
+import ToastProvider from "./ToastProvider";
 
 export default function RootLayout({
   children,
@@ -24,10 +25,14 @@ export default function RootLayout({
 
   return (
     <StoreProvider>
+      
         <html lang="en">
       <body suppressHydrationWarning={true}>
         <div className="dark:bg-boxdark-2 dark:text-bodydark">
-          {loading ? <Loader /> : children}
+        <ToastProvider>
+        {loading ? <Loader /> : children}
+        </ToastProvider>
+       
         </div>
       </body>
     </html>

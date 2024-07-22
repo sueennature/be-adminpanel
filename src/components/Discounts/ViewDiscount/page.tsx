@@ -12,10 +12,12 @@ import type { RootState } from '../../../store/store'
 
 interface DiscountData {
     id: number;
-    discount: number;
+    name:string;
+    percentage: number;
     description: string;
-    startDate: string;
-    endDate: string;
+    start_date: string;
+    end_date: string;
+   
     
 }
 const ViewDiscount = () => {
@@ -33,8 +35,8 @@ const ViewDiscount = () => {
     }, []);
 
     const filteredDiscounts = discounts.filter(activity =>
-        // activity.discount.toLowerCase().includes(nameFilter.toLowerCase()) &&
-        String(activity.id).toLowerCase().includes(idFilter.toLowerCase())
+        activity.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
+         String(activity.id).toLowerCase().includes(idFilter.toLowerCase())
     );
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -78,12 +80,13 @@ const ViewDiscount = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-    const csvData = filteredDiscounts.map(({ id,discount,description,startDate,endDate}) => ({
+    const csvData = filteredDiscounts.map(({ id,name,percentage,description,start_date,end_date}) => ({
         id,
-        discount,
+        name,
+        percentage,
         description,
-        startDate,
-        endDate,
+        start_date,
+        end_date,
         
     }));
     return (
@@ -91,10 +94,10 @@ const ViewDiscount = () => {
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
                     <input
-                        type="number"
-                        placeholder="Search by Id"
-                        value={idFilter}
-                        onChange={(e) => setIdFilter(e.target.value)}
+                        type="text"
+                        placeholder="Search by Name"
+                        value={nameFilter}
+                        onChange={(e) => setNameFilter(e.target.value)}
                         className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
@@ -126,6 +129,9 @@ const ViewDiscount = () => {
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     id
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                   Name
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                    Discount
@@ -167,10 +173,11 @@ const ViewDiscount = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">{activity.id}</td>
-                                    <td className="px-6 py-4">{activity.discount}</td>
+                                    <td className="px-6 py-4">{activity.name}</td>
+                                    <td className="px-6 py-4">{activity.percentage}%</td>
                                     <td className="px-6 py-4" style={{ minWidth: '200px' }}>{activity.description}</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {activity.startDate}</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {activity.endDate}</td>
+                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {activity.start_date}</td>
+                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {activity.end_date}</td>
 
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-4 ">
@@ -227,19 +234,19 @@ const ViewDiscount = () => {
                 </CSVLink>
             </div>
             <div>
-        <button
+        {/* <button
           aria-label="Increment value"
           onClick={() => dispatch(increment())}
         >
           Increment
-        </button>
-        <span>{count}</span>
+        </button> */}
+        {/* <span>{count}</span>
         <button
           aria-label="Decrement value"
           onClick={() => dispatch(decrement())}
         >
           Decrement
-        </button>
+        </button> */}
       </div>
         </div>
     );

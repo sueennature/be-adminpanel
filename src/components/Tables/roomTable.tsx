@@ -10,10 +10,15 @@ import { CSVLink } from 'react-csv';
 interface RoomData {
     id: number;
     name: string;
-    noOfRoom: number;
+    category: string,
     maxAdults: number;
     maxChilds: number;
+    room_only: number,
+    bread_breakfast: number,
+    half_board:number,
+    full_board: number,
     description: string;
+    secondary_category:string;
     features: string[];
     beds: string;
     size: string;
@@ -82,13 +87,18 @@ const RoomTable = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-    const csvData = filteredRooms.map(({ id, name, noOfRoom, maxAdults, maxChilds, description, features, beds, images,size, bathroom }) => ({
+    const csvData = filteredRooms.map(({ id, name,  maxAdults, maxChilds, description, features, beds, images,size, bathroom,category, secondary_category,room_only, bread_breakfast,half_board,full_board }) => ({
         id,
         name,
-        noOfRoom,
         maxAdults,
         maxChilds,
         description,
+        category, 
+        secondary_category,
+        room_only, 
+        bread_breakfast,
+        half_board,
+        full_board,
         features: features.join(', '),
         beds,
         images,
@@ -140,7 +150,7 @@ const RoomTable = () => {
                                     Name
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    No of Room
+                                    Category
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Max Adults
@@ -159,6 +169,21 @@ const RoomTable = () => {
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Size
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    Room Only
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    Bread and Breakfast
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    Half Board
+                                </th>   
+                                <th scope="col" className="px-6 py-3">
+                                    Full Board
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    Second Category
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Bathrooms
@@ -193,13 +218,18 @@ const RoomTable = () => {
                                     </td>
                                     <td className="px-6 py-4">{room.id}</td>
                                     <td className="px-6 py-4">{room.name}</td>
-                                    <td className="px-6 py-4">{room.noOfRoom}</td>
+                                    <td className="px-6 py-4">{room.category}</td>
                                     <td className="px-6 py-4">{room.maxAdults}</td>
                                     <td className="px-6 py-4">{room.maxChilds}</td>
                                     <td className="px-6 py-4">{room.description}</td>
                                     <td className="px-6 py-4">{room.features.join(', ')}</td>
                                     <td className="px-6 py-4">{room.beds}</td>
                                     <td className="px-6 py-4">{room.size}</td>
+                                    <td className="px-6 py-4">{(room.room_only).toLocaleString()}</td>
+                                    <td className="px-6 py-4">{(room.bread_breakfast).toLocaleString()}</td>
+                                    <td className="px-6 py-4">{(room.half_board).toLocaleString()}</td>
+                                    <td className="px-6 py-4">{(room.full_board).toLocaleString()}</td>
+                                    <td className="px-6 py-4">{room.secondary_category}</td>
                                     <td className="px-6 py-4">{room.bathroom}</td>
                                     <td className="px-6 py-4" style={{ minWidth: '200px' }}>
                                 <div className="flex items-center gap-2">

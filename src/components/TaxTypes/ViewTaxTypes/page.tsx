@@ -12,7 +12,8 @@ interface taxData {
     id: number;
     name: number;
     description: string;
-    rate: number;
+    percentage: number;
+    tax_type:string;
     
 }
 
@@ -75,11 +76,12 @@ const ViewTaxTypes = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-    const csvData = filteredDiscounts.map(({ id,name,description,rate}) => ({
+    const csvData = filteredDiscounts.map(({ id,name,description,percentage,tax_type}) => ({
         id,
         name,
         description,
-        rate,
+        tax_type,
+        percentage,
         
     }));
     return (
@@ -133,9 +135,11 @@ const ViewTaxTypes = () => {
                                 </th>
                               
                                 <th scope="col" className="px-6 py-3">
-                                    Rate
+                                    Percentage
                                 </th>
-                              
+                                <th scope="col" className="px-6 py-3">
+                                    Tax Type
+                                </th>
                                 <th scope="col" className="px-6 py-3">
                                     Action
                                 </th>
@@ -165,7 +169,9 @@ const ViewTaxTypes = () => {
                                     <td className="px-6 py-4">{activity.id}</td>
                                     <td className="px-6 py-4">{activity.name}</td>
                                     <td className="px-6 py-4" style={{ minWidth: '200px' }}>{activity.description}</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {(activity.rate.toLocaleString())}</td>
+                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {activity.percentage}%</td>
+                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}> {activity.tax_type}</td>
+
 
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-4 ">

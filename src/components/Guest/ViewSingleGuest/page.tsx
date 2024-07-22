@@ -1,4 +1,6 @@
 import React from 'react'
+import Image from 'next/image'
+import flower from '../../../../public/images/flower.jpg'
 
 const ViewSingleGuest = () => {
   return (
@@ -66,51 +68,54 @@ const ViewSingleGuest = () => {
         </div>
         <div className='flex'>
           <div className='flex-1'>   
-            <div className='m-2'>Guest First Name</div>
+            <div className='m-2'>Gender</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>Alice</div>
+            <div className='m-2'>Male</div>
            </div>
         </div>
         <div className='flex'>
           <div className='flex-1'>   
-            <div className='m-2'>Guest Last Name</div>
+            <div className='m-2'>Identification Type</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>Sarah</div>
+            <div className='m-2'>Passport</div>
            </div>
         </div>
         <div className='flex'>
           <div className='flex-1'>   
-            <div className='m-2'>Guest Email</div>
+            <div className='m-2'>Identification No</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>alcie@gmail.com</div>
+            <div className='m-2'>2131223</div>
            </div>
         </div>
         <div className='flex'>
           <div className='flex-1'>   
-            <div className='m-2'>Guest Telephone</div>
+            <div className='m-2'>Identification Issued Date</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>2132132132</div>
+            <div className='m-2'>21.02.2024</div>
            </div>
         </div>
         <div className='flex'>
           <div className='flex-1'>   
-            <div className='m-2'>Guest Address</div>
+            <div className='m-2'>Date of Birth</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>Main, Sri Lanka</div>
-           </div>
+          <div className='m-2'>21.02.2024</div>
+          </div>
         </div>
       
         <div className='flex'>
           <div className='flex-1'>   
-            <div className='m-2'>Guest Nationality</div>
+            <div className='m-2'>Profile Image</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>Foreign</div>
+            <div className='m-2'>
+            <Image src={flower} alt="asd" width={100} height={100} />                            
+
+            </div>
            </div>
         </div>
       </div>
