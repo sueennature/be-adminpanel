@@ -20,10 +20,18 @@ const ViewSingleDiscount = () => {
         </div>
         <div className='flex'>
           <div className='flex-1'>   
-            <div className='m-2'>Discount</div>
+            <div className='m-2'>Name</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>213213</div>
+            <div className='m-2'>Test</div>
+           </div>
+        </div>
+        <div className='flex'>
+          <div className='flex-1'>   
+            <div className='m-2'>Percentage</div>
+          </div>
+          <div className='flex-1'>     
+            <div className='m-2'>21</div>
            </div>
         </div>
         <div className='flex'>

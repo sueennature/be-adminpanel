@@ -1,0 +1,28 @@
+
+[
+    {
+        "id": 1,
+        "username": "Vimal",
+        "email": "vimal@gmail.com",
+        "is_active": true,
+        "is_superadmin": false,
+        "role": "admin"
+    },
+    {
+        "id": 2,
+        "username": "Doe",
+        "email": "doe@gmail.com",
+        "is_active": false,
+        "is_superadmin": false,
+        "role": "guest"
+    },
+    {
+        "id": 3,
+        "username": "John",
+        "email": "doe@gmail.com",
+        "is_active": false,
+        "is_superadmin": true,
+        "role": "channelmanager"
+    }
+  ]
+  

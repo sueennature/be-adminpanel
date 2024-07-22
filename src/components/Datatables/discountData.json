@@ -2,17 +2,19 @@
 [
     {
         "id": 1,
-        "discount": 244400,
+        "name":"test",
+        "percentage": 24,
         "description": "discount",
-        "startDate": "2024-06-10 15:35:05",
-        "endDate":"2024-09-25 15:35:05"
+        "start_date": "2024-06-10 15:35:05",
+        "end_date":"2024-09-25 15:35:05"
     },
     {
         "id": 2,
-        "discount": 2424400,
+        "name":"test",
+        "percentage": 24,
         "description": "discount",
-        "startDate": "2024-06-10 15:35:05",
-        "endDate":"2024-09-25 15:35:05"
+        "start_date": "2024-06-10 15:35:05",
+        "end_date":"2024-09-25 15:35:05"
     }
   ]
   

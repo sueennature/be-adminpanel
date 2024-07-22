@@ -50,6 +50,22 @@ const ViewRoom = (roomData :any) => {
         </div>
         <div className='flex'>
           <div className='flex-1'>   
+            <div className='m-2'>Category</div>
+          </div>
+          <div className='flex-1'>     
+            <div className='m-2'>This is the Sgnle room</div>
+           </div>
+        </div>
+        <div className='flex'>
+          <div className='flex-1'>   
+            <div className='m-2'>Second Category</div>
+          </div>
+          <div className='flex-1'>     
+            <div className='m-2'>This is the Sgnle room</div>
+           </div>
+        </div>
+        <div className='flex'>
+          <div className='flex-1'>   
             <div className='m-2'>Room Only</div>
           </div>
           <div className='flex-1'>     

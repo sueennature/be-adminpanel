@@ -6,7 +6,7 @@ import React from 'react'
 const UpdateGuestPage = () => {
   return (
     <DefaultLayout>
-    <Breadcrumb pageName={'Guests'} pageNameTwo='Update' firstLink={"/rooms"}/>
+    <Breadcrumb pageName={'Guests'} pageNameTwo='Update' firstLink={"/guest"}/>
       <UpdateGuest/>
   </DefaultLayout>
   )

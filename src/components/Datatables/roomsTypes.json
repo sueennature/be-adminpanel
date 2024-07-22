@@ -1,0 +1,32 @@
+{
+  "rooms": [
+    { "id": "101", "room_type" :"Family-TPL" },
+    { "id": "102","room_type" :"Family-TPL" },
+    { "id": "103","room_type" :"TPL" },
+    { "id": "104","room_type" :"Family-TPL" },
+    { "id": "105", "room_type" :"Family-TPL" },
+    { "id": "106", "room_type" :"Family-TPL" },
+    { "id": "107","room_type" :"Family-TPL" },
+    { "id": "108","room_type" :"Family-TPL" },
+    { "id": "109","room_type" :"Family-TPL" },
+    { "id": "110","room_type" :"Family-TPL" },
+    { "id": "111","room_type" :"Family-TPL" },
+    { "id": "112","room_type" :"DBL-SINGAL" },
+    { "id": "201","room_type" :"Family-TPL" },
+    { "id": "202","room_type" :"Family-TPL" },
+    { "id": "203","room_type" :"Family-TPL" },
+    { "id": "204","room_type" :"Family-TPL" },
+    { "id": "205","room_type" :"Family-TPL" },
+    { "id": "206","room_type" :"Family-TPL" },
+    { "id": "207","room_type" :"Family-TPL" },
+    { "id": "208","room_type" :"DBL-SINGAL" },
+    { "id": "209","room_type" :"DBL-SINGAL" },
+    { "id": "210","room_type" :"DBL-SINGAL" },
+    { "id": "211","room_type" :"DBL-SINGAL" },
+    { "id": "212","room_type" :"DBL-SINGAL" },
+    { "id": "213","room_type" :"Family-TPL" },
+    { "id": "214","room_type" :"DBL-SINGAL" }
+  ]
+}
+
+  

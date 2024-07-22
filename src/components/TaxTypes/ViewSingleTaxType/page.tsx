@@ -36,10 +36,18 @@ const ViewSingleTaxType = () => {
         </div>
         <div className='flex'>
           <div className='flex-1'>   
-            <div className='m-2'>Rate</div>
+            <div className='m-2'>Tax Type</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>213123	</div>
+            <div className='m-2'>Private	</div>
+           </div>
+        </div>
+        <div className='flex'>
+          <div className='flex-1'>   
+            <div className='m-2'>Percentage</div>
+          </div>
+          <div className='flex-1'>     
+            <div className='m-2'>12	</div>
            </div>
         </div>
     

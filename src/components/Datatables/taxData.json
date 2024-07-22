@@ -1,16 +1,16 @@
-
 [
     {
         "id": 1,
-        "name":"test",
-        "description": "discount",
-        "rate": 244400
+        "name": "test",
+        "percentage":2,
+        "tax_type": "discount",
+        "description": "discount"
     },
     {
-        "id":2,
-        "name":"testTwo",
-        "description": "discountTwo",
-        "rate": 544400
+        "id": 2,
+        "name": "testTwo",
+        "percentage": 23,
+        "tax_type": "discountTwo",
+        "description": "discountTwo"
     }
-  ]
-  
+]
