@@ -87,15 +87,21 @@ const data = {
 
 const options = {
   responsive: true,
+  maintainAspectRatio: false, // Allows the canvas to resize based on the container
   plugins: {
     legend: {
       position: 'top' as const,
+      labels: {
+        font: {
+          size: window.innerWidth < 768 ? 12 : 14, // Adjust the font size for the legend based on the screen width
+        }
+      }
     },
     title: {
       display: true,
       text: 'Reservation Stats',
       font: {
-        size: 24,  // Set the font size to large
+        size: window.innerWidth < 768 ? 24 : 24, // Adjust the font size based on the screen width
         family: 'sans-serif', // Optionally, set the font family
         weight: 700, // Numeric weight
       },
@@ -111,18 +117,28 @@ const options = {
   },
   scales: {
     x: {
-      beginAtZero: true
+      beginAtZero: true,
+      ticks: {
+        font: {
+          size: window.innerWidth < 768 ? 9 : 12, // Adjust the font size for the x-axis labels based on the screen width
+        }
+      }
     },
     y: {
-      beginAtZero: true
+      beginAtZero: true,
+      ticks: {
+        font: {
+          size: window.innerWidth < 768 ? 9 : 12, // Adjust the font size for the y-axis labels based on the screen width
+        }
+      }
     }
   }
 };
 
 const ReservationChart: React.FC = () => {
   return (
-    <div className="row-span-7 rounded-md border border-stroke bg-white p-6 shadow-default">
-      <Bar data={data} options={options} />
+    <div className="row-span-8 rounded-md border border-stroke bg-white p-6 shadow-default relative">
+      <Bar data={data} options={options} style={{ height: '80%', width: '100%' }} />
     </div>
   );
 };

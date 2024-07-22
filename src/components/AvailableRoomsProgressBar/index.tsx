@@ -43,15 +43,15 @@ const AvailableRoomsProgressBar: React.FC<Props> = ({ totalRooms }) => {
   }, [progressPercentageToday]);
 
   return (
-    <div className="row-span-4 flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       {/* Display bookings count for today */}
-      <div className="flex flex-row justify-between items-center text-white">
+      <div className="flex flex-row justify-between items-center xl:gap-10 text-white font-bold">
         <p className="text-md">Available Room Today</p>
         <div className="font-bold text-lg">{availableRoomsToday}</div>
       </div>
 
       {/* Progress bar */}
-      <div className="w-full bg-slate-400 border-black rounded-full h-2.5 dark:bg-gray-700">
+      <div className="w-full bg-white bg-opacity-20 border-black rounded-full h-2.5 dark:bg-gray-700">
         <div className="bg-white h-2.5 rounded-full progress-bar" style={{ width: `${progress}%`, '--progress-width': `${progress}%` } as React.CSSProperties}></div>
       </div>
     </div>
