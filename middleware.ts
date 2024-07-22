@@ -12,7 +12,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
 }
 
-// Apply middleware to specific paths
 export const config = {
     matcher: ['/protected/*'], 
 };
