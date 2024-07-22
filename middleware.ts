@@ -1,10 +1,18 @@
-import { NextResponse } from "next/dist/server/web/spec-extension/response";
+import { NextRequest, NextResponse } from 'next/server';
+import cookie from 'cookie';
 
-export default function middleware(req :any){
-    let verify = req.localStorage.getItem('isLoggedIn');
-    let url = req.url
+export function middleware(request: NextRequest) {
+    const cookies = cookie.parse(request.headers.get('cookie') || '');
+    const accessToken = cookies.access_token;
 
-    if(!verify && url.includes('/dashboard')){
-        return NextResponse.redirect('http://localhost:3000/')
+    if (!accessToken) {
+        return NextResponse.redirect(new URL('/', request.url));
     }
+
+    return NextResponse.next();
 }
+
+// Apply middleware to specific paths
+export const config = {
+    matcher: ['/protected/*'], 
+};
