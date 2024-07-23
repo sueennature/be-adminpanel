@@ -58,6 +58,7 @@ const config: Config = {
         warning: "#FFA70B",
       },
       fontSize: {
+        'xxs': '0.625rem', // Custom smaller font size
         "title-xxl": ["44px", "55px"],
         "title-xxl2": ["42px", "58px"],
         "title-xl": ["36px", "45px"],
