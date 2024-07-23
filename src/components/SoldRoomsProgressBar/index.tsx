@@ -41,10 +41,10 @@ const SoldRoomsProgressBar: React.FC<Props> = ({ totalRooms }) => {
 
 
   return (
-    <div className="row-span-4 flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
        
         {/* Display bookings count for today */}
-        <div className="flex flex-row justify-between text-white">
+        <div className="flex flex-row justify-between xl:gap-10 text-white font-bold">
         <p className='text-md'>Sold Out Room Today </p>
         <div className='font-bold text-lg'>{bookedRoomsToday}</div>
         </div>
@@ -53,7 +53,7 @@ const SoldRoomsProgressBar: React.FC<Props> = ({ totalRooms }) => {
     
       
         {/* Progress bar */}
-        <div className="w-full bg-slate-400 border-black rounded-full h-2.5 dark:bg-gray-700">
+        <div className="w-full bg-white bg-opacity-20 border-black rounded-full h-2.5 dark:bg-gray-700">
         <div className="bg-white h-2.5 rounded-full progress-bar" style={{ width: `${progress}%`, '--progress-width': `${progress}%` } as React.CSSProperties}></div>
         </div>
      

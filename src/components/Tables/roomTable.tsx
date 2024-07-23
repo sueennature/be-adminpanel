@@ -6,13 +6,20 @@ import { Edit, Trash, Eye, Plus } from 'react-feather';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CSVLink } from 'react-csv';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
+import NoData from "@/components/NoData";
+import Loader from "@/components/common/Loader";
 
 interface RoomData {
     id: number;
     name: string;
     category: string,
-    maxAdults: number;
-    maxChilds: number;
+    max_adults: number;
+    max_childs: number;
+    max_people:number;
     room_only: number,
     bread_breakfast: number,
     half_board:number,
@@ -33,14 +40,36 @@ const RoomTable = () => {
     const [roomsSelection, setRoomsSelection] = React.useState<number[]>([]);
     const [currentPage, setCurrentPage] = React.useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
+    const [loading, setLoading] = React.useState<boolean>(true);
+
     const router = useRouter();
  
     const [idFilter, setIdFilter] = React.useState<string>('');
 
+    // React.useEffect(() => {
+    //     setRooms(roomData);
+    // }, []);
     React.useEffect(() => {
-        setRooms(roomData);
-    }, []);
-
+        const fetchUsers= async () => {
+          try {
+            const accessToken = Cookies.get('access_token'); 
+           
+            const response = await axios.get('https://api.sueennature.com/rooms', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                    'x-api-key': process.env.X_API_KEY, 
+                },
+            });
+            console.log(response.data);
+            setRooms(response.data)
+          } catch (err) {
+            console.log(err);
+          }
+        };
+    
+        fetchUsers();
+      }, []);
     const filteredRooms = rooms.filter(room =>
         room.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
         String(room.id).toLowerCase().includes(idFilter.toLowerCase())
@@ -87,11 +116,57 @@ const RoomTable = () => {
     const prevPage = () => {
         setCurrentPage((prev) => prev - 1);
     };
-    const csvData = filteredRooms.map(({ id, name,  maxAdults, maxChilds, description, features, beds, images,size, bathroom,category, secondary_category,room_only, bread_breakfast,half_board,full_board }) => ({
+    const formatImageUrl = (url: string) => {
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
+        return `/${url}`;
+    };
+    const handleDelete = async (userId: number) => {
+        const accessToken = Cookies.get("access_token");
+    
+        try {
+          await axios.delete(`${process.env.BE_URL}/rooms/${userId}`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+              "x-api-key": process.env.X_API_KEY,
+            },
+          });
+          setRooms((prevGuests) =>
+            prevGuests.filter((guest) => guest.id !== userId),
+          );
+          toast.success("User Deleted Successfully");
+        } catch (err) {
+          console.error(err);
+          toast.error(
+            "There was an error deleting the user. Please try again later",
+          );
+        }
+      };
+    
+      const confirmDelete = (userId: number) => {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, delete it!",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            handleDelete(userId);
+          }
+        });
+      };
+    
+    const csvData = filteredRooms.map(({ id, name,  max_adults, max_childs,max_people,description, features, beds, size, bathroom,category, secondary_category,room_only, bread_breakfast,half_board,full_board }) => ({
         id,
         name,
-        maxAdults,
-        maxChilds,
+        max_adults,
+        max_childs,
+        max_people,
         description,
         category, 
         secondary_category,
@@ -99,9 +174,8 @@ const RoomTable = () => {
         bread_breakfast,
         half_board,
         full_board,
-        features: features.join(', '),
+        features,
         beds,
-        images,
         size,
         bathroom,
     }));
@@ -126,7 +200,7 @@ const RoomTable = () => {
         
             <div className="bg-white">
                 <div className="overflow-x-auto shadow-md sm:rounded-lg">
-                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" >
+                    <table className=" text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 able-fixed w-full" >
                         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
                                 <th scope="col" className="p-4">
@@ -157,6 +231,9 @@ const RoomTable = () => {
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Max Childs
+                                </th>
+                                <th scope="col" className="px-6 py-3">
+                                    Max People
                                 </th>
                                 <th scope="col" className="px-6 py-3">
                                     Description
@@ -219,10 +296,11 @@ const RoomTable = () => {
                                     <td className="px-6 py-4">{room.id}</td>
                                     <td className="px-6 py-4">{room.name}</td>
                                     <td className="px-6 py-4">{room.category}</td>
-                                    <td className="px-6 py-4">{room.maxAdults}</td>
-                                    <td className="px-6 py-4">{room.maxChilds}</td>
+                                    <td className="px-6 py-4">{room.max_adults}</td>
+                                    <td className="px-6 py-4">{room.max_childs}</td>
+                                    <td className="px-6 py-4">{room.max_people}</td>
                                     <td className="px-6 py-4">{room.description}</td>
-                                    <td className="px-6 py-4">{room.features.join(', ')}</td>
+                                    <td className="px-6 py-4">{room.features}</td>
                                     <td className="px-6 py-4">{room.beds}</td>
                                     <td className="px-6 py-4">{room.size}</td>
                                     <td className="px-6 py-4">{(room.room_only).toLocaleString()}</td>
@@ -231,15 +309,23 @@ const RoomTable = () => {
                                     <td className="px-6 py-4">{(room.full_board).toLocaleString()}</td>
                                     <td className="px-6 py-4">{room.secondary_category}</td>
                                     <td className="px-6 py-4">{room.bathroom}</td>
-                                    <td className="px-6 py-4" style={{ minWidth: '200px' }}>
-                                <div className="flex items-center gap-2">
-                                    {room.images.map((image, index) => (
-                                        <div key={index} className="flex-shrink-0">
-                                            <Image src={image} alt={room.name} width={50} height={50} />
+                                    <td className="px-6 py-4 overflow-x-auto min-w-[200px]">
+                                        <div className="flex items-center gap-2">
+                                            {room.images.map((image, index) => (
+                                                <div key={index} className="flex-shrink-0 w-20 h-20 overflow-hidden">
+                                                    <Image 
+                                                        src={image} 
+                                                        alt={room.name} 
+                                                        width={80} 
+                                                        height={80} 
+                                                        className="object-cover w-full h-full" 
+                                                    />
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
-                            </td>                                    
+                                    </td>
+
+
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-4 ">
                                     <button onClick={()=>handleEditPush(room)}  className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
@@ -248,9 +334,12 @@ const RoomTable = () => {
                                     <button onClick={()=>handleViewPush(room)} className="font-medium text-green-600 dark:text-red-500 hover:underline">
                                     <Eye /> 
                                     </button>
-                                    <a href="#" className="font-medium text-rose-600  hover:underline">
-                                      <Trash />
-                                    </a>
+                                    <button
+                                  className="font-medium text-rose-600  hover:underline"
+                                  onClick={() => confirmDelete(room.id)}
+                                >
+                                  <Trash />
+                                </button>
                                 </div>
                             </td>
                                 </tr>

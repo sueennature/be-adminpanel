@@ -1,5 +1,5 @@
 'use client'
-import React from 'react';
+import React, { useEffect } from 'react';
 import roomData from '../../../components/Datatables/newsData.json';
 import Image from 'next/image';
 import { Edit, Trash, Eye, Plus } from 'react-feather';
@@ -74,6 +74,8 @@ const ViewAllNews = () => {
         title,
         content,
     }));
+
+  
     return (
         <div>
             <div className="flex items-center justify-between mb-4">

@@ -27,7 +27,7 @@ const ECommerce: React.FC = () => {
     <>
 
        {/* dashboard cards */}
-      <div className="grid grid-cols-1 gap-4 md:gap-6 md:grid-cols-4 2xl:gap-7.5">
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-4 2xl:gap-7.5">
         <CardDataStats title="New Bookings" total="500" rate={""}  >
          <Calendar/>
         </CardDataStats>
@@ -42,16 +42,16 @@ const ECommerce: React.FC = () => {
         </CardDataStats>
       </div>
 
-      <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
+      <div className="mt-4 grid grid-cols-1 xl:grid-cols-2 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
           
       <DatePicker/> 
-      <div className="grid grid-rows-2 col-span-6 gap-4 md:gap-6 2xl:gap-6">
+      <div className="grid grid-cols-1 xl:grid-rows-2 gap-4 md:gap-6 2xl:gap-6">
       <ReservationChart/>
-      <div className="row-span-5 flex flex-row justify-between gap-2">
-        <div className="rounded-md border-none w-1/2  bg-slate-800 p-6 shadow-default">
+      <div className="row-span-4 flex lg:flex-row flex-col justify-between gap-2">
+        <div className="rounded-md border-none w-full bg-blue-950 p-6 shadow-default xl:items-center xl:flex">
                 <AvailableRoomsProgressBar totalRooms={totalRooms}/>
         </div>
-        <div className="rounded-md w-1/2  border-none bg-slate-800 p-6 shadow-default">
+        <div className="rounded-md w-full border-none bg-blue-950 p-6 shadow-default xl:items-center xl:flex">
                <SoldRoomsProgressBar totalRooms={totalRooms}/>
           
         </div>
