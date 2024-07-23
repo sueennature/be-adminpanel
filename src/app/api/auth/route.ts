@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         const cookieOptions = {
             httpOnly: false, 
             secure: true,
-            maxAge: 60 * 60 * 24, 
+            maxAge: 60 * 60,
             path: '/',
         };
 

@@ -69,20 +69,27 @@ const CreateGuest = () => {
     };
   }, []);
 
-  const handleChange = (e:any) => {
+  const handleChange = (e: any) => {
     const { name, value, files } = e.target;
-    if (name === "profile_image") {
+    
+    if (name === "profile_image" && files && files[0]) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData({ ...formData, [name]: reader.result });
+        setFormData((prevData) => ({
+          ...prevData,
+          profile_image: reader.result as string,
+        }));
       };
-      if (files[0]) {
-        reader.readAsDataURL(files[0]);
-      }
+      reader.readAsDataURL(files[0]);
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
     }
   };
+  
+  
 
   const handleSubmit = async (e:any) => {
     e.preventDefault();
@@ -281,7 +288,7 @@ const CreateGuest = () => {
                 Password
               </label>
               <input
-                type="password"
+                type="text"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
@@ -296,12 +303,13 @@ const CreateGuest = () => {
                 Profile Image
               </label>
               <input
-                type="file"
-                name="profile_image"
-                onChange={handleChange}
-                accept="image/*"
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-              />
+              type="file"
+              name="profile_image"
+              accept="image/*"
+              onChange={handleChange} 
+              className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+            />
+
             </div>
 
             <div className="flex justify-end gap-4.5">

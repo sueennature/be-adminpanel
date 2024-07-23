@@ -21,7 +21,7 @@ interface RoomFormData {
   secondary_category: string;
   description: string;
   short_description: string;
-  images: string[]; // Change to string array
+  images: string[]; 
 }
 
 const CreateRoom = () => {
@@ -56,7 +56,7 @@ const CreateRoom = () => {
         [name]: value
       });
     }
-    const [isLoading, setIsLoading] = useState(false);
+    const [loading, setLoading] = useState(false); 
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
@@ -91,7 +91,7 @@ const CreateRoom = () => {
 
       const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
+        setLoading(true); 
         console.log('Form Data:', formData);
         try {
           const response = await fetch('/api/room', {
@@ -110,7 +110,6 @@ const CreateRoom = () => {
     
           const data = await response.json();
           toast.success("Room created successfully");
-          setIsLoading(false);
 
           setFormData({
             name: '',
@@ -139,7 +138,7 @@ const CreateRoom = () => {
         } catch (error) {
           console.error('Error:', error);
           toast.error("An error occurred while creating the room");
-          setIsLoading(false); 
+          setLoading(false); 
 
         }
       };
@@ -423,9 +422,10 @@ const CreateRoom = () => {
             </div>
             <button
               type="submit"
+              disabled={loading}
               className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
             >
-              Submit
+             {loading ? "Submitting..." : "Submit"} 
             </button>
           </div>
         </form>

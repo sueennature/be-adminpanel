@@ -1,8 +1,45 @@
-import Image from 'next/image'
-import React from 'react'
+'use client'
+import React, { useEffect } from 'react'
 import flower from '../../../../public/images/flower.jpg'
+import { useSearchParams } from 'next/navigation';
+import axios from 'axios';
+import Cookies from "js-cookie";
+import { format } from "date-fns";
+
 
 const ViewSingleDiscount = () => {
+  const searchParams = useSearchParams();
+  const [discount, setDiscount] = React.useState<any>([]);
+
+  let discountId = searchParams.get("discountID");
+  console.log(discountId);
+
+  useEffect(() => {
+    const fetchDiscount = async () => {
+      if (discountId) {
+        try {
+          const accessToken = Cookies.get("access_token");
+
+          const response = await axios.get(
+            `${process.env.BE_URL}/discounts/${discountId}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": process.env.X_API_KEY,
+              },
+            },
+          );
+          console.log(response.data);
+          setDiscount(response.data);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
+
+    fetchDiscount();
+  }, [discountId]);
   return (
     <div className=' '>
       <div className='bg-white p-4 rounded-lg'>
@@ -15,7 +52,7 @@ const ViewSingleDiscount = () => {
             <div className='m-2'>id</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>1</div>
+            <div className='m-2'>{discount.id}</div>
            </div>
         </div>
         <div className='flex'>
@@ -23,16 +60,16 @@ const ViewSingleDiscount = () => {
             <div className='m-2'>Name</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>Test</div>
-           </div>
+          <div className='m-2'>{discount.name}</div>
+          </div>
         </div>
         <div className='flex'>
           <div className='flex-1'>   
             <div className='m-2'>Percentage</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>21</div>
-           </div>
+          <div className='m-2'>{discount.percentage}%</div>
+          </div>
         </div>
         <div className='flex'>
           <div className='flex-1'>   
@@ -47,8 +84,11 @@ const ViewSingleDiscount = () => {
             <div className='m-2'>Start Date</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>2024-09-25 15:35:05	</div>
-           </div>
+          <div className='m-2'>
+          {discount.start_date ? format(new Date(discount.start_date), "yyyy-MM-dd") : 'N/A'}
+          </div>          
+          </div>
+
         </div>
         <div className='flex'>
           <div className='flex-1'>   
@@ -56,7 +96,7 @@ const ViewSingleDiscount = () => {
           </div>
           <div className='flex-1'>     
             <div className='m-2'>
-            2024-09-25 15:35:05	                          
+            {discount.end_date ? format(new Date(discount.end_date), "yyyy-MM-dd") : 'N/A'}
             </div>
            </div>
         </div>
