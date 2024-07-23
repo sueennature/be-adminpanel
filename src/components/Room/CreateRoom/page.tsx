@@ -1,8 +1,11 @@
 'use client'
+import { useRouter } from 'next/navigation';
 import React, { ChangeEvent, FormEvent, useState } from 'react';
+import { toast } from 'react-toastify';
 interface RoomFormData {
   name: string;
   category: string;
+  view:string;
   max_adults: string;
   max_childs: string;
   max_people: string;
@@ -14,11 +17,11 @@ interface RoomFormData {
   views: string[];
   size: string;
   beds: string;
-  bathrooms: string;
+  bathroom: string;
   secondary_category: string;
   description: string;
   short_description: string;
-  images: File[];
+  images: string[]; // Change to string array
 }
 
 const CreateRoom = () => {
@@ -27,6 +30,7 @@ const CreateRoom = () => {
     category: '',
     max_adults: '',
     max_childs: '',
+    view:"",
     max_people: '',
     room_only: '',
     bread_breakfast: '',
@@ -36,41 +40,109 @@ const CreateRoom = () => {
     views: [],
     size: '',
     beds: '',
-    bathrooms: '',
+    bathroom: '',
     secondary_category: '',
     description: '',
     short_description: '',
     images: []
   });
 
+  const router = useRouter();
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    if (name === 'views') {
-      setFormData({
-        ...formData,
-        views: value.split(',').map(view => view.trim())
-      });
-    } else {
+    
       setFormData({
         ...formData,
         [name]: value
       });
     }
-  };
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFormData({
-        ...formData,
-        images: Array.from(e.target.files)
-      });
-    }
-  };
+    const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    console.log('Form Data:', formData);
-    // Perform the form submission logic here
-  };
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files) {
+        const files = Array.from(e.target.files);
+        const filePromises = files.map(file => {
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              if (reader.result) {
+                resolve(reader.result as string);
+              } else {
+                reject(new Error('Failed to read file'));
+              }
+            };
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsDataURL(file);
+          });
+        });
+  
+        Promise.all(filePromises)
+          .then(fileUrls => {
+            setFormData({
+              ...formData,
+              images: fileUrls
+            });
+          })
+          .catch(error => {
+            console.error('Error reading files:', error);
+            toast.error('Failed to upload files');
+          });
+      }}
+
+      const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        console.log('Form Data:', formData);
+        try {
+          const response = await fetch('/api/room', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+          });
+    
+          if (!response.ok) {
+            const errorData = await response.json();
+            toast.error(`Failed to create room: ${errorData.error || 'Unknown error'}`);
+            return;
+          }
+    
+          const data = await response.json();
+          toast.success("Room created successfully");
+          setIsLoading(false);
+
+          setFormData({
+            name: '',
+            category: '',
+            max_adults: '',
+            max_childs: '',
+            view: "",
+            max_people: '',
+            room_only: '',
+            bread_breakfast: '',
+            half_board: '',
+            full_board: '',
+            features: '',
+            views: [],
+            size: '',
+            beds: '',
+            bathroom: '',
+            secondary_category: '',
+            description: '',
+            short_description: '',
+            images: []
+          });
+          setTimeout(()=>{
+            router.push("/rooms")
+          })
+        } catch (error) {
+          console.error('Error:', error);
+          toast.error("An error occurred while creating the room");
+          setIsLoading(false); 
+
+        }
+      };
   return (
     <div className="flex flex-col gap-9">
       <div className="rounded-sm border border-stroke bg-white shadow-default">
@@ -128,16 +200,29 @@ const CreateRoom = () => {
                   type="text"
                   name="views"
                   required
-                  placeholder="Enter the Views : hill, garden"
-                  value={formData.views.join(', ')}
+                  placeholder="Enter the Views"
+                  value={formData.views}
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
               </div>
           </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-            
-              <div className="w-full xl:w-1/3">
+            <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  View
+                </label>
+                <input
+                  type="text"
+                  name="view"
+                  required
+                  placeholder="Enter the Views : hill, garden"
+                  value={formData.view}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+              </div>
+              <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Max Adults
                 </label>
@@ -151,7 +236,7 @@ const CreateRoom = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
               </div>
-              <div className="w-full xl:w-1/3">
+              <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Max Children
                 </label>
@@ -165,7 +250,7 @@ const CreateRoom = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
               </div>
-              <div className="w-full xl:w-1/3">
+              <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Max People
                 </label>
@@ -283,14 +368,14 @@ const CreateRoom = () => {
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
-                  Bathrooms
+                  Bathroom
                 </label>
                 <input
                   type="text"
-                  name="bathrooms"
+                  name="bathroom"
                   required
                   placeholder="Enter the Bathrooms"
-                  value={formData.bathrooms}
+                  value={formData.bathroom}
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
@@ -303,6 +388,7 @@ const CreateRoom = () => {
               <input
                 type="file"
                 multiple
+                name='images'
                 onChange={handleFileChange}
                 className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-white file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />

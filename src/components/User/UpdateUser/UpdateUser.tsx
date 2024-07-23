@@ -1,6 +1,9 @@
 'use client'
-import React, { useState } from "react";
+import axios from "axios";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import Cookies from 'js-cookie';
 
 const UpdateUser = () => {
   const [formData, setFormData] = useState({
@@ -10,18 +13,65 @@ const UpdateUser = () => {
     role:'',
   })
 
+  const searchParams = useSearchParams();
+  let userId = searchParams.get("userID");
+
+  const router = useRouter();
+
   const handleInputChange =(e: any)=>{
     const {name, value} = e.target;
     setFormData({...formData, [name]:value})
   }
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (userId) {
+        try {
+          const accessToken = Cookies.get('access_token'); 
 
-  const handleSubmit = (e:any) => {
+          const response = await axios.get(`${process.env.BE_URL}/users/${userId}`, {
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${accessToken}`,
+                  'x-api-key': process.env.X_API_KEY, 
+              },
+          });
+          console.log(response.data);
+          setFormData(response.data)
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
+
+    fetchUser();
+  }, [userId]);
+  const handleSubmit = async (e:any) => {
     e.preventDefault();
-    if(!formData.username || !formData.email || !formData.password || !formData.role){
-      toast.error("Please fill All Fields")
-    }
-    console.log('Form submitted:', formData);
-    toast.success("User created successfully")
+
+    try {
+      const response = await fetch('/api/user/update', {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: userId, ...formData }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+          throw new Error(result.error || 'Failed to update item');
+      }
+
+      toast.success('User updated successfully');
+      setTimeout(()=>{
+        router.push('/users')
+      },1000)
+    
+  } catch (err) {
+    console.log(err)
+      toast.error( 'An error occurred');
+  }
   };
 
   return (
@@ -68,7 +118,7 @@ const UpdateUser = () => {
                   Password
                 </label>
                 <input
-                  type="password"
+                  type="text"
                   name="password"
                   required
                   value={formData.password}

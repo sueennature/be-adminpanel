@@ -1,79 +1,112 @@
 'use client'
-import React from 'react'
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import React, { useEffect, useState } from 'react'
+import { useSearchParams } from "next/navigation";
+import axios from 'axios';
+import Cookies from 'js-cookie';
+
+interface UserDataProps {
+  username: string;
+  email: string;
+  role: string;
+  id: number;
+  is_active: boolean;
+  is_superadmin: boolean;
+}
 
 const ViewSingleUser = () => {
+  const searchParams = useSearchParams();
 
-  const [visible, setVisible] = React.useState<boolean>(false);
-  
+  const [userData, setUserData] = React.useState<UserDataProps | null>(null);
+
+  let userId = searchParams.get("userID");
+  console.log(userId)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (userId) {
+        try {
+          const accessToken = Cookies.get('access_token'); 
+
+          const response = await axios.get(`${process.env.BE_URL}/users/${userId}`, {
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${accessToken}`,
+                  'x-api-key': process.env.X_API_KEY, 
+              },
+          });
+          console.log(response.data);
+          setUserData(response.data);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
+
+    fetchUser();
+  }, [userId]);
+
   return (
     <div className=' '>
       <div className='bg-white p-4 rounded-lg'>
         <div className='text-black text-2xl font-bold border-b-2 border-gray'>
           Detail
         </div>
-      <div className='flex flex-col mt-4  justify-center'>
-      <div className='flex'>
-          <div className='flex-1'>   
-            <div className='m-2'>id</div>
-          </div>
-          <div className='flex-1'>     
-            <div className='m-2'>1</div>
-           </div>
+        <div className='flex flex-col mt-4  justify-center'>
+          {userData ? (
+            <>
+              <div className='flex'>
+                <div className='flex-1'>   
+                  <div className='m-2'>ID</div>
+                </div>
+                <div className='flex-1'>     
+                  <div className='m-2'>{userData.id}</div>
+                </div>
+              </div>
+              <div className='flex'>
+                <div className='flex-1'>   
+                  <div className='m-2'>Username</div>
+                </div>
+                <div className='flex-1'>     
+                  <div className='m-2'>{userData.username}</div>
+                </div>
+              </div>
+              <div className='flex'>
+                <div className='flex-1'>   
+                  <div className='m-2'>Email</div>
+                </div>
+                <div className='flex-1'>     
+                  <div className='m-2'>{userData.email}</div>
+                </div>
+              </div>
+              <div className='flex'>
+                <div className='flex-1'>   
+                  <div className='m-2'>Role</div>
+                </div>
+                <div className='flex-1'>     
+                  <div className='m-2'>{userData.role}</div>
+                </div>
+              </div>
+              <div className='flex'>
+                <div className='flex-1'>   
+                  <div className='m-2'>Active</div>
+                </div>
+                <div className='flex-1'>     
+                  <div className='m-2'>{userData.is_active ? "Yes" : "No"}</div>
+                </div>
+              </div>
+              <div className='flex'>
+                <div className='flex-1'>   
+                  <div className='m-2'>SuperAdmin</div>
+                </div>
+                <div className='flex-1'>     
+                  <div className='m-2'>{userData.is_superadmin ? "Yes" : "No"}</div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <p>Loading...</p>
+          )}
         </div>
-        <div className='flex'>
-          <div className='flex-1'>   
-            <div className='m-2'>Username</div>
-          </div>
-          <div className='flex-1'>     
-            <div className='m-2'>John</div>
-           </div>
-        </div>
-      
-        <div className='flex'>
-          <div className='flex-1'>   
-            <div className='m-2'>Email</div>
-          </div>
-          <div className='flex-1'>     
-            <div className='m-2'>John@gmail.com</div>
-           </div>
-        </div>
-        <div className='flex'>
-          <div className='flex-1'>   
-            <div className='m-2 flex items-center gap-[10px]'>
-              Password <span className='cursor-pointer relative top-[1px]' onClick={()=>setVisible(!visible)}>{visible ? <FaEye style={{color:"black"}}/> : <FaEyeSlash style={{color:"black"}}/>}</span>
-            </div>
-          </div>
-          <div className='flex-1'>     
-            <div className='m-2'>{visible ? "123213": "#####"}</div>
-           </div>
-        </div>
-   
-        <div className='flex'>
-          <div className='flex-1'>   
-            <div className='m-2'>Role</div>
-          </div>
-          <div className='flex-1'>     
-            <div className='m-2'>Admin</div>
-           </div>
-        </div>
-        <div className='flex'>
-          <div className='flex-1'>   
-            <div className='m-2'>Active</div>
-          </div>
-          <div className='flex-1'>     
-            <div className='m-2'>True</div>
-           </div>
-        </div>
-        <div className='flex'>
-          <div className='flex-1'>   
-            <div className='m-2'>SuperAdmin</div>
-          </div>
-          <div className='flex-1'>     
-            <div className='m-2'>True</div>
-           </div>
-        </div>
-      </div>
       </div>
     </div>
   )

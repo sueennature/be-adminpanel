@@ -13,7 +13,8 @@ export default function Login() {
 
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e:any) => {
+    console.log("Hi")
     e.preventDefault();
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim() || !password.trim()) {
@@ -102,7 +103,7 @@ export default function Login() {
                   className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none "
                 />
 
-                <span className="absolute right-4 top-4">
+                <span className="absolute right-4 top-5">
                   <span
                     className="cursor-pointer"
                     onClick={() => setVisible(!visible)}
