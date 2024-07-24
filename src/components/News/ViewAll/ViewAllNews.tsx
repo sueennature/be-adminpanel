@@ -48,7 +48,7 @@ const ViewAllNews = () => {
   const [idFilter, setIdFilter] = React.useState<string>("");
 
 
-  const filterednews = news.filter(
+  const filterednews = news?.filter(
     (room) =>
       room.title.toLowerCase().includes(nameFilter.toLowerCase()) &&
       String(room.id).toLowerCase().includes(idFilter.toLowerCase()),
