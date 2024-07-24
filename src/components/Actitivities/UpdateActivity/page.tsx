@@ -1,15 +1,23 @@
-'use client'
-import React, { ChangeEvent, useState } from 'react'
+'use client';
+import axios from "axios";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { ChangeEvent,useEffect, useState } from 'react'
 import SelectGroupOne from '../../SelectGroup/SelectGroupOne'
 import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
 
 const UpdateActivity = () => {
   const [formData, setFormData] = useState<any>({
-    activityName: '',
+    name: '',
     price: '',
     description: '',
     images: []
   });
+
+  const searchParams = useSearchParams();
+  let activityId = searchParams.get("activityID");
+
+  const router = useRouter();
 
   const handleInputChange = (e:any) => {
     const { name, value } = e.target;
@@ -28,14 +36,67 @@ const UpdateActivity = () => {
     }
   };
 
-  const handleSubmit = (e:any) => {
+  // const handleSubmit = (e:any) => {
+  //   e.preventDefault();
+  //   if(!formData.activityName || !formData.price || !formData.description || !formData.images){
+  //     toast.error("Please fill All Fields")
+  //   }
+  //   console.log('Form submitted:', formData);
+  //   toast.success("Activity  created successfully")
+  // };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (activityId) {
+        try {
+          const accessToken = Cookies.get('access_token'); 
+
+          const response = await axios.get(`${process.env.BE_URL}/activities/${activityId}`, {
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${accessToken}`,
+                  'x-api-key': process.env.X_API_KEY, 
+              },
+          });
+          console.log(response.data.data);
+          setFormData(response.data.data)
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
+
+    fetchUser();
+  }, [activityId]);
+  const handleSubmit = async (e:any) => {
     e.preventDefault();
-    if(!formData.activityName || !formData.price || !formData.description || !formData.images){
-      toast.error("Please fill All Fields")
-    }
-    console.log('Form submitted:', formData);
-    toast.success("Activity  created successfully")
+
+    try {
+      const response = await fetch('/api/activity/update', {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: activityId, ...formData }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+          throw new Error(result.error || 'Failed to update item');
+      }
+
+      toast.success('User updated successfully');
+      setTimeout(()=>{
+        router.push('/users')
+      },1000)
+    
+  } catch (err) {
+    console.log(err)
+      toast.error( 'An error occurred');
+  }
   };
+
 
   return (
     <div className="flex flex-col gap-9">
@@ -51,7 +112,7 @@ const UpdateActivity = () => {
                   type="text"
                   name="activityName"
                   required
-                  value={formData.activityName}
+                  value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Enter the Activity Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
