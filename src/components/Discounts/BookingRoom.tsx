@@ -197,7 +197,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     <h4 className="ml-3 text-xl font-bold text-black">
       Select Activities
     </h4>
-    {responseDatas?.activities?.map((activity, index) => (
+    {responseDatas?.activities?.map((activity : any ,index: any) => (
         <div key={index} className="flex w-full items-center justify-between p-3 lg:flex-row">
           <div>
             <label
