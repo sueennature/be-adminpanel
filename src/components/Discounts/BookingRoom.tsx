@@ -27,7 +27,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     [],
   );
   const [roomCounts, setRoomCounts] = useState<number[]>([]);
-  const [mealPlan, setMealPlan] = useState('');
+  const [mealPlans, setMealPlans] = useState<any>([]);
 
   const [infantsPerRoom, setInfantsPerRoom] = useState<number[]>([]);
   const [infantAgesPerRoom, setInfantAgesPerRoom] = useState<number[][]>([]);
@@ -56,7 +56,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       setChildrenAgesPerRoom([]);
       setInfantsPerRoom([]);
       setInfantAgesPerRoom([]);
-      setMealPlan('');
+      setMealPlans([]);
 
       return;
     }
@@ -67,10 +67,13 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     setChildrenAgesPerRoom(new Array(selectedRooms).fill([]));
     setInfantsPerRoom(new Array(selectedRooms).fill(0));
     setInfantAgesPerRoom(new Array(selectedRooms).fill([]));
-  };
+    setMealPlans(new Array(selectedRooms).fill(''));
 
-  const handleMealPlanChange = (event:any) => {
-    setMealPlan(event.target.value);
+  };
+  const handleMealPlanChange = (roomIndex :any, value :any) => {
+    const updatedMealPlans :any = [...mealPlans];
+    updatedMealPlans[roomIndex] = value;
+    setMealPlans(updatedMealPlans);
   };
 
   const getMealPlanPrice = (room :any, mealPlan:any) => {
@@ -269,8 +272,9 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   </div>
   
     
-        <div className="mb-4 mt-4 flex flex-col gap-4 lg:flex-row">
-  <div className="w-full xl:w-1/5">
+        <div className="mb-4 mt-4 flex flex-col gap-4">
+          <div className="flex gap-4">
+          <div className="w-full xl:w-1/5">
     <label
       htmlFor="roomNumber"
       className="mb-2 block text-xl font-medium text-black"
@@ -306,44 +310,46 @@ const BookingRoom: React.FC<BookingRoomData> = ({
               </div>
             </div>
           )}
+          </div>
+
           
 
-{selectedRooms > 0 && (
-        <div className="mb-4 mt-4">
-          <label htmlFor="mealPlan" className="mb-2 block text-xl font-medium text-black">
-            Meal Plan
-          </label>
-          <select
-            id="mealPlan"
-            value={mealPlan}
-            onChange={handleMealPlanChange}
-            className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-          >
-            <option value="">Select a meal plan</option>
-            <option value="room_only">Room Only</option>
-            <option value="bread_breakfast">Bed and Breakfast</option>
-            <option value="half_board">Half Board</option>
-            <option value="full_board">Full Board</option>
-          </select>
+          {selectedRooms > 0 && (
+      <div className=" flex flex-col gap-6 lg:flex-row">
+          {responseDatas?.rooms.slice(0, selectedRooms).map((room :any, roomIndex :any) => (
+            <div key={room.id} className="mb-4">
+
+              <label
+                htmlFor={`mealPlan-${roomIndex}`}
+                className="mb-2 block text-xl font-medium text-black"
+              >
+                Meal Plan for Room {room.room_number}
+              </label>
+              <select
+                id={`mealPlan-${roomIndex}`}
+                value={mealPlans[roomIndex]}
+                onChange={(e) => handleMealPlanChange(roomIndex, e.target.value)}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              >
+                <option value="">Select a meal plan</option>
+                <option value="room_only">Room Only</option>
+                <option value="bread_breakfast">Bed and Breakfast</option>
+                <option value="half_board">Half Board</option>
+                <option value="full_board">Full Board</option>
+              </select>
+              {mealPlans[roomIndex] && (
+                <div className="mt-2">
+                  <h4 className="text-lg font-medium">Price</h4>
+                  <p className="text-sm">
+                    ${getMealPlanPrice(room, mealPlans[roomIndex])}
+                  </p>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
-      {selectedRooms > 0 && mealPlan && (
-        <div>
-          <h3 className="text-xl font-medium text-black">Prices for Selected Meal Plan</h3>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {responseDatas?.rooms.slice(0, selectedRooms).map((room :any) => (
-              <div
-                key={room.id}
-                className="w-full md:w-1/3 lg:w-1/4 border rounded p-2 flex flex-col items-start bg-gray-100"
-              >
-                <span className="text-lg font-medium">{room.room_number}</span>
-                <span className="text-sm">Price: ${getMealPlanPrice(room, mealPlan)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
   </div>
 
       </div>
