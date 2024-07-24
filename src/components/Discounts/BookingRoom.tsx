@@ -1,29 +1,40 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CreateGuestBooking from "./CreateGuestBooking";
 
 interface BookingRoomData {
   room_type: any;
   room_type_view: string;
   isShow: any;
+  responseDatas :any;
 }
 
 const BookingRoom: React.FC<BookingRoomData> = ({
   room_type,
   room_type_view,
   isShow,
+  responseDatas
 }) => {
+  console.log("RES",responseDatas)
+
+  useEffect(()=>{
+
+  },[responseDatas])
   const [numRooms, setNumRooms] = useState<number>(0);
   const [adultsPerRoom, setAdultsPerRoom] = useState<number[]>([]);
   const [childrenPerRoom, setChildrenPerRoom] = useState<number[]>([]);
   const [childrenAgesPerRoom, setChildrenAgesPerRoom] = useState<number[][]>(
     [],
   );
+  const [roomCounts, setRoomCounts] = useState<number[]>([]);
+
   const [infantsPerRoom, setInfantsPerRoom] = useState<number[]>([]);
   const [infantAgesPerRoom, setInfantAgesPerRoom] = useState<number[][]>([]);
   const [isChecked, setIsChecked] = useState<boolean>(false);
-  const [isCheckedTwo, setIsCheckedTwo] = useState<boolean>(false);
 
+  const numberOfRooms = responseDatas.rooms.length;
+
+  
   const handleRoomChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedRooms = parseInt(event.target.value, 10);
 
@@ -68,13 +79,13 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
   const getMaxAdults = (roomType: string) => {
     switch (roomType) {
-      case "singleroom":
+      case "Single":
         return 1;
-      case "doubleroom":
+      case "Double":
         return 2;
-      case "tripleroom":
+      case "Triple":
         return 3;
-      case "familyroom":
+      case "Family":
         return 4;
       default:
         return 1;
@@ -127,61 +138,31 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
   const getMaxChildren = (roomType: string, adultCount: number) => {
     switch (roomType) {
-      case "singleroom":
+      case "Single":
         return 0;
-      case "doubleroom":
+      case "Double":
         return adultCount >= 1 ? 1 : 0;
-      case "tripleroom":
+      case "Triple":
         return adultCount >= 3 ? 1 : 2;
-      case "familyroom":
+      case "Family":
         return adultCount >= 4 ? 1 : adultCount >= 3 ? 2 : 3;
       default:
         return 0;
     }
   };
 
-  const roomTypeMapping: Record<string, string> = {
-    singleroom: "Single Room",
-    doubleroom: "Double Room",
-    tripleroom: "Triple Room",
-    familyroom: "Family Room",
-  };
-
   return (
     <div className="mx-auto w-full px-4">
       <div className="pb-6">
         <div className="mb-2 text-xl font-bold text-black">
-          Selected Room : {roomTypeMapping[room_type]}
+          Selected Room Category : {room_type}
         </div>
         <div className="mb-6 text-xl font-bold text-black">
           {room_type_view}
         </div>
         {/* Meal Plan Info and Discount */}
-        <div className="flex flex-col items-start justify-between gap-4 lg:flex-row">
-          <div className=" mb-10 w-full rounded-md bg-slate-300 p-3 shadow-md shadow-black/50 lg:w-[50%]">
-            <h4 className="ml-3 text-xl font-bold text-black">
-              Meal Plan Info
-            </h4>
-
-            <ol className="w-full list-decimal p-3 pl-6">
-              <li className="mb-3 flex items-center justify-between lg:flex-row">
-                <div className="font-bold text-black">Room Only</div>
-                <div className="font-bold text-black">50,000</div>
-              </li>
-              <li className="mb-3 flex items-center justify-between lg:flex-row">
-                <div className="font-bold text-black">Bread and Breakfast</div>
-                <div className="font-bold text-black">50,000</div>
-              </li>
-              <li className="mb-3 flex items-center justify-between lg:flex-row">
-                <div className="font-bold text-black">Full Board</div>
-                <div className="font-bold text-black">80,000</div>
-              </li>
-              <li className="mb-3 flex items-center justify-between lg:flex-row">
-                <div className="font-bold text-black">Half Board</div>
-                <div className="font-bold text-black">50,000</div>
-              </li>
-            </ol>
-          </div>
+        <div className="flex flex-col items-start justify-center gap-4 lg:flex-row">
+ 
           <div className=" mb-12 w-full rounded-md bg-slate-300 p-3 shadow-md shadow-black/50 lg:w-[50%]">
             <h4 className="ml-3 text-xl font-bold text-black">Special Rate</h4>
 
@@ -202,118 +183,66 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           </div>
         </div>
         {/* Actiivities */}
-        <div className="mb-12 mt-1 w-full rounded-md p-3 shadow-md shadow-black/50 lg:w-[50%] ">
-          <h4 className="ml-3 text-xl font-bold text-black">
-            Select Activities
-          </h4>
-          <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
-            <div>
-              <label
-                htmlFor="checkboxLabelTwo"
-                className="flex cursor-pointer select-none items-center text-black "
+    <div className="mb-12 mt-1 w-full rounded-md p-3 shadow-md shadow-black/50 lg:w-[50%] ">
+    <h4 className="ml-3 text-xl font-bold text-black">
+      Select Activities
+    </h4>
+    {responseDatas?.activities?.map((activity: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; price: any; }, index: React.Key | null | undefined) => {
+  return (
+    <div key={index} className="flex w-full items-center justify-between p-3 lg:flex-row">
+      <div>
+        <label
+          htmlFor={`checkboxLabel${index}`}
+          className="flex cursor-pointer select-none items-center text-black"
+        >
+          <div className="relative">
+            <input
+              type="checkbox"
+              id={`checkboxLabel${index}`}
+              className="sr-only"
+              onChange={() => {
+                setIsChecked(!isChecked);
+              }}
+            />
+            <div
+              className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${
+                isChecked ? "border-primary bg-gray dark:bg-transparent" : ""
+              }`}
+            >
+              <span
+                className={`opacity-0 ${isChecked ? "!opacity-100" : ""}`}
               >
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    id="checkboxLabelTwo"
-                    className="sr-only"
-                    onChange={() => {
-                      setIsChecked(!isChecked);
-                    }}
-                  />
-                  <div
-                    className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${
-                      isChecked && "border-primary bg-gray dark:bg-transparent"
-                    }`}
-                  >
-                    <span
-                      className={`opacity-0 ${isChecked && "!opacity-100"}`}
-                    >
-                      <svg
-                        width="11"
-                        height="8"
-                        viewBox="0 0 11 8"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M10.0915 0.951972L10.0867 0.946075L10.0813 0.940568C9.90076 0.753564 9.61034 0.753146 9.42927 0.939309L4.16201 6.22962L1.58507 3.63469C1.40401 3.44841 1.11351 3.44879 0.932892 3.63584C0.755703 3.81933 0.755703 4.10875 0.932892 4.29224L0.932878 4.29225L0.934851 4.29424L3.58046 6.95832C3.73676 7.11955 3.94983 7.2 4.1473 7.2C4.36196 7.2 4.55963 7.11773 4.71406 6.9584L10.0468 1.60234C10.2436 1.4199 10.2421 1.1339 10.0915 0.951972ZM4.2327 6.30081L4.2317 6.2998C4.23206 6.30015 4.23237 6.30049 4.23269 6.30082L4.2327 6.30081Z"
-                          fill="#3056D3"
-                          stroke="#3056D3"
-                          strokeWidth="0.4"
-                        ></path>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-                Serene Boat Rides on the Nature Lake
-              </label>
+                <svg
+                  width="11"
+                  height="8"
+                  viewBox="0 0 11 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M10.0915 0.951972L10.0867 0.946075L10.0813 0.940568C9.90076 0.753564 9.61034 0.753146 9.42927 0.939309L4.16201 6.22962L1.58507 3.63469C1.40401 3.44841 1.11351 3.44879 0.932892 3.63584C0.755703 3.81933 0.755703 4.10875 0.932892 4.29224L0.932878 4.29225L0.934851 4.29424L3.58046 6.95832C3.73676 7.11955 3.94983 7.2 4.1473 7.2C4.36196 7.2 4.55963 7.11773 4.71406 6.9584L10.0468 1.60234C10.2436 1.4199 10.2421 1.1339 10.0915 0.951972ZM4.2327 6.30081L4.2317 6.2998C4.23206 6.30015 4.23237 6.30049 4.23269 6.30082L4.2327 6.30081Z"
+                    fill="#3056D3"
+                    stroke="#3056D3"
+                    strokeWidth="0.4"
+                  ></path>
+                </svg>
+              </span>
             </div>
-            <div className="font-bold text-black">50,000</div>
           </div>
-          <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
-            <div>
-              <label
-                htmlFor="checkboxLabelTwo"
-                className="flex cursor-pointer select-none items-center text-black"
-              >
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    id="checkboxLabelTwo"
-                    className="sr-only"
-                    onChange={() => {
-                      setIsChecked(!isChecked);
-                    }}
-                  />
-                  <div
-                    className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${
-                      isChecked && "border-primary bg-gray dark:bg-transparent"
-                    }`}
-                  >
-                    <span
-                      className={`opacity-0 ${isChecked && "!opacity-100"}`}
-                    >
-                      <svg
-                        width="11"
-                        height="8"
-                        viewBox="0 0 11 8"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M10.0915 0.951972L10.0867 0.946075L10.0813 0.940568C9.90076 0.753564 9.61034 0.753146 9.42927 0.939309L4.16201 6.22962L1.58507 3.63469C1.40401 3.44841 1.11351 3.44879 0.932892 3.63584C0.755703 3.81933 0.755703 4.10875 0.932892 4.29224L0.932878 4.29225L0.934851 4.29424L3.58046 6.95832C3.73676 7.11955 3.94983 7.2 4.1473 7.2C4.36196 7.2 4.55963 7.11773 4.71406 6.9584L10.0468 1.60234C10.2436 1.4199 10.2421 1.1339 10.0915 0.951972ZM4.2327 6.30081L4.2317 6.2998C4.23206 6.30015 4.23237 6.30049 4.23269 6.30082L4.2327 6.30081Z"
-                          fill="#3056D3"
-                          stroke="#3056D3"
-                          strokeWidth="0.4"
-                        ></path>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-                Enjoy a Game of Billiards
-              </label>
-            </div>
-            <div className="font-bold text-black">520,000</div>
-          </div>
-        </div>
+          {activity?.name}
+        </label>
+      </div>
+      <div className="font-bold text-black">{(activity?.price)?.toLocaleString()}</div>
+    </div>
+  );
+})}
+
+  </div>
+  
+    
         {/* Dropdown for  Room*/}
         <div className="mb-4 mt-4 flex flex-col gap-4 lg:flex-row">
-          <div className="w-full xl:w-1/5">
-            <label className="mb-2 block text-xl  font-medium text-black">
-              Room Plan
-            </label>
-            <select
-              required
-              className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-            >
-              <option value="">Choose a plan</option>
-              <option value="breadandbreakfast">Bread and Break fast</option>
-              <option value="roomonly">Room Only</option>
-              <option value="fullboard">Full Board</option>
-              <option value="halfboard">Half Board</option>
-            </select>
-          </div>
+    
           <div className="w-full xl:w-1/5">
             <label
               htmlFor="roomNumber"
@@ -364,7 +293,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   ),
                 )}
               </select>
-              {room_type !== "singleroom" && (
+              {room_type !== "Single" && (
                 <>
                   <label
                     htmlFor={`children-${roomIndex}`}
@@ -421,8 +350,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                         className="mb-4 w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                       >
                         <option value="">Choose age</option>
-                        <option value="3">3 - 6 years</option>
-                        <option value="6">6 - 10 years</option>
+                        <option value="3">3 - 10 years</option>
                       </select>
                     ),
                   )}
@@ -479,7 +407,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                       >
                         <option value="">Choose age</option>
                         <option value="0">0</option>
-                        {[...Array(4)].map((_, age) => (
+                        {[...Array(2)].map((_, age) => (
                           <option key={age + 1} value={age + 1}>
                             {age + 1}
                           </option>
