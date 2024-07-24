@@ -1,10 +1,12 @@
 "use client";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 const CreateTaxTypes = () => {
   const [formData, setFormData] = useState({
     name: "",
-    percentage: 0,
+    percentage: "",
     tax_type: "",
     description: ""
   });
@@ -17,9 +19,40 @@ const CreateTaxTypes = () => {
     }));
   };
 
-  const handleSubmit = (e:any) => {
+  const [loading, setLoading] = React.useState<boolean>(false)
+  const router = useRouter()
+  const handleSubmit = async (e:any) => {
     e.preventDefault();
+    setLoading(true)
     console.log("Form Data Submitted: ", formData);
+    try {
+      const response = await fetch('/api/tax/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        toast.error(`Failed to create user: ${errorData.error || 'Unknown error'}`);
+        setLoading(false)
+        return;
+      }
+
+      const data = await response.json();
+      toast.success("tax is  created successfully");
+      setLoading(false)
+     
+      setTimeout(()=>{
+        router.push("/taxtypes")
+      },1500)
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false)
+      toast.error("An error occurred while creating the user");
+    }
   };
 
   return (
@@ -89,8 +122,8 @@ const CreateTaxTypes = () => {
               ></textarea>
             </div>
 
-            <button className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
-              Submit
+            <button disabled={loading} className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+              {loading ? "Submitting" : "Submit"}
             </button>
           </div>
         </form>

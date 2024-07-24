@@ -17,6 +17,7 @@ const UpdateUser = () => {
   let userId = searchParams.get("userID");
 
   const router = useRouter();
+  const [loading, setLoading] = useState(false); 
 
   const handleInputChange =(e: any)=>{
     const {name, value} = e.target;
@@ -47,6 +48,7 @@ const UpdateUser = () => {
   }, [userId]);
   const handleSubmit = async (e:any) => {
     e.preventDefault();
+    setLoading(true); 
 
     try {
       const response = await fetch('/api/user/update', {
@@ -70,6 +72,7 @@ const UpdateUser = () => {
     
   } catch (err) {
     console.log(err)
+      setLoading(false); 
       toast.error( 'An error occurred');
   }
   };
@@ -149,8 +152,8 @@ const UpdateUser = () => {
 
 
 
-            <button type="submit" className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
-              Update
+            <button type="submit" disabled={loading} className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+           {loading ? "Updating..." : "Update"} 
             </button>
           </div>
         </form>
