@@ -22,6 +22,7 @@ interface DiscountData {
   id: number;
   name: string;
   percentage: number;
+  discount_code:string;
   description: string;
   start_date: string;
   end_date: string;
@@ -229,6 +230,9 @@ const ViewDiscount = () => {
                               Discount
                             </th>
                             <th scope="col" className="px-6 py-3">
+                              Discount Code
+                            </th>
+                            <th scope="col" className="px-6 py-3">
                               Description
                             </th>
       
@@ -271,6 +275,8 @@ const ViewDiscount = () => {
                               <td className="px-6 py-4">{activity.id}</td>
                               <td className="px-6 py-4">{activity.name}</td>
                               <td className="px-6 py-4">{activity.percentage}%</td>
+                              <td className="px-6 py-4">{activity.discount_code}</td>
+
                               <td className="px-6 py-4" style={{ minWidth: "200px" }}>
                                 {activity.description}
                               </td>

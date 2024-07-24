@@ -31,8 +31,9 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [childrenAgesPerRoom, setChildrenAgesPerRoom] = useState<number[][]>(
     [],
   );
-  const [roomCounts, setRoomCounts] = useState<number[]>([]);
-  const [mealPlans, setMealPlans] = useState<any>([]);
+  const [totalCost, setTotalCost] = useState(0);
+  const [totalDiscount, setTotalDiscount] = useState(0);
+    const [mealPlans, setMealPlans] = useState<any>([]);
   const [mealPlanCosts, setMealPlanCosts] = useState(new Array(responseDatas?.rooms?.length).fill(0));
 
   const [infantsPerRoom, setInfantsPerRoom] = useState<number[]>([]);
@@ -98,11 +99,67 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const getTotalMealPlanCost = () => {
     return mealPlanCosts.reduce((acc, cost) => acc + cost, 0);
   };
+  useEffect(() => {
+    const calculateTotalCost = () => {
+      const mealPlanCost = getTotalMealPlanCost();
+      const activityCost = totalActivityPrice;
+    
+      // Calculate base total cost
+      let baseTotalCost = mealPlanCost + activityCost;
+      let totalDiscountAccumulated = 0; // Variable to accumulate total discount
+    
+      // Apply discount individually for each room
+      responseDatas?.rooms.forEach((room : any, index :any) => {
+        const isNotSingleRoom = room.category !== "Single";
+        const maxAdults = getMaxAdults(room.category);
+        const hasMaxAdults = adultsPerRoom[index] === maxAdults;
+        const hasAtLeastOneChild = childrenPerRoom[index] > 0;
+    
+        // Assuming `mealPlans` is an array or object holding selected meal plans
+        const mealPlan = mealPlans[index]; // Replace with the actual variable
+        const isMealPlanEligible = mealPlan !== "room_only"; // Adjust this check as per your data
+    
+        // Debugging: Log condition results
+        console.log(`Room ${index}:`, {
+          room_type: room.category,
+          isNotSingleRoom,
+          maxAdults,
+          adults: adultsPerRoom[index],
+          hasMaxAdults,
+          hasAtLeastOneChild,
+          mealPlan,
+          isMealPlanEligible,
+        });
+    
+        // Apply discount if conditions are met
+        if (isNotSingleRoom && hasMaxAdults && hasAtLeastOneChild && isMealPlanEligible) {
+          const roomCost = mealPlanCosts[index]; // Replace with the actual cost of the room
+          const mealPlanDiscount = mealPlanCosts[index] * 0.5; // 50% discount on meal plan cost
+    
+          // Adjust total cost
+          baseTotalCost -= mealPlanDiscount;
+    
+          // Accumulate the total discount
+          totalDiscountAccumulated += mealPlanDiscount;
+    
+          // Debugging: Log discounted cost for each room
+          console.log(`Room ${index} Discount Applied. Meal Plan Discount:`, mealPlanDiscount);
+        }
+      });
+    
+      // Update state with the total discount
+      setTotalDiscount(totalDiscountAccumulated);
+    
+      // Debugging: Log final total cost after discounts
+      console.log('Final Total Cost after Discounts:', baseTotalCost);
+      console.log('Total Discount:', totalDiscountAccumulated);
+    
+      setTotalCost(baseTotalCost);
+    };
 
-  const getTotalCost = () => {
-    return getTotalMealPlanCost() + totalActivityPrice;
-  };
-
+    calculateTotalCost();
+  }, [responseDatas, adultsPerRoom, childrenPerRoom, mealPlans, totalActivityPrice, mealPlanCosts]);
+  
   const handleAdultChange = (roomIndex: number, value: number) => {
     const updatedAdults = [...adultsPerRoom];
     updatedAdults[roomIndex] = value;
@@ -552,11 +609,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           </div>
         <div className="flex  w-full lg:flex-row items-center justify-between p-3">
           <div className="text-orange-500 text-[20px]">Discount & Special Rate</div>
-          <div className=" font-bold text-orange-500">(-80,000)</div>
+          <div className=" font-bold text-orange-500">(-{totalDiscount})</div>
         </div>
         <div className="flex  w-full lg:flex-row items-center justify-between p-3 border-t-2 border-black mt-3">
           <div className="text-black font-bold text-[28px]">Total</div>
-        <div className="text-black font-bold">Rs{getTotalCost().toLocaleString()}</div>
+        <div className="text-black font-bold">Rs{totalCost}</div>
       </div>
           </div>
 
