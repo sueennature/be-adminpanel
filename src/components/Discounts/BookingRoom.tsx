@@ -28,17 +28,24 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   );
   const [roomCounts, setRoomCounts] = useState<number[]>([]);
   const [mealPlans, setMealPlans] = useState<any>([]);
+  const [mealPlanCosts, setMealPlanCosts] = useState(new Array(responseDatas?.rooms?.length).fill(0));
 
   const [infantsPerRoom, setInfantsPerRoom] = useState<number[]>([]);
   const [infantAgesPerRoom, setInfantAgesPerRoom] = useState<number[][]>([]);
   const [isChecked, setIsChecked] = useState<boolean>(false);
-  const [checkedItems, setCheckedItems] = useState<{ [key: number]: boolean }>({});
+  const [checkedItems, setCheckedItems] = useState(new Array(responseDatas?.activities?.length).fill(false));
+  const [totalActivityPrice, setTotalActivityPrice] = useState(0);
 
-  const handleCheckboxChange = (index: number) => {
-    setCheckedItems((prevState) => ({
-      ...prevState,
-      [index]: !prevState[index],
-    }));
+  const handleCheckboxChange = (index : any) => {
+    const updatedCheckedItems = [...checkedItems];
+    updatedCheckedItems[index] = !updatedCheckedItems[index];
+    setCheckedItems(updatedCheckedItems);
+
+    const selectedActivity = responseDatas.activities[index];
+    const updatedTotalPrice = updatedCheckedItems[index]
+      ? totalActivityPrice + selectedActivity.price
+      : totalActivityPrice - selectedActivity.price;
+    setTotalActivityPrice(updatedTotalPrice);
   };
   const numberOfRooms = responseDatas.rooms.length;
   const [selectedRooms, setSelectedRooms] = useState(0);
@@ -57,7 +64,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       setInfantsPerRoom([]);
       setInfantAgesPerRoom([]);
       setMealPlans([]);
-
+      setMealPlans(new Array(responseDatas?.rooms?.length).fill(''));
+      setMealPlanCosts(new Array(responseDatas?.rooms?.length).fill(0));
       return;
     }
 
@@ -68,14 +76,27 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     setInfantsPerRoom(new Array(selectedRooms).fill(0));
     setInfantAgesPerRoom(new Array(selectedRooms).fill([]));
     setMealPlans(new Array(selectedRooms).fill(''));
+    setMealPlanCosts(new Array(selectedRooms).fill(0));
 
   };
-  const handleMealPlanChange = (roomIndex :any, value :any) => {
-    const updatedMealPlans :any = [...mealPlans];
+ 
+  const handleMealPlanChange = (roomIndex :any, value:any) => {
+    const updatedMealPlans = [...mealPlans];
     updatedMealPlans[roomIndex] = value;
     setMealPlans(updatedMealPlans);
+
+    const updatedMealPlanCosts = [...mealPlanCosts];
+    updatedMealPlanCosts[roomIndex] = responseDatas.rooms[roomIndex][value];
+    setMealPlanCosts(updatedMealPlanCosts);
   };
 
+  const getTotalMealPlanCost = () => {
+    return mealPlanCosts.reduce((acc, cost) => acc + cost, 0);
+  };
+
+  const getTotalCost = () => {
+    return getTotalMealPlanCost() + totalActivityPrice;
+  };
   const getMealPlanPrice = (room :any, mealPlan:any) => {
     switch (mealPlan) {
       case 'room_only':
@@ -222,7 +243,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     <h4 className="ml-3 text-xl font-bold text-black">
       Select Activities
     </h4>
-    {responseDatas?.activities?.map((activity : any ,index: any) => (
+    {responseDatas?.activities?.map((activity : any, index : any) => (
         <div key={index} className="flex w-full items-center justify-between p-3 lg:flex-row">
           <div>
             <label
@@ -311,42 +332,49 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             </div>
           )}
           </div>
+          {selectedRooms > 0 && (
+      <div className=" flex flex-col gap-6 lg:flex-row">
+          {responseDatas?.rooms.slice(0, selectedRooms).map((room :any, index:any) => (
+              <div key={room.id} className="w-full ">
+                <div className="mb-2 flex items-center">
+                  <div className="w-12 h-[40px] border rounded p-2 flex items-center justify-center bg-gray-100 mr-2">
+                    {room.room_number}
+                  </div>
+                 
 
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
           
 
           {selectedRooms > 0 && (
-      <div className=" flex flex-col gap-6 lg:flex-row">
-          {responseDatas?.rooms.slice(0, selectedRooms).map((room :any, roomIndex :any) => (
-            <div key={room.id} className="mb-4">
-
-              <label
-                htmlFor={`mealPlan-${roomIndex}`}
-                className="mb-2 block text-xl font-medium text-black"
+      <div className=" flex flex-col gap-6 lg:flex-row ">
+          {responseDatas?.rooms.slice(0, selectedRooms).map((room :any, index:any) => (
+              <div key={room.id} className="w-full ">
+                <div className="mb-2 flex flex-col items-start">
+                <label
+                className="mb-2 block text-xl  font-medium text-black"
               >
-                Meal Plan for Room {room.room_number}
+                Meal Plan per Room
               </label>
-              <select
-                id={`mealPlan-${roomIndex}`}
-                value={mealPlans[roomIndex]}
-                onChange={(e) => handleMealPlanChange(roomIndex, e.target.value)}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              >
-                <option value="">Select a meal plan</option>
-                <option value="room_only">Room Only</option>
-                <option value="bread_breakfast">Bed and Breakfast</option>
-                <option value="half_board">Half Board</option>
-                <option value="full_board">Full Board</option>
-              </select>
-              {mealPlans[roomIndex] && (
-                <div className="mt-2">
-                  <h4 className="text-lg font-medium">Price</h4>
-                  <p className="text-sm">
-                    ${getMealPlanPrice(room, mealPlans[roomIndex])}
-                  </p>
+                  <select
+                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                    onChange={(e) => handleMealPlanChange(index, e.target.value)}
+                  >
+                    <option value="">Select Meal Plan</option>
+                    <option value="room_only">Room Only</option>
+                    <option value="bread_breakfast">Bread & Breakfast</option>
+                    <option value="half_board">Half Board</option>
+                    <option value="full_board">Full Board</option>
+                  </select>
+                  <div className="ml-2 text-black">
+                    {mealPlanCosts[index] ? `RS ${mealPlanCosts[index]}` : ''}
+                  </div>
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            ))}
         </div>
       )}
 
@@ -354,7 +382,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
       </div>
       {/* Adults, Children and Infants */}
-      <div className="mb-12 flex flex-col gap-6 lg:flex-row">
+      <div className="mb-12 flex flex-col gap-6 relative top-[-10px] lg:flex-row ">
         {numRooms > 0 &&
           [...Array(numRooms)].map((_, roomIndex) => (
             <div key={`room-${roomIndex}`} className="w-full lg:w-1/5">
@@ -519,19 +547,19 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             </div>
           <div className="flex  w-full lg:flex-row items-center justify-between p-3">
           <div className="text-black  text-[20px]">Total Rooms with Meal Plan</div>
-          <div className="text-black font-bold">50,000</div>
-        </div>
+          <div className="text-black font-bold">Rs {getTotalMealPlanCost().toLocaleString()}</div>        
+          </div>
         <div className="flex  w-full lg:flex-row items-center justify-between p-3">
           <div className="text-black text-[20px] ">Total Activities</div>
-          <div className="text-black font-bold">50,000</div>
-        </div>
+          <div className="text-black font-bold">Rs {totalActivityPrice.toLocaleString()}</div>
+          </div>
         <div className="flex  w-full lg:flex-row items-center justify-between p-3">
           <div className="text-orange-500 text-[20px]">Discount & Special Rate</div>
           <div className=" font-bold text-orange-500">(-80,000)</div>
         </div>
         <div className="flex  w-full lg:flex-row items-center justify-between p-3 border-t-2 border-black mt-3">
           <div className="text-black font-bold text-[28px]">Total</div>
-          <div className="text-black font-bold">50,000</div>
+        <div className="text-black font-bold">Rs{getTotalCost().toLocaleString()}</div>
       </div>
           </div>
 
