@@ -18,6 +18,9 @@ const CheckAvailability = () => {
   const endDate = useRef<flatpickr.Instance | null>(null);
   const [showBooking, setShowBooking] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState("")
+  const [selectedCheckIn, setSelectedCheckIn] = React.useState("")
+  const [selectedCheckOut, setSelectedCheckOut] = React.useState("")
+
   const [reponseData, setResponseData] = useState<boolean>(false);
 
   useEffect(() => {
@@ -86,6 +89,8 @@ const CheckAvailability = () => {
       });
   
       setSelectedRoom(formData.category)
+      setSelectedCheckIn(formData.check_in)
+      setSelectedCheckOut(formData.check_out)
       setResponseData(response.data)
       console.log(response.data);
       setShowBooking(true);
@@ -281,7 +286,7 @@ const CheckAvailability = () => {
           )}
 
           {showBooking && (
-            <BookingRoom isShow={handleGoBack} room_type={selectedRoom} room_type_view={""} responseDatas={reponseData} />
+            <BookingRoom isShow={handleGoBack} room_type={selectedRoom} room_type_view={""} responseDatas={reponseData} checkIN={selectedCheckIn} checkOut={selectedCheckOut} />
           )}
         </div>
       </div>

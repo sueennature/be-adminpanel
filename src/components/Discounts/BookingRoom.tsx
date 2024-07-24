@@ -7,15 +7,20 @@ interface BookingRoomData {
   room_type_view: string;
   isShow: any;
   responseDatas :any;
+  checkIN: any;
+  checkOut : any
 }
 
 const BookingRoom: React.FC<BookingRoomData> = ({
   room_type,
   room_type_view,
   isShow,
-  responseDatas
+  responseDatas,
+  checkIN,
+  checkOut
 }) => {
   console.log("RES",responseDatas)
+  console.log("DATE", checkIN, checkOut)
 
   useEffect(()=>{
 
@@ -96,20 +101,6 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
   const getTotalCost = () => {
     return getTotalMealPlanCost() + totalActivityPrice;
-  };
-  const getMealPlanPrice = (room :any, mealPlan:any) => {
-    switch (mealPlan) {
-      case 'room_only':
-        return room.room_only;
-      case 'bread_breakfast':
-        return room.bread_breakfast;
-      case 'half_board':
-        return room.half_board;
-      case 'full_board':
-        return room.full_board;
-      default:
-        return 0;
-    }
   };
 
   const handleAdultChange = (roomIndex: number, value: number) => {
@@ -206,6 +197,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         return 0;
     }
   };
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
 
   return (
     <div className="mx-auto w-full px-4">
@@ -221,21 +216,23 @@ const BookingRoom: React.FC<BookingRoomData> = ({
  
           <div className=" mb-12 w-full rounded-md bg-slate-300 p-3 shadow-md shadow-black/50 lg:w-[50%]">
             <h4 className="ml-3 text-xl font-bold text-black">Special Rate</h4>
-
-            <ol className="w-full list-decimal p-3 pl-6">
-              <li className="mb-3 flex items-center justify-between lg:flex-row">
-                <div className="font-bold text-black">
-                  Description (24th Jun 2024 - 24th July 2024)
-                </div>
-                <div className="font-bold text-black">50%</div>
-              </li>
-              <li className="mb-3 flex items-center justify-between lg:flex-row">
-                <div className="font-bold text-black">
-                  Discount (24th Jun 2024 - 24th July 2024)
-                </div>
-                <div className="font-bold text-black">50%</div>
-              </li>
-            </ol>
+            {responseDatas?.discounts?.map((discount : any, index : any) => (
+        <div key={index} className="flex w-full items-center justify-between p-3 lg:flex-row">
+          <div>
+            <label
+              htmlFor={`checkboxLabel${index}`}
+              className="flex cursor-pointer select-none items-center text-black"
+            >
+              <div className="relative">
+            
+              </div>
+              {discount?.name} <span className="ml-2"><strong>( {formatDate(discount?.start_date)}- {formatDate(discount?.end_date)} )</strong> </span>
+              </label>
+          </div>
+          <div className="font-bold text-black">{(discount?.percentage)}%</div>
+        </div>
+      ))}
+          
           </div>
         </div>
         {/* Actiivities */}
