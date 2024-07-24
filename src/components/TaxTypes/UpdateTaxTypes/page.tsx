@@ -1,5 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const UpdateTaxTypes = () => {
   const [formData, setFormData] = useState({
@@ -16,10 +20,64 @@ const UpdateTaxTypes = () => {
       [name]: value
     }));
   };
+  const searchParams = useSearchParams();
+  let taxId = searchParams.get("taxID");
 
-  const handleSubmit = (e:any) => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false); 
+
+  useEffect(() => {
+    const fetchTax = async () => {
+      if (taxId) {
+        try {
+          const accessToken = Cookies.get('access_token'); 
+
+          const response = await axios.get(`${process.env.BE_URL}/taxes/${taxId}`, {
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${accessToken}`,
+                  'x-api-key': process.env.X_API_KEY, 
+              },
+          });
+          console.log(response.data);
+          setFormData(response.data)
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
+
+    fetchTax();
+  }, [taxId]);
+
+  const handleSubmit = async (e:any) => {
     e.preventDefault();
     console.log("Form Data Submitted: ", formData);
+    try {
+      const response = await fetch('/api/tax/update', {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: taxId, ...formData }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+          throw new Error(result.error || 'Failed to update item');
+      }
+
+      toast.success('tax is updated successfully');
+      setTimeout(()=>{
+        router.push('/taxestypes')
+      },1000)
+    
+  } catch (err) {
+    console.log(err)
+      setLoading(false); 
+      toast.error( 'An error occurred');
+  }
   };
 
   return (
@@ -89,8 +147,8 @@ const UpdateTaxTypes = () => {
               ></textarea>
             </div>
 
-            <button className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
-              Update
+            <button disabled={loading} className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90">
+              {loading ? "Updating..." : "Update"}
             </button>
           </div>
         </form>

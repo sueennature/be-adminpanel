@@ -1,12 +1,13 @@
 "use client";
 import React, { ChangeEvent, FormEvent, useState } from "react";
+import { toast } from "react-toastify";
 
 interface RoomFormData {
   title: string;
   content: string;
   image_url: string;
-  images: [];
-  videos: []; 
+  images: string[];
+  videos: string[];
 }
 
 const CreateNews = () => {
@@ -34,15 +35,23 @@ const CreateNews = () => {
   ) => {
     const files = e.target.files;
     if (files) {
-      setFormData((prevState) => ({
-        ...prevState,
-        [type]: Array.from(files),
-      }));
-    } else {
-      setFormData((prevState) => ({
-        ...prevState,
-        [type]: [],
-      }));
+      const filePromises = Array.from(files).map(file => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+        });
+      });
+
+      Promise.all(filePromises)
+        .then(base64Files => {
+          setFormData((prevState) => ({
+            ...prevState,
+            [type]: base64Files,
+          }));
+        })
+        .catch(error => console.error("Error converting files:", error));
     }
   };
 
@@ -55,24 +64,23 @@ const CreateNews = () => {
       return;
     }
 
-    const formDataToSend = new FormData();
-    formDataToSend.append("title", formData.title);
-    formDataToSend.append("content", formData.content);
-    formDataToSend.append("image_url", formData.image_url);
+    const payload = {
+      title: formData.title,
+      content: formData.content,
+      image_url: formData.image_url,
+      images: formData.images,
+      videos: formData.videos,
+    };
 
-    // Append images and videos as individual files
-    formData.images.forEach((image) => formDataToSend.append("images", image));
-    formData.videos.forEach((video) => formDataToSend.append("videos", video));
-    console.log("Payload:", Array.from(formDataToSend.entries()));
+    console.log("Payload:", payload);
 
-    console.log(formData)
     try {
-      // Log the payload to check its format
-      console.log("Payload:", Array.from(formDataToSend.entries()));
-
       const response = await fetch("/api/news", {
         method: "POST",
-        body: formDataToSend,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -83,8 +91,12 @@ const CreateNews = () => {
 
       const data = await response.json();
       console.log("Success:", data);
+      toast.success("The news has been created successfully!")  
+      // successfull toast messsage
     } catch (error) {
       console.error("Error:", error);
+      toast.success("Somthing went wrong!")
+      // Error toast messsage
     }
   };
 
@@ -176,3 +188,4 @@ const CreateNews = () => {
 };
 
 export default CreateNews;
+
