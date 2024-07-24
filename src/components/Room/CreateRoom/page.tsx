@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 import { toast } from 'react-toastify';
 interface RoomFormData {
+  room_number:string;
   name: string;
   category: string;
   view:string;
@@ -26,7 +27,8 @@ interface RoomFormData {
 
 const CreateRoom = () => {
   const [formData, setFormData] = useState<RoomFormData>({
-    name: '',
+    room_number:"",
+    name:"",
     category: '',
     max_adults: '',
     max_childs: '',
@@ -48,7 +50,7 @@ const CreateRoom = () => {
   });
 
   const router = useRouter();
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     
       setFormData({
@@ -112,6 +114,7 @@ const CreateRoom = () => {
           toast.success("Room created successfully");
 
           setFormData({
+            room_number:"",
             name: '',
             category: '',
             max_adults: '',
@@ -151,46 +154,58 @@ const CreateRoom = () => {
             
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
-                Room Name
+                Room No
               </label>
               <input
                 type="text"
-                name="name"
+                name="room_number"
                 required
                 placeholder="Enter the Room Name"
-                value={formData.name}
+                value={formData.room_number}
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
             </div>
+
             <div className="w-full xl:w-1/4">
-              <label className="mb-3 block text-sm font-medium text-black">
+                <label className="mb-3 block text-sm font-medium text-black">
                 Category
-              </label>
-              <input
-                type="text"
-                name="category"
-                required
-                placeholder="Enter the category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              />
-            </div>
+                </label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                >
+                                    <option value="">Select a room category</option>
+                <option value="Single">Single </option>
+                  <option value="Deluxe">Deluxe</option>
+                  <option value="Double">Double</option>
+                  <option value="Family">Family</option>
+                  <option value="Triple">Triple</option>
+                </select>
+              </div>
+              
             <div className="w-full xl:w-1/4">
-              <label className="mb-3 block text-sm font-medium text-black">
+                <label className="mb-3 block text-sm font-medium text-black">
                 Second Category
-              </label>
-              <input
-                type="text"
-                name="secondary_category"
-                required
-                placeholder="Enter the Second Category"
-                value={formData.secondary_category}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              />
-            </div>
+                </label>
+                <select
+                 name="secondary_category"
+                 
+                 value={formData.secondary_category}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                >
+                  <option value="">Select a room  second category</option>
+                  <option value="Single">Single </option>
+                  <option value="Deluxe">Deluxe</option>
+                  <option value="Double">Double</option>
+                  <option value="Family">Family</option>
+                  <option value="Triple">Triple</option>
+                </select>
+              </div>
             <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Views

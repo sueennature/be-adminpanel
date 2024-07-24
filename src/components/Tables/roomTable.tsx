@@ -15,7 +15,7 @@ import Loader from "@/components/common/Loader";
 
 interface RoomData {
   id: number;
-  name: string;
+  room_number: string;
   category: string;
   max_adults: number;
   max_childs: number;
@@ -25,6 +25,7 @@ interface RoomData {
   half_board: number;
   full_board: number;
   description: string;
+  view:string;
   secondary_category: string;
   features: string[];
   beds: string;
@@ -74,7 +75,7 @@ const RoomTable = () => {
   }, []);
   const filteredRooms = rooms.filter(
     (room) =>
-      room.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
+      room.category.toLowerCase().includes(nameFilter.toLowerCase()) &&
       String(room.id).toLowerCase().includes(idFilter.toLowerCase()),
   );
 
@@ -175,7 +176,7 @@ const RoomTable = () => {
   const csvData = filteredRooms.map(
     ({
       id,
-      name,
+      room_number,
       max_adults,
       max_childs,
       max_people,
@@ -189,10 +190,11 @@ const RoomTable = () => {
       room_only,
       bread_breakfast,
       half_board,
+      view,
       full_board,
     }) => ({
       id,
-      name,
+      room_number,
       max_adults,
       max_childs,
       max_people,
@@ -205,6 +207,7 @@ const RoomTable = () => {
       full_board,
       features,
       beds,
+      view,
       size,
       bathroom,
     }),
@@ -289,6 +292,9 @@ const RoomTable = () => {
                           Size
                         </th>
                         <th scope="col" className="px-6 py-3">
+                          View
+                        </th>
+                        <th scope="col" className="px-6 py-3">
                           Room Only
                         </th>
                         <th scope="col" className="px-6 py-3">
@@ -340,7 +346,7 @@ const RoomTable = () => {
                             </div>
                           </td>
                           <td className="px-6 py-4">{room.id}</td>
-                          <td className="px-6 py-4">{room.name}</td>
+                          <td className="px-6 py-4">{room.room_number}</td>
                           <td className="px-6 py-4">{room.category}</td>
                           <td className="px-6 py-4">{room.max_adults}</td>
                           <td className="px-6 py-4">{room.max_childs}</td>
@@ -349,6 +355,7 @@ const RoomTable = () => {
                           <td className="px-6 py-4">{room.features}</td>
                           <td className="px-6 py-4">{room.beds}</td>
                           <td className="px-6 py-4">{room.size}</td>
+                          <td className="px-6 py-4">{room.view}</td>
                           <td className="px-6 py-4">
                             {room.room_only.toLocaleString()}
                           </td>
@@ -374,7 +381,7 @@ const RoomTable = () => {
                                 >
                                   <Image
                                     src={image}
-                                    alt={room.name}
+                                    alt={room.room_number}
                                     width={80}
                                     height={80}
                                     className="h-full w-full object-cover"
