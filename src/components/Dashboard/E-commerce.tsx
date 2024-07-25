@@ -11,6 +11,7 @@ import DatePicker from "../Datepicker";
 import ReservationChart from "../BarChart";
 import AvailableRoomsProgressBar from "../AvailableRoomsProgressBar";
 import SoldRoomsProgressBar from "../SoldRoomsProgressBar";
+import CheckAvailability from '@/components/Discounts/CheckAvailability'
 
 
 
@@ -25,9 +26,10 @@ const totalRooms = 26; // Replace with your actual total room count
 const ECommerce: React.FC = () => {
   return (
     <>
+    <CheckAvailability/>
 
        {/* dashboard cards */}
-      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-4 2xl:gap-7.5">
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-4 2xl:gap-7.5 mt-6">
         <CardDataStats title="New Bookings" total="500" rate={""}  >
          <Calendar/>
         </CardDataStats>

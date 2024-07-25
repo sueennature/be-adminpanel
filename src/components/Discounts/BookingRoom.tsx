@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import CreateGuestBooking from "./CreateGuestBooking";
+import { toast } from 'react-toastify';
+import { useRouter } from "next/navigation";
 
 interface BookingRoomData {
   room_type: any;
@@ -357,6 +359,37 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const router = useRouter()   //set router
+//habdle api for create booking
+  const handleClick = async () => {
+    try {
+      const response = await fetch("/api/booking/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to create a booking:", errorData);
+        toast.error("Failed to create a booking");
+        return;
+      }
+
+      const responseData = await response.json();
+      console.log("Success:", responseData);
+      toast.success("booking is created successfully");
+      setTimeout(()=>{
+        router.push("/calendar")
+      },1500)
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Something went wrong!");
+    }
   };
 
   return (
@@ -938,12 +971,13 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           Go Back
         </button>
         <button
-          onClick={() => {}}
+          onClick={handleClick}
           className="mt-4 h-12 w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 xl:w-1/5"
         >
           Proceed to Pay
         </button>
       </div>
+    
     </div>
   );
 };
