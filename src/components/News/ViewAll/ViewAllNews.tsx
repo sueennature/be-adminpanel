@@ -33,8 +33,8 @@ const ViewAllNews = () => {
             "x-api-key": process.env.X_API_KEY,
           },
         });
-        console.log(response.data);
-        setNews(response.data);
+        console.log(response.data.data);
+        setNews(response.data.data);
         setLoading(false);
       } catch (err) {
         setLoading(false);
