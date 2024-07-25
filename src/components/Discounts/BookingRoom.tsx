@@ -11,6 +11,19 @@ interface BookingRoomData {
   checkOut : any;
   discountCode: any;
 }
+interface Room {
+  room_id: number;
+  category: string;
+  adults: number;
+  child: number[];
+  infants: number[];
+  meal_plan: string;
+  view: string;
+}
+
+interface FormData {
+  rooms: Room[];
+}
 
 const BookingRoom: React.FC<BookingRoomData> = ({
   room_type,
@@ -22,9 +35,24 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   discountCode
 }) => {
   // console.log("RES",responseDatas)
-  // console.log("DATE", checkIN, checkOut)
+  console.log("DATE", checkIN, checkOut)
   // console.log("DISCOUNT_CODE", discountCode)
 
+  const initialFormData: FormData = {
+    rooms: [
+      {
+        room_id: 0,
+        category: '',
+        adults: 1,
+        child: [0, 0], // Default to two children with age 0
+        infants: [0, 0], // Default to two infants with age 0
+        meal_plan: '',
+        view: ''
+      }
+    ]
+  };
+  
+  const [formData, setFormData] = useState<FormData>(initialFormData);
   useEffect(()=>{
 
   },[responseDatas])
@@ -144,6 +172,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     return 0;
   };
   
+  // Calculating the discount
   const calculateTotalCost = () => {
     const mealPlanCost = getTotalMealPlanCost();
     const activityCost = totalActivityPrice;
@@ -255,6 +284,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       case "Single":
         return 1;
       case "Double":
+      case "Deluxe":
         return 2;
       case "Triple":
         return 3;
@@ -313,7 +343,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     switch (roomType) {
       case "Single":
         return 0;
-      case "Double":
+        case "Double":
+        case "Deluxe":
         return adultCount >= 1 ? 1 : 0;
       case "Triple":
         return adultCount >= 3 ? 1 : 2;
@@ -710,9 +741,163 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       </div>
 
       <div className="w-full">
-        <CreateGuestBooking />
+    
       </div>
+      <div className="w-full">
+      <div className="flex flex-col gap-9">
+        <form action="#">
+            <div className="mb-4 text-2xl font-bold text-black">
+                Agent Info
+            </div>
+            <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black ">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter the First Name"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+                />
+              </div>
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black ">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter the Last Name"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+                />
+              </div>
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black ">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="Enter the email"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+                />
+              </div>
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black">
+                  Nationality
+                </label>
+                <select
+                  required
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                >
+                  <option value="">Select a nationality</option>
+                  <option value="foreign">Foreign</option>
+                  <option value="local">Local</option>
+                </select>
+              </div>
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black ">
+                  Telephone
+                </label>
+                <input
+                  type="number"
+                  required
+                  placeholder="Enter the Telephone"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+                />
+              </div>
+            </div>
 
+            <div className="mb-6">
+              <label className="mb-3 block text-xl font-medium text-black ">
+                Address
+              </label>
+              <textarea
+                rows={6}
+                required
+                placeholder="Enter the Address"
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+              ></textarea>
+            </div>
+
+            <div className="mb-4 text-2xl font-bold text-black">
+                Guest Info
+            </div>
+            <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black ">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter the Guest First Name"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+                />
+              </div>
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black ">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter the Guest Last Name"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+                />
+              </div>
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black ">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="Enter the Guest email"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+                />
+              </div>
+
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black">
+                  Nationality
+                </label>
+                <select
+                  required
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                >
+                  <option value="">Select a guest nationality</option>
+                  <option value="foreign">Foreign</option>
+                  <option value="local">Local</option>
+                </select>
+              </div>
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black ">
+                   Telephone
+                </label>
+                <input
+                  type="number"
+                  required
+                  placeholder="Enter the Guest Telephone"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+                />
+              </div>
+            </div>
+            <div className="mb-6">
+              <label className="mb-3 block text-xl font-medium text-black ">
+                 Address
+              </label>
+              <textarea
+                rows={6}
+                required
+                placeholder="Enter the Guest Address"
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+              ></textarea>
+            </div>
+        </form>
+      </div>
+      </div>
       {/* Total Info */}
           <div className="mb-4 mt-4 ">
           <div className="mb-4 text-2xl font-bold text-black">
