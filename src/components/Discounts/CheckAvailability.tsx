@@ -20,7 +20,7 @@ const CheckAvailability = () => {
   const [selectedRoom, setSelectedRoom] = useState("")
   const [selectedCheckIn, setSelectedCheckIn] = React.useState("")
   const [selectedCheckOut, setSelectedCheckOut] = React.useState("")
-
+  const [selectedDiscountCode, setSelectedDiscountCode] = React.useState("")
   const [reponseData, setResponseData] = useState<boolean>(false);
 
   useEffect(() => {
@@ -91,6 +91,7 @@ const CheckAvailability = () => {
       setSelectedRoom(formData.category)
       setSelectedCheckIn(formData.check_in)
       setSelectedCheckOut(formData.check_out)
+      setSelectedDiscountCode(formData.discount_code)
       setResponseData(response.data)
       console.log(response.data);
       setShowBooking(true);
@@ -286,7 +287,7 @@ const CheckAvailability = () => {
           )}
 
           {showBooking && (
-            <BookingRoom isShow={handleGoBack} room_type={selectedRoom} room_type_view={""} responseDatas={reponseData} checkIN={selectedCheckIn} checkOut={selectedCheckOut} />
+            <BookingRoom isShow={handleGoBack} discountCode={selectedDiscountCode} room_type={selectedRoom} room_type_view={""} responseDatas={reponseData} checkIN={selectedCheckIn} checkOut={selectedCheckOut} />
           )}
         </div>
       </div>

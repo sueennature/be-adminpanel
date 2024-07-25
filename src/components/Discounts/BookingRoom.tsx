@@ -8,7 +8,8 @@ interface BookingRoomData {
   isShow: any;
   responseDatas :any;
   checkIN: any;
-  checkOut : any
+  checkOut : any;
+  discountCode: any;
 }
 
 const BookingRoom: React.FC<BookingRoomData> = ({
@@ -17,10 +18,12 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   isShow,
   responseDatas,
   checkIN,
-  checkOut
+  checkOut,
+  discountCode
 }) => {
-  console.log("RES",responseDatas)
-  console.log("DATE", checkIN, checkOut)
+  // console.log("RES",responseDatas)
+  // console.log("DATE", checkIN, checkOut)
+  // console.log("DISCOUNT_CODE", discountCode)
 
   useEffect(()=>{
 
@@ -31,7 +34,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [childrenAgesPerRoom, setChildrenAgesPerRoom] = useState<number[][]>(
     [],
   );
+  const [taxes, setTaxes] = useState([]);
+
   const [totalCost, setTotalCost] = useState(0);
+  const [totalOrigin, setTotalOrigin] = useState(0)
   const [totalDiscount, setTotalDiscount] = useState(0);
     const [mealPlans, setMealPlans] = useState<any>([]);
   const [mealPlanCosts, setMealPlanCosts] = useState(new Array(responseDatas?.rooms?.length).fill(0));
@@ -70,6 +76,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       setInfantsPerRoom([]);
       setInfantAgesPerRoom([]);
       setMealPlans([]);
+      console.log("first")
       setMealPlans(new Array(responseDatas?.rooms?.length).fill(''));
       setMealPlanCosts(new Array(responseDatas?.rooms?.length).fill(0));
       return;
@@ -97,69 +104,131 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   };
 
   const getTotalMealPlanCost = () => {
-    return mealPlanCosts.reduce((acc, cost) => acc + cost, 0);
+    const totalMealPlanCost = mealPlanCosts.reduce((acc, cost) => acc + cost, 0);
+    const numberOfDays = responseDatas?.number_of_nights || 1; 
+  
+    return totalMealPlanCost * numberOfDays;
+  };
+  
+
+  const applyDiscount = ({ baseCost, discountCode, checkIN, checkOut }: { baseCost: number; discountCode: string; checkIN: string; checkOut: string }) => {
+    const discounts = responseDatas?.discounts || [];
+    const discount = discounts.find((d: { discount_code: string; }) => d.discount_code === discountCode);
+  
+    if (discount) {
+      const discountStartDate = new Date(discount.start_date);
+      const discountEndDate = new Date(discount.end_date);
+      const checkINDate = new Date(checkIN);
+      const checkOutDate = new Date(checkOut);
+  
+      // Check if the booking period overlaps with the discount period
+      const isValidPeriod = (checkINDate <= discountEndDate) && (checkOutDate >= discountStartDate);
+  
+      if (isValidPeriod) {
+        // Calculate the number of days within the booking period
+        const bookingStart = checkINDate > discountStartDate ? checkINDate : discountStartDate;
+        const bookingEnd = checkOutDate < discountEndDate ? checkOutDate : discountEndDate;
+        const daysBetween = Math.ceil((bookingEnd.getTime() - bookingStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  
+        // Calculate the daily cost
+        const totalBookingDays = Math.ceil((checkOutDate.getTime() - checkINDate.getTime()) / (1000 * 60 * 60 * 24));
+        const dailyCost = baseCost / totalBookingDays;
+  
+        // Calculate the discount amount
+        const discountAmount = dailyCost * daysBetween * (discount.percentage / 100);
+  
+        console.log("DISCOUNT STATS", baseCost, dailyCost, daysBetween, discountAmount, totalBookingDays);
+        return discountAmount;
+      }
+    }
+    return 0;
+  };
+  
+  const calculateTotalCost = () => {
+    const mealPlanCost = getTotalMealPlanCost();
+    const activityCost = totalActivityPrice;
+ 
+    // Calculate base total cost
+    let baseTotalCost = mealPlanCost + activityCost;
+    setTotalOrigin(baseTotalCost)
+    let totalDiscountAccumulated = 0; // Variable to accumulate total discount
+
+    // Apply discount individually for each room
+    responseDatas?.rooms.forEach((room :any, index:any) => {
+      const isNotSingleRoom = room.category !== "Single";
+      const maxAdults = getMaxAdults(room.category);
+      const hasMaxAdults = adultsPerRoom[index] === maxAdults;
+      const hasAtLeastOneChild = childrenPerRoom[index] > 0;
+
+      // Assuming `mealPlans` is an array or object holding selected meal plans
+      const mealPlan = mealPlans[index]; // Replace with the actual variable
+      const isMealPlanEligible = mealPlan !== "room_only"; // Adjust this check as per your data
+
+      // Apply discount if conditions are met
+      if (isNotSingleRoom && hasMaxAdults && hasAtLeastOneChild && isMealPlanEligible) {
+        const totalDaysT = responseDatas.number_of_nights;
+        const roomCost = mealPlanCosts[index]; // Replace with the actual cost of the room
+        const mealPlanDiscount = (mealPlanCosts[index] * 0.5); // 50% discount on meal plan cost
+        const mealPlanDis = mealPlanDiscount * totalDaysT;
+        
+        // Debugging
+        console.log("Value of totalDaysT:", totalDaysT);
+        console.log("Value of mealPlant:", mealPlanDiscount);
+        console.log("Value of mealPlanDiscount:", mealPlanDis);
+      
+        // Adjust total cost
+        // baseTotalCost -= mealPlanDiscount;
+      
+        // Accumulate the total discount
+        totalDiscountAccumulated += mealPlanDis;
+      }
+      
+      // console.log(`Room ${index}:`, {
+      //   room_type: room.category,
+      //   isNotSingleRoom,
+      //   maxAdults,
+      //   adults: adultsPerRoom[index],
+      //   hasMaxAdults,
+      //   hasAtLeastOneChild,
+      //   mealPlan,
+      //   isMealPlanEligible,
+      // });
+  
+    });
+
+    // Calculate and set taxes
+    const taxesList = responseDatas?.taxes || [];
+    let totalTax = 0;
+    taxesList.forEach((tax:any) => {
+      const taxAmount = baseTotalCost * (tax.percentage / 100);
+      totalTax += taxAmount;
+    });
+
+    const discountAmount = applyDiscount({
+      baseCost: mealPlanCost,
+      discountCode: discountCode,
+      checkIN: checkIN,
+      checkOut: checkOut
+    });    // baseTotalCost -= discountAmount;
+    totalDiscountAccumulated += discountAmount;
+    // Adjust the final total cost
+    baseTotalCost += totalTax;
+    baseTotalCost -= totalDiscountAccumulated
+    console.log("TAX", totalTax)
+    console.log("Discount", discountAmount)
+    console.log("TotalDiscount", totalDiscountAccumulated)
+    console.log("MEAL", discountAmount)
+    console.log("TotalPRice", baseTotalCost)
+
+    // Update state with the total discount, final total cost, and taxes
+    setTotalDiscount(totalDiscountAccumulated);
+    setTotalCost(baseTotalCost);
+    setTaxes(taxesList);
+    
   };
   useEffect(() => {
-    const calculateTotalCost = () => {
-      const mealPlanCost = getTotalMealPlanCost();
-      const activityCost = totalActivityPrice;
-    
-      // Calculate base total cost
-      let baseTotalCost = mealPlanCost + activityCost;
-      let totalDiscountAccumulated = 0; // Variable to accumulate total discount
-    
-      // Apply discount individually for each room
-      responseDatas?.rooms.forEach((room : any, index :any) => {
-        const isNotSingleRoom = room.category !== "Single";
-        const maxAdults = getMaxAdults(room.category);
-        const hasMaxAdults = adultsPerRoom[index] === maxAdults;
-        const hasAtLeastOneChild = childrenPerRoom[index] > 0;
-    
-        // Assuming `mealPlans` is an array or object holding selected meal plans
-        const mealPlan = mealPlans[index]; // Replace with the actual variable
-        const isMealPlanEligible = mealPlan !== "room_only"; // Adjust this check as per your data
-    
-        // Debugging: Log condition results
-        console.log(`Room ${index}:`, {
-          room_type: room.category,
-          isNotSingleRoom,
-          maxAdults,
-          adults: adultsPerRoom[index],
-          hasMaxAdults,
-          hasAtLeastOneChild,
-          mealPlan,
-          isMealPlanEligible,
-        });
-    
-        // Apply discount if conditions are met
-        if (isNotSingleRoom && hasMaxAdults && hasAtLeastOneChild && isMealPlanEligible) {
-          const roomCost = mealPlanCosts[index]; // Replace with the actual cost of the room
-          const mealPlanDiscount = mealPlanCosts[index] * 0.5; // 50% discount on meal plan cost
-    
-          // Adjust total cost
-          baseTotalCost -= mealPlanDiscount;
-    
-          // Accumulate the total discount
-          totalDiscountAccumulated += mealPlanDiscount;
-    
-          // Debugging: Log discounted cost for each room
-          console.log(`Room ${index} Discount Applied. Meal Plan Discount:`, mealPlanDiscount);
-        }
-      });
-    
-      // Update state with the total discount
-      setTotalDiscount(totalDiscountAccumulated);
-    
-      // Debugging: Log final total cost after discounts
-      console.log('Final Total Cost after Discounts:', baseTotalCost);
-      console.log('Total Discount:', totalDiscountAccumulated);
-    
-      setTotalCost(baseTotalCost);
-    };
-
     calculateTotalCost();
-  }, [responseDatas, adultsPerRoom, childrenPerRoom, mealPlans, totalActivityPrice, mealPlanCosts]);
-  
+  }, [responseDatas, adultsPerRoom, childrenPerRoom, mealPlans, totalActivityPrice, mealPlanCosts, checkIN, checkOut, discountCode]);
   const handleAdultChange = (roomIndex: number, value: number) => {
     const updatedAdults = [...adultsPerRoom];
     updatedAdults[roomIndex] = value;
@@ -345,7 +414,57 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       ))}
 
   </div>
-  
+  <div className="mb-6.5 flex flex-col gap-6">
+            
+            <div className="w-full xl:w-1/2">
+            <div>
+      <label
+        htmlFor="checkboxLabelOne"
+        className="flex cursor-pointer select-none items-center"
+      >
+        <div className="relative">
+          <input
+            type="checkbox"
+            id="checkboxLabelOne"
+            className="sr-only"
+            onChange={() => {
+              setIsChecked(!isChecked);
+            }}
+          />
+          <div
+            className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${
+              isChecked && "border-primary bg-gray dark:bg-transparent"
+            }`}
+          >
+            <span
+              className={`h-2.5 w-2.5 rounded-sm ${isChecked && "bg-primary"}`}
+            ></span>
+          </div>
+        </div>
+        Partial Amount
+      </label>
+    </div>
+            </div>
+
+            <div className="w-full xl:w-1/2">
+            <label className="mb-3 block text-sm font-medium text-black">
+                Payment Method
+                </label>
+                <select
+                  name="category"
+                
+                  required
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                >
+                <option value="">Select a payment method</option>
+                <option value="online">Online </option>
+                <option value="physical">Physical</option>
+
+                </select>
+              </div>
+              
+
+          </div>
     
         <div className="mb-4 mt-4 flex flex-col gap-4">
           <div className="flex gap-4">
@@ -607,13 +726,22 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           <div className="text-black text-[20px] ">Total Activities</div>
           <div className="text-black font-bold">Rs {totalActivityPrice.toLocaleString()}</div>
           </div>
+          {taxes.map((tax :any) => (
+          <div key={tax.id}>
+         
+            <div className="flex  w-full lg:flex-row items-center justify-between p-3">
+          <div className="text-black text-[20px] ">{tax.name} <span className="text-rose-400 ml-4">({tax.percentage}%)</span></div>
+          <div className="text-black font-bold">Rs {(totalOrigin * (tax.percentage / 100))?.toLocaleString()}</div>
+          </div>
+          </div>
+        ))}
         <div className="flex  w-full lg:flex-row items-center justify-between p-3">
           <div className="text-orange-500 text-[20px]">Discount & Special Rate</div>
-          <div className=" font-bold text-orange-500">(-{totalDiscount})</div>
+          <div className=" font-bold text-orange-500">(-{totalDiscount?.toLocaleString()})</div>
         </div>
         <div className="flex  w-full lg:flex-row items-center justify-between p-3 border-t-2 border-black mt-3">
           <div className="text-black font-bold text-[28px]">Total</div>
-        <div className="text-black font-bold">Rs{totalCost}</div>
+        <div className="text-black font-bold">Rs{(totalCost).toLocaleString()}</div>
       </div>
           </div>
 
