@@ -18,6 +18,9 @@ const CheckAvailability = () => {
   const endDate = useRef<flatpickr.Instance | null>(null);
   const [showBooking, setShowBooking] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState("")
+  const [selectedCheckIn, setSelectedCheckIn] = React.useState("")
+  const [selectedCheckOut, setSelectedCheckOut] = React.useState("")
+  const [selectedDiscountCode, setSelectedDiscountCode] = React.useState("")
   const [reponseData, setResponseData] = useState<boolean>(false);
 
   useEffect(() => {
@@ -31,32 +34,34 @@ const CheckAvailability = () => {
       nextArrow:
         '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
       onChange: (selectedDates) => {
-        const dateStr = selectedDates[0].toISOString();
+        const date = selectedDates[0];
+        const dateStr = new Date(date.setHours(14, 0, 0, 0)).toISOString(); // Set time to 14:00
         setFormData((prevData) => ({
           ...prevData,
           check_in: dateStr,
         }));
       },
     });
-
+  
     flatpickr("#check_out", {
       mode: "single",
       static: true,
       monthSelectorType: "static",
       dateFormat: "Y-m-d",
       prevArrow:
-        '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
+        '<svg className="fill-current" width="7" height="11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
       nextArrow:
         '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
       onChange: (selectedDates) => {
-        const dateStr = selectedDates[0].toISOString();
+        const date = selectedDates[0];
+        const dateStr = new Date(date.setHours(12, 0, 0, 0)).toISOString(); // Set time to 12:00
         setFormData((prevData) => ({
           ...prevData,
           check_out: dateStr,
         }));
       },
     });
-
+  
     // Cleanup flatpickr instances on unmount
     return () => {
       if (startDate.current) {
@@ -67,7 +72,8 @@ const CheckAvailability = () => {
       }
     };
   }, []);
-
+  
+  
  const handleBooking = async () => {
     try {
       const accessToken = Cookies.get("access_token");
@@ -86,6 +92,9 @@ const CheckAvailability = () => {
       });
   
       setSelectedRoom(formData.category)
+      setSelectedCheckIn(formData.check_in)
+      setSelectedCheckOut(formData.check_out)
+      setSelectedDiscountCode(formData.discount_code)
       setResponseData(response.data)
       console.log(response.data);
       setShowBooking(true);
@@ -281,7 +290,7 @@ const CheckAvailability = () => {
           )}
 
           {showBooking && (
-            <BookingRoom isShow={handleGoBack} room_type={selectedRoom} room_type_view={""} responseDatas={reponseData} />
+            <BookingRoom isShow={handleGoBack} discountCode={selectedDiscountCode} room_type={selectedRoom} room_type_view={""} responseDatas={reponseData} checkIN={selectedCheckIn} checkOut={selectedCheckOut} />
           )}
         </div>
       </div>

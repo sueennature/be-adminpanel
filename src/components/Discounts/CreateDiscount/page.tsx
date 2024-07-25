@@ -9,6 +9,7 @@ const CreateDiscount = () => {
     name: "",
     percentage: "",
     start_date: "",
+    discount_code:"",
     end_date: "",
     description: "",
   });
@@ -95,6 +96,7 @@ const CreateDiscount = () => {
       setFormData({
         name: "",
         percentage: "",
+        discount_code:"",
         start_date: "",
         end_date: "",
         description: "",
@@ -116,7 +118,7 @@ const CreateDiscount = () => {
         <form onSubmit={handleSubmit}>
           <div className="p-6.5">
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-              <div className="w-full xl:w-1/2">
+              <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Name
                 </label>
@@ -130,7 +132,7 @@ const CreateDiscount = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
               </div>
-              <div className="w-full xl:w-1/2">
+              <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Percentage
                 </label>
@@ -141,6 +143,20 @@ const CreateDiscount = () => {
                   onChange={handleChange}
                   required
                   placeholder="Enter the Percentage"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                />
+              </div>
+              <div className="w-full xl:w-1/3">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Discount Code
+                </label>
+                <input
+                  type="text"
+                  name="discount_code"
+                  value={formData.discount_code}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter the Discount Code"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
               </div>
