@@ -152,14 +152,14 @@ const CheckAvailability = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="m-2 text-2xl text-black">
+      <h3 className="m-2 text-2xl font-bold text-black">
         {showBooking ? "Book Your Room" : "Check the Room Availability"}
       </h3>
       <div className="rounded-sm border border-stroke bg-white shadow-default">
         <div className="p-6.5">
           {!showBooking && (
-            <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-              <div className="w-full xl:w-1/6">
+            <div className="mb-6.5 flex flex-col gap-2 xl:flex-row">
+              <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Check In
                 </label>
@@ -170,15 +170,15 @@ const CheckAvailability = () => {
                     name="check_in"
                     value={formData.check_in}
                     onChange={handleChange}
-                    className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
+                    className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-2 py-3 font-normal text-black text-xs outline-none transition focus:border-primary active:border-primary"
                     placeholder="mm/dd/yyyy"
                     required
                     data-class="flatpickr-right"
                   />
-                  <div className="pointer-events-none absolute inset-0 left-auto right-5 flex items-center">
+                  <div className="pointer-events-none absolute inset-0 left-auto right-2 flex items-center">
                     <svg
-                      width="18"
-                      height="18"
+                      width="10"
+                      height="10"
                       viewBox="0 0 18 18"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
@@ -192,7 +192,7 @@ const CheckAvailability = () => {
                 </div>
               </div>
 
-              <div className="w-full xl:w-1/6">
+              <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Check Out
                 </label>
@@ -203,15 +203,15 @@ const CheckAvailability = () => {
                     name="check_out"
                     value={formData.check_out}
                     onChange={handleChange}
-                    className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
+                    className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-2 text-xs py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
                     placeholder="mm/dd/yyyy"
                     required
                     data-class="flatpickr-right"
                   />
-                  <div className="pointer-events-none absolute inset-0 left-auto right-5 flex items-center">
+                  <div className="pointer-events-none absolute inset-0 left-auto right-2 flex items-center">
                     <svg
-                      width="18"
-                      height="18"
+                      width="10"
+                      height="10"
                       viewBox="0 0 18 18"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
@@ -225,7 +225,7 @@ const CheckAvailability = () => {
                 </div>
               </div>
 
-              <div className="w-full xl:w-1/6">
+              <div className="w-full xl:w-1/5">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Room Type
                 </label>
@@ -233,7 +233,7 @@ const CheckAvailability = () => {
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-2 text-xs py-3 text-black outline-none transition focus:border-primary active:border-primary"
                   required
                 >
                   <option value="">Choose a room type</option>
@@ -253,7 +253,7 @@ const CheckAvailability = () => {
                   name="view"
                   value={formData.view}
                   onChange={handleChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-2 text-xs py-3 text-black outline-none transition focus:border-primary active:border-primary"
                   required
                 >
                   <option value="">Choose a room view</option>
@@ -273,7 +273,7 @@ const CheckAvailability = () => {
                   value={formData.discount_code}
                   onChange={handleChange}
                   placeholder="Enter code"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-2 text-xs py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
                 />
               </div>
 
@@ -281,7 +281,7 @@ const CheckAvailability = () => {
                 <button
                   type="button"
                   onClick={handleBooking}
-                  className="flex w-full relative top-8 justify-center rounded bg-primary p-3 font-medium text-gray"
+                  className="flex w-full relative text-nowrap top-8 justify-center rounded bg-primary p-3 text-xs font-medium text-gray"
                 >
                   Check Availability
                 </button>

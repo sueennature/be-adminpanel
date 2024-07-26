@@ -6,7 +6,7 @@ import React from 'react'
 const ViewNewsPage = () => {
   return (
     <DefaultLayout>
-      <Breadcrumb pageName={'News'} pageNameTwo='View' firstLink={"/news"}/>
+      <Breadcrumb pageName={'News'} pageNameTwo='All News' firstLink={"/news"}/>
         <ViewSingleNews/>
     </DefaultLayout>
   )

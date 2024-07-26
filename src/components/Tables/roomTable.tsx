@@ -82,6 +82,7 @@ const RoomTable = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredRooms.slice(indexOfFirstItem, indexOfLastItem);
+  {console.log("currentItems",currentItems)}
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -321,67 +322,68 @@ const RoomTable = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {currentItems.map((room) => (
+                      
+                      {currentItems?.map((room) => (
                         <tr
-                          key={room.id}
+                          key={room?.id}
                           className="dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-b bg-white text-black"
                         >
                           <td className="w-4 p-4">
                             <div className="flex items-center">
                               <input
-                                id={`checkbox-table-search-${room.id}`}
+                                id={`checkbox-table-search-${room?.id}`}
                                 type="checkbox"
-                                checked={roomsSelection.includes(room.id)}
+                                checked={roomsSelection.includes(room?.id)}
                                 onChange={(e) =>
-                                  handleCheckboxChange(e, room.id)
+                                  handleCheckboxChange(e, room?.id)
                                 }
                                 className="bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
                               />
                               <label
-                                htmlFor={`checkbox-table-search-${room.id}`}
+                                htmlFor={`checkbox-table-search-${room?.id}`}
                                 className="sr-only"
                               >
                                 checkbox
                               </label>
                             </div>
                           </td>
-                          <td className="px-6 py-4">{room.id}</td>
-                          <td className="px-6 py-4">{room.room_number}</td>
-                          <td className="px-6 py-4">{room.category}</td>
-                          <td className="px-6 py-4">{room.max_adults}</td>
-                          <td className="px-6 py-4">{room.max_childs}</td>
-                          <td className="px-6 py-4">{room.max_people}</td>
-                          <td className="px-6 py-4">{room.description}</td>
-                          <td className="px-6 py-4">{room.features}</td>
-                          <td className="px-6 py-4">{room.beds}</td>
-                          <td className="px-6 py-4">{room.size}</td>
-                          <td className="px-6 py-4">{room.view}</td>
+                          <td className="px-6 py-4">{room?.id}</td>
+                          <td className="px-6 py-4">{room?.room_number}</td>
+                          <td className="px-6 py-4">{room?.category}</td>
+                          <td className="px-6 py-4">{room?.max_adults}</td>
+                          <td className="px-6 py-4">{room?.max_childs}</td>
+                          <td className="px-6 py-4">{room?.max_people}</td>
+                          <td className="px-6 py-4">{room?.description}</td>
+                          <td className="px-6 py-4">{room?.features}</td>
+                          <td className="px-6 py-4">{room?.beds}</td>
+                          <td className="px-6 py-4">{room?.size}</td>
+                          <td className="px-6 py-4">{room?.view}</td>
                           <td className="px-6 py-4">
-                            {room.room_only.toLocaleString()}
+                            {room?.room_only.toLocaleString()}
                           </td>
                           <td className="px-6 py-4">
-                            {room.bread_breakfast.toLocaleString()}
+                            {room?.bread_breakfast.toLocaleString()}
                           </td>
                           <td className="px-6 py-4">
-                            {room.half_board.toLocaleString()}
+                            {room?.half_board.toLocaleString()}
                           </td>
                           <td className="px-6 py-4">
-                            {room.full_board.toLocaleString()}
+                            {room?.full_board.toLocaleString()}
                           </td>
                           <td className="px-6 py-4">
-                            {room.secondary_category}
+                            {room?.secondary_category}
                           </td>
-                          <td className="px-6 py-4">{room.bathroom}</td>
+                          <td className="px-6 py-4">{room?.bathroom}</td>
                           <td className="min-w-[200px] overflow-x-auto px-6 py-4">
                             <div className="flex items-center gap-2">
-                              {room.images.map((image, index) => (
+                              {room?.images?.map((image, index) => (
                                 <div
                                   key={index}
                                   className="h-20 w-20 flex-shrink-0 overflow-hidden"
                                 >
                                   <Image
                                     src={image}
-                                    alt={room.room_number}
+                                    alt={room?.room_number}
                                     width={80}
                                     height={80}
                                     className="h-full w-full object-cover"
@@ -407,7 +409,7 @@ const RoomTable = () => {
                               </button>
                               <button
                                 className="font-medium text-rose-600  hover:underline"
-                                onClick={() => confirmDelete(room.id)}
+                                onClick={() => confirmDelete(room?.id)}
                               >
                                 <Trash />
                               </button>

@@ -9,6 +9,8 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { CSVLink } from "react-csv";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import NoData from "@/components/NoData";
 import Loader from "@/components/common/Loader";
 
@@ -49,9 +51,9 @@ const ViewAllNews = () => {
 
 
   const filterednews = news?.filter(
-    (room) =>
-      room.title.toLowerCase().includes(nameFilter.toLowerCase()) &&
-      String(room.id).toLowerCase().includes(idFilter.toLowerCase()),
+    (news) =>
+      news.title.toLowerCase().includes(nameFilter.toLowerCase()) &&
+      String(news.id).toLowerCase().includes(idFilter.toLowerCase()),
   );
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -60,7 +62,7 @@ const ViewAllNews = () => {
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      const allRoomIds = currentItems.map((room) => room.id);
+      const allRoomIds = currentItems.map((news) => news.id);
       setNewsSelection(allRoomIds);
     } else {
       setNewsSelection([]);
@@ -69,23 +71,23 @@ const ViewAllNews = () => {
 
   const handleCheckboxChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    roomId: number,
+    newsId: number,
   ) => {
     if (e.target.checked) {
-      setNewsSelection((prevSelected) => [...prevSelected, roomId]);
+      setNewsSelection((prevSelected) => [...prevSelected, newsId]);
     } else {
       setNewsSelection((prevSelected) =>
-        prevSelected.filter((id) => id !== roomId),
+        prevSelected.filter((id) => id !== newsId),
       );
     }
   };
 
-  const handleEditPush = (roomData: any) => {
-    router.push(`/news/update/${roomData.id}`);
+  const handleEditPush = (news: any) => {
+    router.push(`/news/update?newsID=${news.id}`);
   };
 
-  const handleViewPush = (roomData: any) => {
-    router.push(`/news/view/${roomData.id}`);
+  const handleViewPush = (news: any) => {
+    router.push(`/news/view/view?newsID=${news.id}`);
   };
 
   const handleItemsPerPageChange = (
@@ -102,6 +104,46 @@ const ViewAllNews = () => {
   const prevPage = () => {
     setCurrentPage((prev) => prev - 1);
   };
+
+  const handleDelete = async (newsId: number) => {
+    const accessToken = Cookies.get("access_token");
+
+    try {
+      await axios.delete(`${process.env.BE_URL}/news/${newsId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          "x-api-key": process.env.X_API_KEY,
+        },
+      });
+      setNews((prevNews) =>
+        prevNews.filter((news) => news.id !== newsId),
+      );
+      toast.success("News is Deleted Successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        "There was an error deleting the News. Please try again later",
+      );
+    }
+  };
+
+  const confirmDelete = (newsId: number) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDelete(newsId);
+      }
+    });
+  };
+
   const csvData = filterednews.map(({ id, title, content }) => ({
     id,
     title,
@@ -176,40 +218,40 @@ const ViewAllNews = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {currentItems.map((room) => (
+                        {currentItems.map((news) => (
                           <tr
-                            key={room.id}
+                            key={news.id}
                             className="dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-b bg-white text-black"
                           >
                             <td className="w-4 p-4">
                               <div className="flex items-center">
                                 <input
-                                  id={`checkbox-table-search-${room.id}`}
+                                  id={`checkbox-table-search-${news.id}`}
                                   type="checkbox"
-                                  checked={newsSelection.includes(room.id)}
+                                  checked={newsSelection.includes(news.id)}
                                   onChange={(e) =>
-                                    handleCheckboxChange(e, room.id)
+                                    handleCheckboxChange(e, news.id)
                                   }
                                   className="bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
                                 />
                                 <label
-                                  htmlFor={`checkbox-table-search-${room.id}`}
+                                  htmlFor={`checkbox-table-search-${news.id}`}
                                   className="sr-only"
                                 >
                                   checkbox
                                 </label>
                               </div>
                             </td>
-                            <td className="px-6 py-4">{room.id}</td>
-                            <td className="px-6 py-4">{room.title}</td>
+                            <td className="px-6 py-4">{news.id}</td>
+                            <td className="px-6 py-4">{news.title}</td>
 
-                            <td className="px-6 py-4">{room.content}</td>
+                            <td className="px-6 py-4">{news.content}</td>
                             <td
                               className="px-6 py-4"
                               style={{ minWidth: "200px" }}
                             >
                               <div className="flex items-center gap-2">
-                                {room.images.map(
+                                {news.images.map(
                                   (
                                     image: string | StaticImport,
                                     index: React.Key | null | undefined,
@@ -217,7 +259,7 @@ const ViewAllNews = () => {
                                     <div key={index} className="flex-shrink-0">
                                       <Image
                                         src={image}
-                                        alt={room.name}
+                                        alt={news.name}
                                         width={50}
                                         height={50}
                                       />
@@ -229,13 +271,13 @@ const ViewAllNews = () => {
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-4 ">
                                 <button
-                                  onClick={() => handleEditPush(room)}
+                                  onClick={() => handleEditPush(news)}
                                   className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                                 >
                                   <Edit />
                                 </button>
                                 <button
-                                  onClick={() => handleViewPush(room)}
+                                  onClick={() => handleViewPush(news)}
                                   className="dark:text-red-500 font-medium text-green-600 hover:underline"
                                 >
                                   <Eye />
@@ -243,7 +285,7 @@ const ViewAllNews = () => {
                                 <a
                                   href="#"
                                   className="font-medium text-rose-600  hover:underline"
-                                >
+                                  onClick={() => confirmDelete(news.id)}>
                                   <Trash />
                                 </a>
                               </div>

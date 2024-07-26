@@ -22,7 +22,7 @@ const ViewSingleActivity = () => {
   console.log(activityId);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchActivity = async () => {
       if (activityId) {
         try {
           const accessToken = Cookies.get("access_token");
@@ -45,7 +45,7 @@ const ViewSingleActivity = () => {
       }
     };
 
-    fetchUser();
+    fetchActivity();
   }, [activityId]);
 
   return (

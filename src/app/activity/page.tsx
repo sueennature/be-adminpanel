@@ -7,7 +7,7 @@ const ViewActitvityPage = () => {
   return (
  
        <DefaultLayout>
-       <Breadcrumb pageName={'Activities'} pageNameTwo='Activities' firstLink={"/activity"}/>
+       <Breadcrumb pageName={'Activities'} pageNameTwo='All Activities' firstLink={"/activity"}/>
          <ViewActitivity/>
      </DefaultLayout>
    )
