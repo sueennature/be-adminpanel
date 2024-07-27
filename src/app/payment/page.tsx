@@ -11,15 +11,13 @@ export const metadata: Metadata = {
     "Admin Dashboard for Sueen Nature",
 };
 
-const CalendarPage = () => {
+const PaymentPage = () => {
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Booking Calendar" firstLink={"/calendar"}/>
-      <CheckAvailability/>
-      {/* <BookingTable /> */}
-      <Calendar/>
+        <Breadcrumb pageName="payment" firstLink={"/payment"}/>
+      <>The Content Not Found</>
     </DefaultLayout>
   );
 };
 
-export default CalendarPage;
+export default PaymentPage;

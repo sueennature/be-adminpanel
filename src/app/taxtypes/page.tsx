@@ -7,7 +7,7 @@ const ViewTaxTypePage = () => {
   return (
  
        <DefaultLayout>
-       <Breadcrumb pageName={'Tax Types'} pageNameTwo='Views' firstLink={"/taxtypes"}/>
+       <Breadcrumb pageName={'Tax Types'} pageNameTwo='All Tax Types' firstLink={"/taxtypes"}/>
          <ViewTaxTypes/>
          
      </DefaultLayout>

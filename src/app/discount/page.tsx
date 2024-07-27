@@ -8,9 +8,9 @@ const ViewDiscountPage = () => {
   return (
  
        <DefaultLayout>
-       <Breadcrumb pageName={'Discounts'} pageNameTwo='Views' firstLink={"/discount"}/>
+       <Breadcrumb pageName={'Discounts'} pageNameTwo='All Discounts' firstLink={"/discount"}/>
          <ViewDiscount/>
-         <CheckAvailability/>
+         {/* <CheckAvailability/> */}
      </DefaultLayout>
    )
 

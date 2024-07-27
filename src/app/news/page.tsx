@@ -8,7 +8,7 @@ const ViewNewsPage = () => {
   return (
  
        <DefaultLayout>
-       <Breadcrumb pageName={'News'} pageNameTwo='Views' firstLink={"/news"}/>
+       <Breadcrumb pageName={'News'} pageNameTwo='All News' firstLink={"/news"}/>
          <ViewAllNews/>
      </DefaultLayout>
    )

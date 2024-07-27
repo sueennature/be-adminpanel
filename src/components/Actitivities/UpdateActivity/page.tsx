@@ -44,9 +44,9 @@ const UpdateActivity = () => {
   //   console.log('Form submitted:', formData);
   //   toast.success("Activity  created successfully")
   // };
-
+ 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchActivity = async () => {
       if (activityId) {
         try {
           const accessToken = Cookies.get('access_token'); 
@@ -66,7 +66,7 @@ const UpdateActivity = () => {
       }
     };
 
-    fetchUser();
+    fetchActivity();
   }, [activityId]);
   const handleSubmit = async (e:any) => {
     e.preventDefault();
@@ -86,9 +86,9 @@ const UpdateActivity = () => {
           throw new Error(result.error || 'Failed to update item');
       }
 
-      toast.success('User updated successfully');
+      toast.success('Activity updated successfully');
       setTimeout(()=>{
-        router.push('/users')
+        router.push('/activity')
       },1000)
     
   } catch (err) {

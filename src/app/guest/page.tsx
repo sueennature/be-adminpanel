@@ -8,7 +8,7 @@ const ViewGuestPage = () => {
   return (
  
        <DefaultLayout>
-       <Breadcrumb pageName={'Guests'} pageNameTwo='Views' firstLink={"/guest"}/>
+       <Breadcrumb pageName={'Guests'} pageNameTwo='All Guest' firstLink={"/guest"}/>
          <ViewGuest/>
      </DefaultLayout>
    )
