@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Template</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 595px; 
+        margin: 0 auto;
+        padding: 30px 51px;
+        background-color: #ffffff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      p {
+        color: #555555;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      .imgOne {
+        width: 300px;
+      }
+      .textOne {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+      .textTwo {
+        font-size: 16px;
+        color: #424242;
+        margin-bottom: 50px;
+      }
+      .alignOne {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 25px;
+      }
+      .textThree {
+        font-size: 20px;
+        font-weight: 500;
+        color: #7f7f7f;
+        margin-bottom: 50px;
+      }
+      .textFour {
+        font-size: 16px;
+        color: #424242;
+        margin-bottom: 40px;
+      }
+      .textFive {
+        font-size: 16px;
+        font-weight: 400;
+        color: #424242;
+      }
+      .textSix {
+        font-size: 16px;
+        font-weight: 700;
+        color: #424242;
+      }
+      .imgContainer {
+        background-color: #5f5f5f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 7px;
+        height: fit-content;
+        width: 200px;
+        padding: 10px;
+      }
+      .imgMain {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 40px;
+      }
+      th, td {
+        padding: 12px;
+        border: 1px solid #dddddd;
+        text-align: left;
+      }
+      th {
+        background-color: #f4f4f4;
+      }
+      .page-break {
+        display: block;
+        height: 1px;
+        margin: 40px 0;
+        background-color: #dcdcdc;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="imgMain">
+        <div class="imgContainer">
+          <img src="Logo.png" class="imgOne" alt="Restaurant Logo" />
+        </div>
+      </div>
+      <div class="alignOne">
+        <div class="textOne">Booking Receipt</div>
+      </div>
+
+      <h3>Booking Details</h3>
+      <table>
+        <tr>
+          <th>Check-in Date & Time</th>
+          <td>2024-07-01 14:00</td>
+        </tr>
+        <tr>
+          <th>Check-out Date & Time</th>
+          <td>2024-07-07 12:00</td>
+        </tr>
+        <tr>
+          <th>Total Amount</th>
+          <td>60,000</td>
+        </tr>
+        <tr>
+            <th>Paid Amount</th>
+            <td>60,000</td>
+          </tr>
+        <tr>
+          <th>Infants</th>
+          <td>0</td>
+        </tr>
+        <tr>
+          <th>Payment Status</th>
+          <td>Pending</td>
+        </tr>
+      </table>
+
+      <h3>Rooms Information</h3>
+      <table>
+        <tr>
+          <th>Room ID</th>
+          <td>1</td>
+        </tr>
+        <tr>
+          <th>Category</th>
+          <td>Double</td>
+        </tr>
+        <tr>
+          <th>View</th>
+          <td>Mountain</td>
+        </tr>
+        <tr>
+            <th>Adults</th>
+            <td>2</td>
+          </tr>
+        <tr>
+            <th>Infants</th>
+            <td>0</td>
+        </tr>
+        <tr>
+          <th>Meal Plan</th>
+          <td>Room Only</td>
+        </tr>
+        <tr>
+          <th>Room Amount</th>
+          <td>60,000</td>
+        </tr>
+      </table>
+
+
+      <h3>Booked Activities</h3>
+      <table>
+        <tr>
+          <th>Activity Name</th>
+          <td>Hiking</td>
+        </tr>
+        <tr>
+          <th>Activity Cost</th>
+          <td>10,000</td>
+        </tr>
+      </table>
+
+      <h3>Financial Summary</h3>
+      <table>
+        <tr>
+          <th>Sub Total</th>
+          <td>600,000</td>
+        </tr>
+        <tr>
+            <th>Discounts</th>
+            <td>60,000</td>
+          </tr>
+          <tr>
+            <th>Taxes</th>
+            <td>40,000</td>
+          </tr>
+          <tr>
+            <th>Total Amount</th>
+            <td>120,000</td>
+          </tr>
+      </table>
+    </div>
+  </body>
+</html>
