@@ -73,10 +73,18 @@ const ViewSingleDiscount = () => {
         </div>
         <div className='flex'>
           <div className='flex-1'>   
+            <div className='m-2'>Percentage</div>
+          </div>
+          <div className='flex-1'>     
+          <div className='m-2'>{discount.discount_code}</div>
+          </div>
+        </div>
+        <div className='flex'>
+          <div className='flex-1'>   
             <div className='m-2'>Description</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>Glide c outing.</div>
+            <div className='m-2'>_{discount.description}</div>
            </div>
         </div>
         <div className='flex'>

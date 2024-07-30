@@ -16,6 +16,7 @@ const UpdateDiscount = () => {
     start_date: new Date(),
     end_date: new Date(),
     description: "",
+    discount_code:'',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -117,7 +118,7 @@ const UpdateDiscount = () => {
         <form onSubmit={handleSubmit}>
           <div className="p-6.5">
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-              <div className="w-full xl:w-1/2">
+              <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">Name</label>
                 <input
                   type="text"
@@ -129,12 +130,24 @@ const UpdateDiscount = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
               </div>
-              <div className="w-full xl:w-1/2">
+              <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">Percentage</label>
                 <input
                   type="number"
                   name="percentage"
                   value={formData.percentage}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter the Percentage"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                />
+              </div>
+              <div className="w-full xl:w-1/3">
+                <label className="mb-3 block text-sm font-medium text-black">Discount Code</label>
+                <input
+                  type="text"
+                  name="discount_code"
+                  value={formData.discount_code}
                   onChange={handleChange}
                   required
                   placeholder="Enter the Percentage"

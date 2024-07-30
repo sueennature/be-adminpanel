@@ -1,5 +1,11 @@
 'use client'
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import axios from "axios";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { ChangeEvent,useEffect, useState } from 'react'
+import SelectGroupOne from '../../SelectGroup/SelectGroupOne'
+import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
+
 interface RoomFormData {
     title: string;
     content: string;
@@ -13,13 +19,20 @@ const UpdateNews = () => {
     images: []
   });
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  
+  const searchParams = useSearchParams();
+  let newsId = searchParams.get("newsID");
+
+  const router = useRouter();
+
+  const handleInputChange = (e:any) => {
     const { name, value } = e.target;
-      setFormData({
-        ...formData,
-        [name]: value
-      });
-    };
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFormData({
@@ -29,10 +42,58 @@ const UpdateNews = () => {
     }
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  useEffect(() => {
+    const fetchNews = async () => {
+      if (newsId) {
+        try {
+          const accessToken = Cookies.get('access_token'); 
+
+          const response = await axios.get(`${process.env.BE_URL}/news/${newsId}`, {
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${accessToken}`,
+                  'x-api-key': process.env.X_API_KEY, 
+              },
+          });
+          console.log(response.data.data);
+          setFormData(response.data.data)
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
+
+    fetchNews();
+  }, [newsId]);
+  const handleSubmit = async (e:any) => {
     e.preventDefault();
-    console.log('Form Data:', formData);
+
+    try {
+      const response = await fetch('/api/news/update', {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: newsId, ...formData }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+          throw new Error(result.error || 'Failed to update item');
+      }
+
+      toast.success('News updated successfully');
+      setTimeout(()=>{
+        router.push('/news')
+      },1000)
+    
+  } catch (err) {
+    console.log(err)
+      toast.error( 'An error occurred');
+  }
   };
+
   return (
     <div className="flex flex-col gap-9">
       <div className="rounded-sm border border-stroke bg-white shadow-default">
@@ -50,7 +111,7 @@ const UpdateNews = () => {
                 required
                 placeholder="Enter the Title"
                 value={formData.title}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
             </div>
@@ -78,7 +139,7 @@ const UpdateNews = () => {
                 required
                 placeholder="Type Content"
                 value={formData.content}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               ></textarea>
             </div>

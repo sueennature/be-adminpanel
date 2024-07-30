@@ -7,7 +7,7 @@ const ViewUserPage = () => {
   return (
  
        <DefaultLayout>
-       <Breadcrumb pageName={'Users'} pageNameTwo='Views' firstLink={"/users"}/>
+       <Breadcrumb pageName={'Users'} pageNameTwo='All Users' firstLink={"/users"}/>
          <ViewAllUsers/>
      </DefaultLayout>
    )
