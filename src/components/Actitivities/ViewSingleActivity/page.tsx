@@ -5,18 +5,13 @@ import { useSearchParams } from "next/navigation";
 import flower from "../../../../public/images/flower.jpg";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
 
-interface ActivityData {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-}
+
 
 const ViewSingleActivity = () => {
   const searchParams = useSearchParams();
-  const [activity, setActivity] = React.useState<ActivityData | null>(null);
+  const [activity, setActivity] = React.useState<any>([]);
 
   let activityId = searchParams.get("activityID");
   console.log(activityId);
@@ -91,17 +86,27 @@ const ViewSingleActivity = () => {
           </div>
           <div className="flex">
             <div className="flex-1">
-              {/* <div className="m-2">{activity.image}</div> */}
+            <div className="m-2">Images</div>
             </div>
             <div className="flex-1">
-              <div className="m-2">
-                {/* <Image
-                  src={activity.image}
-                  alt={activity.image}
-                  width={100}
-                  height={100}
-                /> */}
-              </div>
+            <div className="min-w-[200px] overflow-x-auto py-4">
+            <div className="flex items-center gap-2">
+                              {activity.images?.map((image:any, index :any) => (
+                                <div
+                                  key={index}
+                                  className="h-20 w-20 flex-shrink-0 overflow-hidden"
+                                >
+                                  <Image
+                                    src={image}
+                                    alt={activity.name}
+                                    width={80}
+                                    height={80}
+                                    className="h-full w-full object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div> 
+              </div>{" "}
             </div>
           </div>
           </>
