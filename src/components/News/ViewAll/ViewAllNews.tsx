@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import NoData from "@/components/NoData";
 import Loader from "@/components/common/Loader";
+import ReactPlayer from "react-player";
 
 const ViewAllNews = () => {
   const [news, setNews] = React.useState<any[]>([]);
@@ -213,6 +214,9 @@ const ViewAllNews = () => {
                             Images
                           </th>
                           <th scope="col" className="px-6 py-3">
+                            Video
+                          </th>
+                          <th scope="col" className="px-6 py-3">
                             Action
                           </th>
                         </tr>
@@ -268,6 +272,29 @@ const ViewAllNews = () => {
                                 )}
                               </div>
                             </td>
+                            <td
+  className="px-6 py-4"
+  style={{ minWidth: "200px" }}
+>
+  <div className="flex items-center gap-2">
+    {news.videos.map(
+      (
+        video: string,
+        index: React.Key | null | undefined,
+      ) => (
+        <div key={index} className="flex-shrink-0">
+          <ReactPlayer
+            url={video}
+            width={140}
+            height={80}
+            controls
+          />
+        </div>
+      ),
+    )}
+  </div>
+</td>
+
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-4 ">
                                 <button
