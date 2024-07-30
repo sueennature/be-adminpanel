@@ -17,8 +17,8 @@ interface NewsData {
 const ViewSingleNews = () => {
 
   const searchParams = useSearchParams();
-  const [newsData, setNewsData] = React.useState<any>("");
-  const [news, setNews] = React.useState<NewsData | null>(null);
+ 
+  const [news, setNews] = React.useState<any>(null);
 
   let newsId = searchParams.get("newsID");
   console.log(newsId);
@@ -102,7 +102,7 @@ const ViewSingleNews = () => {
             </div> */}
             <div className="min-w-[200px] overflow-x-auto py-4">
                 <div className="flex items-center gap-2">
-                  {newsData.image?.map(
+                  {news.images?.map(
                     (
                       image: string | StaticImport,
                       index: React.Key | null | undefined,
