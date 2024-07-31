@@ -82,7 +82,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [totalActivityPrice, setTotalActivityPrice] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
-  const [partialAmount, setPartialAmount] = useState<string>('');
+  const [partialAmount, setPartialAmount] = useState<number>(0);
   const [rooms, setRooms] = useState<any>([]);
   const [requestRoom, setRequestRoom] = useState<any>([]);
   const [activities, setActivities] = useState<any>([]);
@@ -156,15 +156,15 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         "discount_code": "SUMMER21"
       }
       const accessToken = Cookies.get("access_token");
-      // const response = await axios.post(`https://api.sueennature.com/rooms/get-rates`, requestBody, {
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: `Bearer ${accessToken}`,
-      //     "x-api-key": process.env.X_API_KEY,
-      //   },
-      // });
+      const response = await axios.post(`https://api.sueennature.com/rooms/get-rates`, requestBody, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          "x-api-key": process.env.X_API_KEY,
+        },
+      });
 
-     // console.log("gettrace",response)
+     console.log("gettrace",response)
       console.log("gettrace",requestBody,{
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
@@ -175,6 +175,13 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     }
   }
 
+  function convertActivities(activities: any) {
+    return activities.map((activity:any) => ({
+        activity_id: activity?.id,
+        activity_name: activity?.name
+    }));
+}
+
   const handelProceedToPay = async() => {
     try{
       const requestBody ={
@@ -184,7 +191,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         "payment_method": paymentMethod || null,
         "total_amount": 50000,
         "is_partial_payment": isChecked || null,
-        "paid_amount": 0,
+        "paid_amount": partialAmount,
         "discount_code": discountCode || null,
         "guest_info": {
           "first_name": guestInfo?.firstName,
@@ -201,7 +208,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           "gender": "Male"
         },
         "rooms": requestRoom || [],
-        "activities": activities || [],
+        "activities": convertActivities(activities || []) || [],
         "agent_info": {
           "first_name": agentInfo?.firstName || "",
           "last_name":agentInfo?.lastName || "",
@@ -210,6 +217,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           "address": agentInfo?.address || "",
           "nationality":agentInfo?.address || "",
         },
+        "total_taxes": 0,
+        "total_rooms_charge": 200,
+        "total_activities_charge": 0,
+        "total_discount_amount": 0,
       }
       const accessToken = Cookies.get("access_token");
       const response = await axios.post(`https://api.sueennature.com/bookings/internal`, requestBody, {
@@ -327,10 +338,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
   const handleUpdateChildren = (event:any, id:any) =>{
     try{
-      const val = event.target.value
+      const val = parseInt(event.target.value || 0)
+      const arr = Array(val).fill(5);
       setRequestRoom((prev:any) =>
         prev?.map((item:any) =>
-          item?.room_id === id ? { ...item, child:[parseInt(val || 0)] } : item
+          item?.room_id === id ? { ...item, child:arr || [] } : item
         )
       );
     }catch(err){
@@ -641,7 +653,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   value={partialAmount}
                   style={{ marginTop: 20 }}
                   onChange={(e) => {
-                    setPartialAmount(e.target.value);
+                    setPartialAmount(parseInt(e.target.value));
                   }}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
