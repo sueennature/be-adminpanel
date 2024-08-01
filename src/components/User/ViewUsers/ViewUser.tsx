@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { useSearchParams } from "next/navigation";
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
+import { useAuthRedirect } from '@/utils/checkToken';
 
 interface UserDataProps {
   username: string;
@@ -15,14 +17,14 @@ interface UserDataProps {
 
 const ViewSingleUser = () => {
   const searchParams = useSearchParams();
-
+  useAuthRedirect();
   const [userData, setUserData] = React.useState<UserDataProps | null>(null);
 
   let userId = searchParams.get("userID");
   console.log(userId)
-
   useEffect(() => {
     const fetchUser = async () => {
+    
       if (userId) {
         try {
           const accessToken = Cookies.get('access_token'); 

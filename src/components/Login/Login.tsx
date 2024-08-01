@@ -10,12 +10,12 @@ export default function Login() {
   const [password, setPassword] = React.useState<string>("");
   const [visible, setVisible] = React.useState<boolean>(false);
   const [message, setMessage] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e:any) => {
-    console.log("Hi")
     e.preventDefault();
+    setLoading(true)
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim() || !password.trim()) {
       return toast.error("Please fill all fields");
@@ -35,14 +35,17 @@ export default function Login() {
 
     const data = await response.json();
     console.log(data)
+    setLoading(false)
     if (data.access_token) {
       setTimeout(() => {
         router.push("/home");
       }, 1500);
       return toast.success(`Successfully logged In`);
     } else if ((data.detail = "Invalid credentials")) {
+      setLoading(false)
       return toast.error(`Invalid Credentials`);
     } else {
+      setLoading(false)
       return toast.error("Something went wrong");
     }
   };
@@ -117,9 +120,10 @@ export default function Login() {
             <div className="mb-5">
               <button
                 onClick={handleSubmit}
+                disabled={loading}
                 className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
               >
-                Sign In
+                {loading ? "Signing In..." : "Sign In"}
               </button>
             </div>
           </div>

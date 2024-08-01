@@ -3,6 +3,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import flatpickr from "flatpickr";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const CreateGuest = () => {
   const [formData, setFormData] = useState<any>({
@@ -22,6 +23,9 @@ const CreateGuest = () => {
   });
   const dobPickerRef = useRef<flatpickr.Instance | null>(null);
   const idIssueDatePickerRef = useRef<flatpickr.Instance | null>(null);
+  const [isChecked, setIsChecked] = useState<boolean>(false);
+  const router = useRouter();
+
   useEffect(() => {
     flatpickr("#dob", {
       mode: "single",
@@ -103,7 +107,6 @@ const CreateGuest = () => {
   };
   
   const removeBase64Prefix = (base64String: string) => {
-    // Find the comma that separates the metadata from the base64 data
     const base64Prefix = 'data:image/png;base64,';
     if (base64String.startsWith(base64Prefix)) {
       return base64String.substring(base64Prefix.length);
@@ -113,15 +116,14 @@ const CreateGuest = () => {
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
-    // Process the base64 images in formData
+
     const processedFormData = {
       ...formData,
-      profile_image: formData.profile_image?.map(removeBase64Prefix) // Process each base64 image
+      profile_image: formData.profile_image?.map(removeBase64Prefix),
     };
-  
+
     console.log(processedFormData);
-  
+
     try {
       const response = await fetch("/api/guest", {
         method: "POST",
@@ -130,10 +132,45 @@ const CreateGuest = () => {
         },
         body: JSON.stringify(processedFormData),
       });
-  
-      console.log(response);
+
+      toast.success("Guest is created successfully")
+      if (!response.ok) {
+        throw new Error("Failed to create guest");
+      }
+
+      if (isChecked) {
+        const registerResponse = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          
+          body: JSON.stringify({
+            username: formData.first_name + " " + formData.last_name,
+            email: formData.email,
+            role: "guest",
+            password: formData.password,
+          }),
+        });
+
+        if (!registerResponse.ok) {
+          throw new Error("Failed to register user");
+        }
+        if(isChecked) {
+          toast.success("Guest is created and user is registered successfully");
+        }
+        setTimeout(()=>{
+          router.push("/guest")
+        },1500)
+      } else {
+        toast.success("Guest created successfully");
+        setTimeout(()=>{
+          router.push("/guest")
+        },1500)
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
+      toast.error("Error submitting form");
     }
   };
   
@@ -343,6 +380,33 @@ const CreateGuest = () => {
             />
 
             </div>
+            <div>
+      <label
+        htmlFor="checkboxLabelOne"
+        className="flex cursor-pointer select-none items-center"
+      >
+        <div className="relative">
+          <input
+            type="checkbox"
+            id="checkboxLabelOne"
+            className="sr-only"
+            onChange={() => {
+              setIsChecked(!isChecked);
+            }}
+          />
+          <div
+            className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${
+              isChecked && "border-primary bg-gray dark:bg-transparent"
+            }`}
+          >
+            <span
+              className={`h-2.5 w-2.5 rounded-sm ${isChecked && "bg-primary"}`}
+            ></span>
+          </div>
+        </div>
+        Allow User
+      </label>
+    </div>
 
             <div className="flex justify-end gap-4.5">
               <button
