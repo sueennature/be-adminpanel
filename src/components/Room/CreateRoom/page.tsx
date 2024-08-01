@@ -62,46 +62,55 @@ const CreateRoom = () => {
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
-        const files = Array.from(e.target.files);
-        const filePromises = files.map(file => {
+        const filesArray = Array.from(e.target.files);
+        const base64Promises = filesArray.map(file => {
           return new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
-            reader.onloadend = () => {
-              if (reader.result) {
-                resolve(reader.result as string);
-              } else {
-                reject(new Error('Failed to read file'));
-              }
-            };
-            reader.onerror = () => reject(new Error('Failed to read file'));
             reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = error => reject(error);
           });
         });
   
-        Promise.all(filePromises)
-          .then(fileUrls => {
+        Promise.all(base64Promises)
+          .then(base64Images => {
             setFormData({
               ...formData,
-              images: fileUrls
+              images: base64Images
             });
           })
           .catch(error => {
-            console.error('Error reading files:', error);
-            toast.error('Failed to upload files');
+            console.error("Error converting images to base64:", error);
+            toast.error("Error uploading images");
           });
-      }}
+      }
+    };
+    const removeBase64Prefix = (base64String: string) => {
+      // Find the comma that separates the metadata from the base64 data
+      const base64Prefix = 'data:image/png;base64,';
+      if (base64String.startsWith(base64Prefix)) {
+        return base64String.substring(base64Prefix.length);
+      }
+      return base64String;
+    };
 
       const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        const processedFormData = {
+          ...formData,
+        images: formData.images?.map(removeBase64Prefix) // Process each base64 image
+        };
         setLoading(true); 
         console.log('Form Data:', formData);
+        console.log("PROCESSED ROOM",processedFormData);
+
         try {
           const response = await fetch('/api/room', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(formData),
+            body: JSON.stringify(processedFormData),
           });
     
           if (!response.ok) {

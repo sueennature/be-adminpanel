@@ -20,12 +20,9 @@ import Swal from "sweetalert2";
 
 interface DiscountData {
   id: number;
-  name: string;
-  percentage: number;
-  discount_code:string;
-  description: string;
-  start_date: string;
-  end_date: string;
+  title: string;
+  media_type: number;
+  media_urls: [];
 }
 const ViewAllCarousel = () => {
   const [discounts, setDiscounts] = React.useState<DiscountData[]>([]);
@@ -39,12 +36,9 @@ const ViewAllCarousel = () => {
   const [idFilter, setIdFilter] = React.useState<string>("");
   const count = useSelector((state: RootState) => state.counter.value);
   const [loading, setLoading] = React.useState<boolean>(true);
- 
 
-  const filteredDiscounts = discounts.filter(
-    (activity) =>
-      activity.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-      String(activity.id).toLowerCase().includes(idFilter.toLowerCase()),
+  const filteredDiscounts = discounts.filter((activity) =>
+    String(activity.id).toLowerCase().includes(idFilter.toLowerCase()),
   );
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -77,11 +71,11 @@ const ViewAllCarousel = () => {
   };
 
   const handleEditPush = (roomData: any) => {
-    router.push(`/discount/update/update?discountID=${roomData.id}`);
+    router.push(`/carousels/update/update?carouselID=${roomData.id}`);
   };
 
   const handleViewPush = (roomData: any) => {
-    router.push(`/discount/view/view?discountID=${roomData.id}`);
+    router.push(`/carousels/view/view?carouselID=${roomData.id}`);
   };
 
   const handleItemsPerPageChange = (
@@ -98,31 +92,26 @@ const ViewAllCarousel = () => {
   const prevPage = () => {
     setCurrentPage((prev) => prev - 1);
   };
-  const csvData = filteredDiscounts.map(
-    ({ id, name, percentage, description, start_date, end_date }) => ({
-      id,
-      name,
-      percentage,
-      description,
-      start_date,
-      end_date,
-    }),
-  );
+  const csvData = filteredDiscounts.map(({ id, title, media_type }) => ({
+    id,
+    title,
+    media_type,
+  }));
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const accessToken = Cookies.get("access_token");
 
-        const response = await axios.get(`${process.env.BE_URL}/discounts`, {
+        const response = await axios.get(`${process.env.BE_URL}/carousels`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
             "x-api-key": process.env.X_API_KEY,
           },
         });
-        console.log(response.data);
-        setDiscounts(response.data);
+        console.log(response.data.data);
+        setDiscounts(response.data.data);
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -133,12 +122,11 @@ const ViewAllCarousel = () => {
     fetchUsers();
   }, []);
 
-
   const handleDelete = async (userId: number) => {
     const accessToken = Cookies.get("access_token");
 
     try {
-      await axios.delete(`${process.env.BE_URL}/discounts/${userId}`, {
+      await axios.delete(`${process.env.BE_URL}/carousels/${userId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
@@ -148,7 +136,7 @@ const ViewAllCarousel = () => {
       setDiscounts((prevGuests) =>
         prevGuests.filter((guest) => guest.id !== userId),
       );
-      toast.success("User Deleted Successfully");
+      toast.success("Carousel is Deleted Successfully");
     } catch (err) {
       console.error(err);
       toast.error(
@@ -178,10 +166,10 @@ const ViewAllCarousel = () => {
         {discounts.length > 0 && (
           <div className="flex items-center gap-4">
             <input
-              type="text"
+              type="number"
               placeholder="Search by Name"
-              value={nameFilter}
-              onChange={(e) => setNameFilter(e.target.value)}
+              value={idFilter}
+              onChange={(e) => setIdFilter(e.target.value)}
               className="rounded-md border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -194,168 +182,169 @@ const ViewAllCarousel = () => {
       </div>
       {!loading ? (
         <div>
-            {currentItems.length > 0  ? (
-                  <div>
-                  <div className="bg-white">
-                    <div className="overflow-x-auto shadow-md sm:rounded-lg">
-                      <table className="text-gray-500 dark:text-gray-400 w-full text-left text-sm rtl:text-right">
-                        <thead className="text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 text-xs uppercase">
-                          <tr>
-                            <th scope="col" className="p-4">
-                              <div className="flex items-center">
-                                <input
-                                  id="checkbox-all-search"
-                                  type="checkbox"
-                                  onChange={handleSelectAll}
-                                  checked={
-                                    discountsSelection.length === currentItems.length
-                                  }
-                                  className="bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
-                                />
-                                <label
-                                  htmlFor="checkbox-all-search"
-                                  className="sr-only"
-                                >
-                                  checkbox
-                                </label>
-                              </div>
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                              id
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                              Name
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                              Discount
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                              Discount Code
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                              Description
-                            </th>
-      
-                            <th scope="col" className="px-6 py-3">
-                              Start Date
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                              End Date
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                              Action
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {currentItems.map((activity) => (
-                            <tr
-                              key={activity.id}
-                              className="dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-b bg-white text-black"
+          {currentItems.length > 0 ? (
+            <div>
+              <div className="bg-white">
+                <div className="overflow-x-auto shadow-md sm:rounded-lg">
+                  <table className="text-gray-500 dark:text-gray-400 w-full text-left text-sm rtl:text-right">
+                    <thead className="text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 text-xs uppercase">
+                      <tr>
+                        <th scope="col" className="p-4">
+                          <div className="flex items-center">
+                            <input
+                              id="checkbox-all-search"
+                              type="checkbox"
+                              onChange={handleSelectAll}
+                              checked={
+                                discountsSelection.length ===
+                                currentItems.length
+                              }
+                              className="bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
+                            />
+                            <label
+                              htmlFor="checkbox-all-search"
+                              className="sr-only"
                             >
-                              <td className="w-4 p-4">
-                                <div className="flex items-center">
-                                  <input
-                                    id={`checkbox-table-search-${activity.id}`}
-                                    type="checkbox"
-                                    checked={discountsSelection.includes(activity.id)}
-                                    onChange={(e) =>
-                                      handleCheckboxChange(e, activity.id)
-                                    }
-                                    className="bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
-                                  />
-                                  <label
-                                    htmlFor={`checkbox-table-search-${activity.id}`}
-                                    className="sr-only"
+                              checkbox
+                            </label>
+                          </div>
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                          id
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                          Title
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                          Media Type
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                          Media
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentItems.map((activity) => (
+                        <tr
+                          key={activity.id}
+                          className="dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-b bg-white text-black"
+                        >
+                          <td className="w-4 p-4">
+                            <div className="flex items-center">
+                              <input
+                                id={`checkbox-table-search-${activity.id}`}
+                                type="checkbox"
+                                checked={discountsSelection.includes(
+                                  activity.id,
+                                )}
+                                onChange={(e) =>
+                                  handleCheckboxChange(e, activity.id)
+                                }
+                                className="bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
+                              />
+                              <label
+                                htmlFor={`checkbox-table-search-${activity.id}`}
+                                className="sr-only"
+                              >
+                                checkbox
+                              </label>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">{activity.id}</td>
+                          <td className="px-6 py-4">{activity.title}</td>
+                          <td className="px-6 py-4">{activity.media_type}</td>
+                          <td className="min-w-[200px] overflow-x-auto px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              {activity.media_urls?.map(
+                                (image: any, index: any) => (
+                                  <div
+                                    key={index}
+                                    className="h-20 w-20 flex-shrink-0 overflow-hidden"
                                   >
-                                    checkbox
-                                  </label>
-                                </div>
-                              </td>
-                              <td className="px-6 py-4">{activity.id}</td>
-                              <td className="px-6 py-4">{activity.name}</td>
-                              <td className="px-6 py-4">{activity.percentage}%</td>
-                              <td className="px-6 py-4">{activity.discount_code}</td>
+                                    <Image
+                                      src={`https://api.sueennature.com/${image}`}
+                                      alt="as"
+                                      width={80}
+                                      height={80}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          </td>
 
-                              <td className="px-6 py-4" style={{ minWidth: "200px" }}>
-                                {activity.description}
-                              </td>
-                              <td className="px-6 py-4" style={{ minWidth: "200px" }}>
-                             
-                                {format(new Date(activity.start_date), "yyyy-MM-dd ")}
-                              </td>
-                              <td className="px-6 py-4" style={{ minWidth: "200px" }}>
-                                
-                                {format(new Date(activity.end_date), "yyyy-MM-dd ")}
-                              </td>
-      
-                              <td className="px-6 py-4">
-                                <div className="flex items-center gap-4 ">
-                                  <button
-                                    onClick={() => handleEditPush(activity)}
-                                    className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                                  >
-                                    <Edit />
-                                  </button>
-                                  <button
-                                    onClick={() => handleViewPush(activity)}
-                                    className="dark:text-red-500 font-medium text-green-600 hover:underline"
-                                  >
-                                    <Eye />
-                                  </button>
-                                  <button onClick={()=>confirmDelete(activity.id)} className="font-medium text-rose-600  hover:underline">
-                                    <Trash />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    <div className="mt-4 flex justify-between p-4">
-                      <div className="flex items-center gap-4">
-                        <select
-                          value={itemsPerPage}
-                          onChange={handleItemsPerPageChange}
-                          className="rounded-md border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value={10}>10</option>
-                          <option value={20}>20</option>
-                          <option value={30}>50</option>
-                        </select>
-                        <span>items per page</span>
-                      </div>
-                      <div>
-                        <button
-                          onClick={prevPage}
-                          disabled={currentPage === 1}
-                          className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 mr-2 cursor-pointer rounded-md px-3 py-1"
-                        >
-                          Previous
-                        </button>
-                        <button
-                          onClick={nextPage}
-                          disabled={indexOfLastItem >= filteredDiscounts.length}
-                          className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-pointer rounded-md px-3 py-1"
-                        >
-                          Next
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-7 flex w-full justify-end ">
-                    <CSVLink
-                      data={csvData}
-                      filename={"Discounts.csv"}
-                      className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-4 ">
+                              <button
+                                onClick={() => handleEditPush(activity)}
+                                className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                              >
+                                <Edit />
+                              </button>
+                              <button
+                                onClick={() => handleViewPush(activity)}
+                                className="dark:text-red-500 font-medium text-green-600 hover:underline"
+                              >
+                                <Eye />
+                              </button>
+                              <button
+                                onClick={() => confirmDelete(activity.id)}
+                                className="font-medium text-rose-600  hover:underline"
+                              >
+                                <Trash />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-4 flex justify-between p-4">
+                  <div className="flex items-center gap-4">
+                    <select
+                      value={itemsPerPage}
+                      onChange={handleItemsPerPageChange}
+                      className="rounded-md border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      Export as CSV
-                    </CSVLink>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={30}>50</option>
+                    </select>
+                    <span>items per page</span>
+                  </div>
+                  <div>
+                    <button
+                      onClick={prevPage}
+                      disabled={currentPage === 1}
+                      className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 mr-2 cursor-pointer rounded-md px-3 py-1"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={nextPage}
+                      disabled={indexOfLastItem >= filteredDiscounts.length}
+                      className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-pointer rounded-md px-3 py-1"
+                    >
+                      Next
+                    </button>
                   </div>
                 </div>
-            ) : (<NoData/>)}
-        
+              </div>
+              <div className="mt-7 flex w-full justify-end ">
+                <CSVLink
+                  data={csvData}
+                  filename={"Discounts.csv"}
+                  className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                >
+                  Export as CSV
+                </CSVLink>
+              </div>
+            </div>
+          ) : (
+            <NoData />
+          )}
         </div>
       ) : (
         <Loader />

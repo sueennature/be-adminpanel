@@ -1,4 +1,5 @@
 'use client'
+import { useAuthRedirect } from "@/utils/checkToken";
 import { useRouter } from "next/navigation";
 import React, {  useState } from "react";
 import { toast } from "react-toastify";
@@ -11,6 +12,7 @@ interface FormData {
 }
 
 const CreateUser: React.FC = () => {
+  useAuthRedirect();
   const [formData, setFormData] = useState<FormData>({
     username: "",
     email: "",

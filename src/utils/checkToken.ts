@@ -1,11 +1,12 @@
-// utils/checkToken.ts
+// utils/auth.js
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
-const checkToken = (): boolean => {
-  const token = Cookies.get('access_token');
-  console.log("TOKS", token)
-  return !!token;
-};
+export function useAuthRedirect() {
+    const router = useRouter();
+    const token = Cookies.get('access_token');
 
-export default checkToken;
-
+    if (!token) {
+        router.push('/');
+    }
+}

@@ -3,14 +3,17 @@ import { useRouter } from "next/navigation";
 import React, { ChangeEvent, useState } from 'react';
 import SelectGroupOne from '../../SelectGroup/SelectGroupOne';
 import { toast } from 'react-toastify';
+import { useAuthRedirect } from "@/utils/checkToken";
 
 const CreateCarousel = () => {
+  useAuthRedirect();
   const [formData, setFormData] = useState<any>({
     title: '',
     media_type: '',
     media_urls: [],
   });
   const router = useRouter()
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -20,24 +23,24 @@ const CreateCarousel = () => {
     });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
-      const base64Promises = filesArray.map((file: File) => {
+      const base64Promises = filesArray.map(file => {
         return new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.readAsDataURL(file);
           reader.onload = () => resolve(reader.result as string);
-          reader.onerror = (error) => reject(error);
+          reader.onerror = error => reject(error);
         });
       });
-  
+
       Promise.all(base64Promises)
         .then(base64Images => {
-          setFormData((prevFormData: any) => ({
-            ...prevFormData,
-            media_urls: base64Images // Update media_urls correctly
-          }));
+          setFormData({
+            ...formData,
+            media_urls: base64Images
+          });
         })
         .catch(error => {
           console.error("Error converting images to base64:", error);
@@ -45,7 +48,15 @@ const CreateCarousel = () => {
         });
     }
   };
-  
+  const removeBase64Prefix = (base64String: string) => {
+    // Find the comma that separates the metadata from the base64 data
+    const base64Prefix = 'data:image/png;base64,';
+    if (base64String.startsWith(base64Prefix)) {
+      return base64String.substring(base64Prefix.length);
+    }
+    return base64String;
+  };
+
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
   
@@ -56,8 +67,12 @@ const CreateCarousel = () => {
   };
   
   const handleSubmit = async (e: any) => {
+    setLoading(true)
     e.preventDefault();
-
+    const processedFormData = {
+      ...formData,
+      media_urls: formData.media_urls?.map(removeBase64Prefix) 
+    };
   
     console.log(formData)
     try {
@@ -66,7 +81,7 @@ const CreateCarousel = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(processedFormData),
       });
 
       if (!response.ok) {
@@ -78,12 +93,14 @@ const CreateCarousel = () => {
 
       const responseData = await response.json();
       console.log("Success:", responseData);
+      setLoading(false)
       toast.success("Carousel is  created successfully");
       setTimeout(()=>{
-        router.push("/activity")
+        router.push("/carousels")
       },1500)
     } catch (error) {
       console.error("Error:", error);
+      setLoading(false)
       toast.error("Something went wrong!");
     }
   };
@@ -136,17 +153,18 @@ const CreateCarousel = () => {
     required
     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
   >
-    <option value="">Select a nationality</option>
-    <option value="foreign">Foreign</option>
-    <option value="local">Local</option>
+    <option value="">Select a media type</option>
+    <option value="image">Image</option>
+    <option value="video">Video</option>
   </select>
 </div>
 
             <button
+            disabled={loading}
               type="submit"
               className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
             >
-              Submit
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </form>

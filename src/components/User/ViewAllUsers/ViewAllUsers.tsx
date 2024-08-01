@@ -12,6 +12,8 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import NoData from "@/components/NoData";
 import Loader from "@/components/common/Loader";
+import useAuth from "@/hooks/useAuth";
+import { useAuthRedirect } from "@/utils/checkToken";
 
 interface userData {
   id: number;
@@ -32,9 +34,11 @@ const ViewAllUsers = () => {
   const [loading, setLoading] = React.useState<boolean>(true);
 
   const router = useRouter();
+  useAuthRedirect();
 
   useEffect(() => {
     const fetchUsers = async () => {
+   
       try {
         const accessToken = Cookies.get("access_token");
 
