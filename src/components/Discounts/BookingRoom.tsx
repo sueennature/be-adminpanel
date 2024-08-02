@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import CreateGuestBooking from "./CreateGuestBooking";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
 import axios from "axios";
 interface AgentInfo {
@@ -44,41 +46,18 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   discountCode
 }) => {
 
-  console.log(checkIN)
-  console.log(checkOut)
-  console.log('Room Type:', room_type);
-  console.log('Room Type View:', room_type_view);
-  console.log('Is Show:', isShow);
-  console.log('Response Data:', responseDatas);
-  console.log('Check-IN:', checkIN);
-  console.log('Check-Out:', checkOut);
-  console.log('Discount Code:', discountCode);
-  const initialFormData: FormData = {
-    rooms: [
-      {
-        room_id: 0,
-        category: '',
-        adults: 1,
-        child: [0, 0], // Default to two children with age 0
-        infants: [0, 0], // Default to two infants with age 0
-        meal_plan: '',
-        view: ''
-      }
-    ]
-  };
-  
+
   const [numRooms, setNumRooms] = useState<number>(0);
   const [adultsPerRoom, setAdultsPerRoom] = useState<number[]>([]);
   const [childrenPerRoom, setChildrenPerRoom] = useState<number[]>([]);
   const [childrenAgesPerRoom, setChildrenAgesPerRoom] = useState<number[][]>([],);
   const [taxes, setTaxes] = useState([]);
-  const [totalCost, setTotalCost] = useState(0);
-  const [totalOrigin, setTotalOrigin] = useState(0)
   const [totalDiscount, setTotalDiscount] = useState(0);
   const [mealPlans, setMealPlans] = useState<any>([]);
   const [mealPlanCosts, setMealPlanCosts] = useState(new Array(responseDatas?.rooms?.length).fill(0));
   const [infantsPerRoom, setInfantsPerRoom] = useState<number[]>([]);
   const [infantAgesPerRoom, setInfantAgesPerRoom] = useState<number[][]>([]);
+  
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [totalActivityPrice, setTotalActivityPrice] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
@@ -86,6 +65,12 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [rooms, setRooms] = useState<any>([]);
   const [requestRoom, setRequestRoom] = useState<any>([]);
   const [activities, setActivities] = useState<any>([]);
+  const [bookings, setBookings] = useState<any>([]);
+  const [rates, setRates] = useState<any>({});
+  const [itemsPerPage, setItemsPerPage] = React.useState<number>(5);
+  const [currentPage, setCurrentPage] = React.useState<number>(0);
+  const [numRecords, setNumRecords] = React.useState<number>(0);
+
   const [agentInfo, setAgentInfo] = useState<AgentInfo>({
     firstName: '',
     lastName: '',
@@ -103,6 +88,44 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     telephone: '',
     address: ''
   });
+
+
+
+  console.log('responseDatas:', responseDatas);
+  console.log('numRooms:', numRooms);
+  console.log('adultsPerRoom:', adultsPerRoom);
+  console.log('childrenPerRoom:', childrenPerRoom);
+  console.log('childrenAgesPerRoom:', childrenAgesPerRoom);
+  console.log('taxes:', taxes);
+  console.log('totalDiscount:', totalDiscount);
+  console.log('mealPlans:', mealPlans);
+  console.log('infantsPerRoom:', infantsPerRoom);
+  console.log('infantAgesPerRoom:', infantAgesPerRoom);
+  console.log('isChecked:', isChecked);
+  console.log('totalActivityPrice:', totalActivityPrice);
+  console.log('paymentMethod:', paymentMethod);
+  console.log('partialAmount:', partialAmount);
+  console.log('rooms:', rooms);
+  console.log('requestRoom:', requestRoom);
+  console.log('activities:', activities);
+  console.log('agentInfo:', agentInfo);
+  console.log('guestInfo:', guestInfo);
+
+  const handleItemsPerPageChange = (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(0);
+  };
+
+
+    const nextPage = () => {
+    setCurrentPage((prev) => prev + itemsPerPage);
+  };
+
+  const prevPage = () => {
+    setCurrentPage((prev) => prev - itemsPerPage);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -124,56 +147,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     setPaymentMethod(event.target.value);
   };
   
-  const getrates = async() => {
-    try{
-      const requestBody ={
-        "check_in": "2024-08-01T06:08:34.479Z",
-        "check_out": "2024-08-02T06:08:34.479Z",
-        "rooms": [
-          {
-            "room_id": 23,
-            "adults": 2,
-            "children": [5,7],
-            "infants": [1],
-            "meal_plan": "bread_breakfast"
-          }
-        ],
-        "activities": [
-          {
-            "activity_id": 1
-          }
-        ],
-        "taxes": [
-          {
-            "tax_id": 1
-          }
-        ],
-        "discounts": [
-          {
-            "discount_id": 1
-          }
-        ],
-        "discount_code": "SUMMER21"
-      }
-      const accessToken = Cookies.get("access_token");
-      const response = await axios.post(`https://api.sueennature.com/rooms/get-rates`, requestBody, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-          "x-api-key": process.env.X_API_KEY,
-        },
-      });
 
-     console.log("gettrace",response)
-      console.log("gettrace",requestBody,{
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-        "x-api-key": process.env.X_API_KEY,
-      } )
-    }catch(err){
-      console.log(err)
-    }
-  }
+  
 
   function convertActivities(activities: any) {
     return activities.map((activity:any) => ({
@@ -182,59 +157,6 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     }));
 }
 
-  const handelProceedToPay = async() => {
-    try{
-      const requestBody ={
-        "check_in": checkIN,
-        "check_out": checkOut,
-        "booking_type": "internal",
-        "payment_method": paymentMethod || null,
-        "total_amount": 50000,
-        "is_partial_payment": isChecked || null,
-        "paid_amount": partialAmount,
-        "discount_code": discountCode || null,
-        "guest_info": {
-          "first_name": guestInfo?.firstName,
-          "last_name":guestInfo?.lastName,
-          "email": guestInfo?.email,
-          "telephone": guestInfo?.telephone,
-          "address": guestInfo?.address,
-          "nationality": guestInfo?.nationality,
-          "profile_image": [],
-          "identification_type": "string",
-          "identification_no": "string",
-          "identification_issue_date": "2024-07-26T06:08:34.480Z",
-          "dob": "2024-07-26T06:08:34.480Z",
-          "gender": "Male"
-        },
-        "rooms": requestRoom || [],
-        "activities": convertActivities(activities || []) || [],
-        "agent_info": {
-          "first_name": agentInfo?.firstName || "",
-          "last_name":agentInfo?.lastName || "",
-          "email": agentInfo?.email || "",
-          "telephone": agentInfo?.telephone || "",
-          "address": agentInfo?.address || "",
-          "nationality":agentInfo?.address || "",
-        },
-        "total_taxes": 0,
-        "total_rooms_charge": 200,
-        "total_activities_charge": 0,
-        "total_discount_amount": 0,
-      }
-      const accessToken = Cookies.get("access_token");
-      const response = await axios.post(`https://api.sueennature.com/bookings/internal`, requestBody, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-          "x-api-key": process.env.X_API_KEY,
-        },
-      });
-      
-    }catch(err){
-
-    }
-  }
 
   const handleSelectActivities = (activity: any) => {
     try {
@@ -250,64 +172,6 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       console.error(err);
     }
   };
-
-  type Room = {
-    room_number: string;
-    name: string;
-    category: string;
-    secondary_category: string;
-    view: string;
-    max_adults: number;
-    max_childs: number;
-    max_people: number;
-    short_description: string;
-    description: string;
-    room_only: number;
-    bread_breakfast: number;
-    half_board: number;
-    full_board: number;
-    bathroom: string;
-    size: string;
-    beds: string;
-    features: string;
-    views: string;
-    id: number;
-  };
-
-  function getFirstElements(arr:any, n:any) {
-    return arr?.slice(0, n);
-  }
-
-  const handleAddRoom = (event:any) =>{
-    try{
-      const selectedId = parseInt(event.target.value, 10);
-      const selectedRoom = getFirstElements(responseDatas.rooms, selectedId)
-      console.log("Selected room object:", selectedRoom);
-      let arr:any = []
-      selectedRoom?.map((val:any)=>{
-        let t = {
-          "room_id": val?.id,
-          "category": val?.category,
-          "view": val?.view,
-          "adults": 0,
-          "child": [
-            0
-          ],
-          "infants": [
-            0
-          ],
-          "meal_plan": ""
-        }
-        arr.push(t);
-      })
-      console.log("arr",arr)
-      setRequestRoom(arr)
-      setRooms(selectedRoom)
-    }catch(err){
-      console.log(err)
-    }
-  }
-
   const handleUpdateMealPlan = (event:any, id:any) =>{
     try{
       const val = event.target.value
@@ -363,134 +227,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     }
   }
 
-  const getTotalMealPlanCost = () => {
-    const totalMealPlanCost = mealPlanCosts.reduce((acc, cost) => acc + cost, 0);
-    const numberOfDays = responseDatas?.number_of_nights || 1; 
   
-    return totalMealPlanCost * numberOfDays;
-  };
-  
-
-  const applyDiscount = ({ baseCost, discountCode, checkIN, checkOut }: { baseCost: number; discountCode: string; checkIN: string; checkOut: string }) => {
-    const discounts = responseDatas?.discounts || [];
-    const discount = discounts.find((d: { discount_code: string; }) => d.discount_code === discountCode);
-  
-    if (discount) {
-      const discountStartDate = new Date(discount.start_date);
-      const discountEndDate = new Date(discount.end_date);
-      const checkINDate = new Date(checkIN);
-      const checkOutDate = new Date(checkOut);
-  
-      // Check if the booking period overlaps with the discount period
-      const isValidPeriod = (checkINDate <= discountEndDate) && (checkOutDate >= discountStartDate);
-  
-      if (isValidPeriod) {
-        // Calculate the number of days within the booking period
-        const bookingStart = checkINDate > discountStartDate ? checkINDate : discountStartDate;
-        const bookingEnd = checkOutDate < discountEndDate ? checkOutDate : discountEndDate;
-        const daysBetween = Math.ceil((bookingEnd.getTime() - bookingStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-  
-        // Calculate the daily cost
-        const totalBookingDays = Math.ceil((checkOutDate.getTime() - checkINDate.getTime()) / (1000 * 60 * 60 * 24));
-        const dailyCost = baseCost / totalBookingDays;
-  
-        // Calculate the discount amount
-        const discountAmount = dailyCost * daysBetween * (discount.percentage / 100);
-  
-        return discountAmount;
-      }
-    }
-    return 0;
-  };
-  
-  const calculateTotalCost = () => {
-    const mealPlanCost = getTotalMealPlanCost();
-    const activityCost = totalActivityPrice;
- 
-    let baseTotalCost = mealPlanCost + activityCost;
-    setTotalOrigin(baseTotalCost)
-    let totalDiscountAccumulated = 0; // Variable to accumulate total discount
-
-    responseDatas?.rooms.forEach((room :any, index:any) => {
-      const isNotSingleRoom = room.category !== "Single";
-      const maxAdults = getMaxAdults(room.category);
-      const hasMaxAdults = adultsPerRoom[index] === maxAdults;
-      const hasAtLeastOneChild = childrenPerRoom[index] > 0;
-
-      const mealPlan = mealPlans[index]; // Replace with the actual variable
-      const isMealPlanEligible = mealPlan !== "room_only"; // Adjust this check as per your data
-
-      if (isNotSingleRoom && hasMaxAdults && hasAtLeastOneChild && isMealPlanEligible) {
-        const totalDaysT = responseDatas.number_of_nights;
-        const roomCost = mealPlanCosts[index]; // Replace with the actual cost of the room
-        const mealPlanDiscount = (mealPlanCosts[index] * 0.5); // 50% discount on meal plan cost
-        const mealPlanDis = mealPlanDiscount * totalDaysT;
-        totalDiscountAccumulated += mealPlanDis;
-      }
-    });
-
-    // Calculate and set taxes
-    const taxesList = responseDatas?.taxes || [];
-    let totalTax = 0;
-    taxesList.forEach((tax:any) => {
-      const taxAmount = baseTotalCost * (tax.percentage / 100);
-      totalTax += taxAmount;
-    });
-
-    const discountAmount = applyDiscount({
-      baseCost: mealPlanCost,
-      discountCode: discountCode,
-      checkIN: checkIN,
-      checkOut: checkOut
-    });    // baseTotalCost -= discountAmount;
-    totalDiscountAccumulated += discountAmount;
-    // Adjust the final total cost
-    baseTotalCost += totalTax;
-    baseTotalCost -= totalDiscountAccumulated
-    // Update state with the total discount, final total cost, and taxes
-    setTotalDiscount(totalDiscountAccumulated);
-    setTotalCost(baseTotalCost);
-    setTaxes(taxesList);
-    
-  };
-  useEffect(() => {
-    calculateTotalCost();
-  }, [responseDatas, adultsPerRoom, childrenPerRoom, mealPlans, totalActivityPrice, mealPlanCosts, checkIN, checkOut, discountCode]);
-  
-  useEffect(() => {
-    const fetchBookings = async() =>{
-      try{
-        const accessToken = Cookies.get("access_token");
-        const response = await axios.post(`${process.env.BE_URL}/bookings/?skip=0&limit=10`,{
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": process.env.X_API_KEY,
-          },
-        });
-      }catch(err){
-        console.log(err)
-      }
-    }
-    fetchBookings();
-  }, []);
-
-  const getMaxAdults = (roomType: string) => {
-    switch (roomType) {
-      case "Single":
-        return 1;
-      case "Double":
-      case "Deluxe":
-        return 2;
-      case "Triple":
-        return 3;
-      case "Family":
-        return 4;
-      default:
-        return 1;
-    }
-  };
-
   const handleChildAgeChange = (
     roomIndex: number,
     childIndex: number,
@@ -515,6 +252,176 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  function getFirstElements(arr:any, n:any) {
+    return arr?.slice(0, n);
+  }
+
+  function timestampToDate(timestamp : Date) {
+    // Create a new Date object from the timestamp
+    const date = new Date(timestamp);
+
+    // Extract the year, month, and day
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+
+    // Format the date as YYYY-MM-DD
+    return `${year}-${month}-${day}`;
+
+  }
+  const handleAddRoom = (event:any) =>{
+    try{
+      const selectedId = parseInt(event.target.value, 10);
+      const selectedRoom = getFirstElements(responseDatas.rooms, selectedId)
+      console.log("Selected room object:", selectedRoom);
+      let arr:any = []
+      selectedRoom?.map((val:any)=>{
+        let t = {
+          "room_id": val?.id,
+          "category": val?.category,
+          "view": val?.view,
+          "adults": 0,
+          "child": [
+            0
+          ],
+          "infants": [
+            0
+          ],
+          "meal_plan": ""
+        }
+        arr.push(t);
+      })
+      console.log("arr",arr)
+      setRequestRoom(arr)
+      setRooms(selectedRoom)
+    }catch(err){
+      console.log(err)
+    }
+  }
+
+  const getrates = async() => {
+    try{
+      const requestBody ={
+        "check_in": checkIN,
+        "check_out": checkOut,
+        "rooms": await requestRoom.map((room: any) => ({
+          room_id: room.room_id,
+          adults: room.adults,
+          children: room.child,
+          infants: room.infants,
+          meal_plan: room.meal_plan
+        })),
+        "activities": await activities?.map((activity:any) => ({ activity_id: activity?.id })),
+        "taxes": await responseDatas?.taxes?.map((tax:any) => ({ tax_id: tax?.id })),
+        "discounts": await responseDatas?.discounts?.map((discount:any) => ({ discount_id: discount?.id })),
+        //"discount_code": discountCode || null
+        "discount_code": "SUMMER21"
+      }
+      console.log("getrates",requestBody)
+      const accessToken =  await Cookies.get("access_token");
+      const response = await axios.post(`${process.env.BE_URL}/rooms/get-rates/`, requestBody, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          "x-api-key": process.env.X_API_KEY,
+        },
+      });
+      setRates(response?.data || {})
+     console.log("gettrace",response)
+  
+    }catch(err){
+      console.log(err)
+    }
+  }
+  
+    const handelProceedToPay = async() => {
+      try{
+        const requestBody ={
+          "check_in": checkIN,
+          "check_out": checkOut,
+          "booking_type": "internal",
+          "payment_method": "walk-in guest",
+          "total_amount": (parseFloat(rates?.total_activities_amount || 0) + parseFloat(rates?.total_amount || 0) + parseFloat(rates?.total_meal_plan_amount || 0) + parseFloat(rates?.total_rooms_amount || 0) + parseFloat(rates?.total_tax_amount || 0)) - (parseFloat(rates?.total_discount_amount || 0)),
+          "is_partial_payment": isChecked || false,
+          "paid_amount": partialAmount,
+          "discount_code": discountCode || "",
+          "guest_info": {
+            "first_name": guestInfo?.firstName,
+            "last_name":guestInfo?.lastName,
+            "email": guestInfo?.email,
+            "telephone": guestInfo?.telephone,
+            "address": guestInfo?.address,
+            "nationality": guestInfo?.nationality,
+            "profile_image": [],
+            "identification_type": "NIC",
+            "identification_no": "1111111111",
+            "identification_issue_date": "2024-08-03T08:30:00.000Z",
+            "dob": "2024-08-03T08:30:00.000Z",
+            "gender": "Male"
+          },
+          "rooms": requestRoom || [],
+          "activities": convertActivities(activities || []) || [],
+          "agent_info": {
+            "first_name": agentInfo?.firstName || "",
+            "last_name":agentInfo?.lastName || "",
+            "email": agentInfo?.email || "",
+            "telephone": agentInfo?.telephone || "",
+            "address": agentInfo?.address || "",
+            "nationality":agentInfo?.address || "",
+          },
+          "total_taxes": rates?.total_tax_amount,
+          "total_rooms_charge": rates?.total_rooms_amount,
+          "total_activities_charge": rates?.total_activities_amount,
+          "total_discount_amount": rates?.total_discount_amount,
+        }
+        const accessToken = Cookies.get("access_token");
+        const response = await axios.post(`${process.env.BE_URL}/bookings/internal`, requestBody, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+            "x-api-key": process.env.X_API_KEY,
+          },
+        });
+        if(response?.status === 200){
+          fetchBookings();
+          toast.success(`Successfully Added!`);
+        }else{
+          toast.error("Something went wrong");
+        }
+      }catch(err){
+  
+      }
+    }
+
+
+    const fetchBookings = async() =>{
+      try{
+        const accessToken = Cookies.get("access_token");
+        const response = await axios.get(`${process.env.BE_URL}/bookings/?skip=${currentPage}&limit=${itemsPerPage}`,{
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+            "x-api-key": process.env.X_API_KEY,
+          },
+        });
+        console.log("fetchBookings",`${process.env.BE_URL}/bookings/?skip=${currentPage}&limit=${itemsPerPage}`)
+        console.log("response?.data",response)
+        setBookings(response?.data?.bookings || [])
+        setNumRecords(response?.data?.total_records)
+      }catch(err){
+        console.log(err)
+      }
+    }
+  useEffect(() => {
+    fetchBookings();
+  }, [itemsPerPage, currentPage]);
+
+  useEffect(() => {
+    getrates()
+  }, [partialAmount, activities, checkIN, checkOut, requestRoom ]);
+
+  
 
   return (
     <div className="mx-auto w-full px-4">
@@ -744,10 +651,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                     }}
                   >
                     <option value={""}>Select Meal Plan</option>
-                    <option value={`${room["room_only"]}|Room Only`}>Room Only</option>
-                    <option value={`${room["bread_breakfast"]}|Bread & Breakfast`}>Bread & Breakfast</option>
-                    <option value={`${room["half_board"]}|Half Board`}>Half Board</option>
-                    <option value={`${room["full_board"]}|Full Board`}>Full Board</option>
+                    <option value={`${room["room_only"]}|room_only`}>Room Only</option>
+                    <option value={`${room["bread_breakfast"]}|bread_breakfast`}>Bread & Breakfast</option>
+                    <option value={`${room["half_board"]}|half_board`}>Half Board</option>
+                    <option value={`${room["full_board"]}|full_board`}>Full Board</option>
                   </select>
                   <div className="ml-2 text-black">
                     {mealPlanCosts[index] ? `RS ${mealPlanCosts[index]}` : ""}
@@ -1107,16 +1014,28 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             Total Rooms with Meal Plan
           </div>
           <div className="font-bold text-black">
-            Rs {getTotalMealPlanCost().toLocaleString()}
+            Rs {rates?.total_meal_plan_amount || 0}
           </div>
         </div>
         <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
-          <div className="text-[20px] text-black ">Total Activities</div>
+          <div className="text-[20px] text-black ">Total Activities Amount</div>
           <div className="font-bold text-black">
-            Rs {totalActivityPrice.toLocaleString()}
+            Rs {rates?.total_activities_amount || 0}
           </div>
         </div>
-        {taxes.map((tax: any) => (
+        <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
+          <div className="text-[20px] text-black ">Total Rooms Amount</div>
+          <div className="font-bold text-black">
+            Rs {rates?.total_rooms_amount || 0}
+          </div>
+        </div>
+        <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
+          <div className="text-[20px] text-black ">Total Tax Amount</div>
+          <div className="font-bold text-black">
+            Rs {rates?.total_tax_amount || 0}
+          </div>
+        </div>
+        {/* {taxes.map((tax: any) => (
           <div key={tax.id}>
             <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
               <div className="text-[20px] text-black ">
@@ -1128,19 +1047,19 @@ const BookingRoom: React.FC<BookingRoomData> = ({
               </div>
             </div>
           </div>
-        ))}
+        ))} */}
         <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
           <div className="text-[20px] text-orange-500">
             Discount & Special Rate
           </div>
           <div className=" font-bold text-orange-500">
-            (-{totalDiscount?.toLocaleString()})
+            (-{rates?.total_discount_amount})
           </div>
         </div>
         <div className="mt-3  flex w-full items-center justify-between border-t-2 border-black p-3 lg:flex-row">
           <div className="text-[28px] font-bold text-black">Total</div>
           <div className="font-bold text-black">
-            Rs{totalCost.toLocaleString()}
+            Rs {rates?.total_amount}
           </div>
         </div>
       </div>
@@ -1189,21 +1108,57 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             <th scope="col" className="px-6 py-3">
               Payment Method
             </th>
+            <th className="px-6 py-4">Receipt</th>
           </tr>
         </thead>
         <tbody>
-          <tr className="dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-b bg-white">
-            <td className="px-6 py-4">Test Check-in</td>
-            <td className="px-6 py-4">Test Check-out</td>
-            <td className="px-6 py-4">Test Booking Type</td>
-            <td className="px-6 py-4">Test Total Amount</td>
-            <td className="px-6 py-4">Test Guest Name</td>
-            <td className="px-6 py-4">Test Rooms</td>
-            <td className="px-6 py-4">Test Activities</td>
-            <td className="px-6 py-4">Test Payment Method</td>
-          </tr>
+        {bookings?.map((data:any)=>{
+          return <tr className="dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-b bg-white">
+          <td className="px-6 py-4">{timestampToDate(data?.check_in)}</td>
+          <td className="px-6 py-4">{timestampToDate(data?.check_out)}</td>
+          <td className="px-6 py-4">{data?.booking_type}</td>
+          <td className="px-6 py-4">{(parseFloat(data?.total_amount || 0) + parseFloat(data?.total_activities_charge || 0) + parseFloat(data?.total_rooms_charge || 0) + parseFloat(data?.total_taxes || 0)) - (parseFloat(data?.total_discount_amount || 0)) }</td>
+          <td className="px-6 py-4">{data?.guest_info?.first_name || ""} {data?.guest_info?.last_name || ""}</td>
+          <td className="px-6 py-4">{data?.rooms?.map((room : any) => room?.room_id).join(', ')}</td>
+          <td className="px-6 py-4">{data?.activities?.map((activity : any) => activity?.activity_name).join(', ')}</td>
+          <td className="px-6 py-4">{data?.payment_method}</td>
+          <td className="px-6 py-4"><a href={`https://api.sueennature.com/receipts/booking_receipt_${data?.id}.pdf`}>Download</a></td>
+        </tr>
+        })}
+          
         </tbody>
       </table>
+      <div className="mt-4 flex justify-between p-4">
+                  <div className="flex items-center gap-4">
+                    <select
+                      value={itemsPerPage}
+                      onChange={handleItemsPerPageChange}
+                      className="rounded-md border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                    <span>items per page</span>
+                  </div>
+                  <div>
+                    <button
+                      onClick={prevPage}
+                      disabled={currentPage === 1}
+                      className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 mr-2 cursor-pointer rounded-md px-3 py-1"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={nextPage}
+                      disabled={currentPage >= numRecords}
+                      className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-pointer rounded-md px-3 py-1"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
     </div>
   );
 };
