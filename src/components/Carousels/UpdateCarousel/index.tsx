@@ -5,7 +5,7 @@
   import Cookies from 'js-cookie';
   import axios from 'axios';
   import Image from 'next/image';
-
+import { useAuthRedirect } from '@/utils/checkToken';
   interface FormData {
     title: string;
     media_type: string;
@@ -13,6 +13,7 @@
   }
 
   const UpdateCarousel: React.FC = () => {
+    useAuthRedirect()
     const [formData, setFormData] = useState<FormData>({
       title: '',
       media_type: '',
@@ -25,26 +26,33 @@
 
     const carouselId = searchParams.get('carouselID');
 
-    const handleDeleteImage = (index: number) => {
-      console.log('Deleting index:', index);
+    const handleDeleteImage = async (index: number) => {
+      const imageUrl = formData.media_urls[index];
+      if (imageUrl) {
+        console.log("IMAGEURL", imageUrl);
+        try {
+          await axios.delete(`${process.env.BE_URL}/carousels/${carouselId}/images`, {
+            data: { media_urls: [imageUrl] }, // Wrap imageUrl in an array
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${Cookies.get('access_token')}`,
+              'x-api-key': process.env.X_API_KEY,
+            },
+          });
     
-      // Delete from imagePreviews
-      setImagePreviews(prevImages => {
-        const updatedImages = prevImages.filter((_, i) => i !== index);
-        console.log('Updated imagePreviews:', updatedImages);
-        return updatedImages;
-      });
-    
-      // Delete from formData.media_urls
-      setFormData(prevData => {
-        const updatedMediaUrls = prevData.media_urls.filter((_, i) => i !== index);
-        console.log('Updated media_urls:', updatedMediaUrls);
-        return {
-          ...prevData,
-          media_urls: updatedMediaUrls,
-        };
-      });
+          setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
+          setFormData(prevData => ({
+            ...prevData,
+            media_urls: prevData.media_urls.filter((_, i) => i !== index),
+          }));
+        } catch (err) {
+          console.error('Error deleting image:', err);
+          toast.error('Error deleting image');
+        }
+      }
     };
+    
+    
     
     
     
@@ -90,20 +98,17 @@
     const removeBase64Prefix = (base64String: string) => {
       const imagePrefix = ['data:image/png;base64,', 'data:image/jpeg;base64,'];
     
-      // Check if the string starts with any of the image prefixes and return it if so
       for (const prefix of imagePrefix) {
         if (base64String.startsWith(prefix)) {
           return base64String.substring(prefix.length);
         }
       }
     
-      // If it's not an image base64 string, remove the unwanted prefix
       const unwantedPrefix = 'data:text/html;base64,';
       if (base64String.startsWith(unwantedPrefix)) {
         return base64String.substring(unwantedPrefix.length);
       }
     
-      // Return the string as is if no prefix needs to be removed
       return base64String;
     };
 
@@ -147,7 +152,6 @@
       e.preventDefault();
       setLoading(true);
       console.log("form", formData)
-      // Helper function to convert an image URL to a base64 string
       const urlToBase64 = async (url: string): Promise<string> => {
         const response = await fetch(url);
         const blob = await response.blob();
@@ -159,7 +163,6 @@
         });
       };
     
-      // Convert all image URLs in formData to base64
       const convertImagesToBase64 = async (urls: string[]): Promise<string[]> => {
         const base64Promises = urls.map(url => url.startsWith('uploads/') ? urlToBase64(`https://api.sueennature.com/${url}`) : Promise.resolve(url));
         return Promise.all(base64Promises);
@@ -182,7 +185,18 @@
           },
           body: JSON.stringify(processedFormData),
         });
-    
+        const data = response.json()
+        console.log("SDA",response)
+        if(response.status === 401){
+          toast.error("Credentials Expired. Please Log in Again")
+          Cookies.remove('access_token');
+
+          setTimeout(()=>{
+            router.push('/')
+          },1500)
+          return;
+        }
+        
         if (!response.ok) {
           const errorData = await response.json();
           toast.error(`Failed to update carousel: ${errorData.message || 'Unknown error'}`);

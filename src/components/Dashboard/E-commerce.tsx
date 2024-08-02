@@ -12,6 +12,7 @@ import ReservationChart from "../BarChart";
 import AvailableRoomsProgressBar from "../AvailableRoomsProgressBar";
 import SoldRoomsProgressBar from "../SoldRoomsProgressBar";
 import CheckAvailability from '@/components/Discounts/CheckAvailability'
+import { useAuthRedirect } from "@/utils/checkToken";
 
 
 
@@ -24,6 +25,7 @@ const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
 });
 const totalRooms = 26; // Replace with your actual total room count
 const ECommerce: React.FC = () => {
+  useAuthRedirect();
   return (
     <>
     <CheckAvailability/>

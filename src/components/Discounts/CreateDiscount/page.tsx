@@ -3,8 +3,11 @@ import React, { useState, useEffect, useRef } from "react";
 import flatpickr from "flatpickr";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useAuthRedirect } from "@/utils/checkToken";
+import Cookies from "js-cookie";
 
 const CreateDiscount = () => {
+  useAuthRedirect()
   const [formData, setFormData] = useState({
     name: "",
     percentage: "",
@@ -84,7 +87,14 @@ const CreateDiscount = () => {
         },
         body: JSON.stringify(formData),
       });
-
+      if(response.status === 401){
+        toast.error("Credentials Expired. Please Log in Again")
+        Cookies.remove('access_token');
+        setTimeout(()=>{
+          router.push('/')
+        },1500)
+        return;
+      }
       if (!response.ok) {
         const errorData = await response.json();
         toast.error(`Failed to create discount: ${errorData.error || 'Unknown error'}`);

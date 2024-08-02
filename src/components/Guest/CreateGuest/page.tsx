@@ -4,8 +4,11 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import flatpickr from "flatpickr";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useAuthRedirect } from "@/utils/checkToken";
+import Cookies from "js-cookie";
 
 const CreateGuest = () => {
+  useAuthRedirect();
   const [formData, setFormData] = useState<any>({
     first_name: "",
     last_name: "",
@@ -25,7 +28,8 @@ const CreateGuest = () => {
   const idIssueDatePickerRef = useRef<flatpickr.Instance | null>(null);
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const router = useRouter();
-
+  const [loading, setLoading] = useState(false);
+  
   useEffect(() => {
     flatpickr("#dob", {
       mode: "single",
@@ -116,6 +120,7 @@ const CreateGuest = () => {
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true)
 
     const processedFormData = {
       ...formData,
@@ -153,16 +158,26 @@ const CreateGuest = () => {
           }),
         });
 
+        if(registerResponse.status === 401){
+          toast.error("Credentials Expired. Please Log in Again")
+          Cookies.remove('access_token');
+          setTimeout(()=>{
+            router.push('/')
+          },1500)
+          return;
+        }
         if (!registerResponse.ok) {
           throw new Error("Failed to register user");
         }
         if(isChecked) {
+          setLoading(false)
           toast.success("Guest is created and user is registered successfully");
         }
         setTimeout(()=>{
           router.push("/guest")
         },1500)
       } else {
+        setLoading(false)
         toast.success("Guest created successfully");
         setTimeout(()=>{
           router.push("/guest")
@@ -170,6 +185,7 @@ const CreateGuest = () => {
       }
     } catch (error) {
       console.error("Error submitting form:", error);
+      setLoading(false)
       toast.error("Error submitting form");
     }
   };
@@ -417,9 +433,10 @@ const CreateGuest = () => {
               </button>
               <button
                 type="submit"
+                disabled={loading}
                 className="rounded bg-primary px-6 py-2 text-sm font-medium text-gray shadow transition hover:bg-opacity-90"
               >
-                Create Guest
+                  {loading ? "Creating..." : 'Create'}
               </button>
             </div>
           </div>

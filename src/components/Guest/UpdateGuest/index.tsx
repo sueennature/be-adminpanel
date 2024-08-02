@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useAuthRedirect } from "@/utils/checkToken";
 
 interface FormData {
     first_name: string;
@@ -44,20 +45,36 @@ const UpdateGuest = () => {
 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  useAuthRedirect()
   const router = useRouter();
   const searchParams = useSearchParams();
   let guestId = searchParams.get("guestID");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-  const handleDeleteImage = (index: number) => {
-    setImagePreviews((prevImages) => prevImages.filter((_, i) => i !== index));
-    setFormData((prevData) => ({
-      ...prevData,
-      profile_image: prevData.profile_image?.filter(
-        (_: any, i: number) => i !== index,
-      ),
-    }));
+  const handleDeleteImage = async (index: number) => {
+    const imageUrl = formData.profile_image[index];
+    if (imageUrl) {
+      console.log("IMAGEURL", imageUrl);
+      try {
+        await axios.delete(`${process.env.BE_URL}/guests/${guestId}/images`, {
+          data: { images: [imageUrl] }, // Wrap imageUrl in an array
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${Cookies.get('access_token')}`,
+            'x-api-key': process.env.X_API_KEY,
+          },
+        });
+  
+        setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
+        setFormData(prevData => ({
+          ...prevData,
+          profile_image: prevData.profile_image.filter((_, i) => i !== index),
+        }));
+      } catch (err) {
+        console.error('Error deleting image:', err);
+        toast.error('Error deleting image');
+      }
+    }
   };
 
   useEffect(() => {
@@ -178,7 +195,14 @@ const UpdateGuest = () => {
       });
 
       const result = await response.json();
-
+      if(response.status === 401){
+        toast.error("Credentials Expired. Please Log in Again")
+        Cookies.remove('access_token');
+        setTimeout(()=>{
+          router.push('/')
+        },1500)
+        return;
+      }
       if (!response.ok) {
         throw new Error(result.error || "Failed to update item");
       }

@@ -86,13 +86,24 @@ const CreateRoom = () => {
       }
     };
     const removeBase64Prefix = (base64String: string) => {
-      // Find the comma that separates the metadata from the base64 data
-      const base64Prefix = 'data:image/png;base64,';
-      if (base64String.startsWith(base64Prefix)) {
-        return base64String.substring(base64Prefix.length);
+      // Define the prefixes for PNG and JPEG
+      const pngPrefix = 'data:image/png;base64,';
+      const jpegPrefix = 'data:image/jpeg;base64,';
+    
+      // Check for PNG prefix and remove it if present
+      if (base64String.startsWith(pngPrefix)) {
+        return base64String.substring(pngPrefix.length);
       }
+    
+      // Check for JPEG prefix and remove it if present
+      if (base64String.startsWith(jpegPrefix)) {
+        return base64String.substring(jpegPrefix.length);
+      }
+    
+      // Return the original string if no known prefix is found
       return base64String;
     };
+    
 
       const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -110,7 +121,7 @@ const CreateRoom = () => {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(processedFormData),
+            body: JSON.stringify(formData),
           });
     
           if (!response.ok) {

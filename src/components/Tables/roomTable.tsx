@@ -382,7 +382,7 @@ const RoomTable = () => {
                                   className="h-20 w-20 flex-shrink-0 overflow-hidden"
                                 >
                                   <Image
-                                    src={image}
+                                    src={`https://api.sueennature.com/${image}`}
                                     alt={room?.room_number}
                                     width={80}
                                     height={80}
@@ -391,7 +391,7 @@ const RoomTable = () => {
                                 </div>
                               ))}
                             </div>
-                          </td>
+                          </td> 
 
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-4 ">

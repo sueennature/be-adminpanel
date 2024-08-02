@@ -17,6 +17,7 @@ import Cookies from "js-cookie";
 import { format } from "date-fns";
 import useAuth from "@/hooks/useAuth";
 import Swal from "sweetalert2";
+import { useAuthRedirect } from "@/utils/checkToken";
 
 interface DiscountData {
   id: number;
@@ -25,6 +26,8 @@ interface DiscountData {
   media_urls: [];
 }
 const ViewAllCarousel = () => {
+  useAuthRedirect()
+
   const [discounts, setDiscounts] = React.useState<DiscountData[]>([]);
   const [nameFilter, setNameFilter] = React.useState<string>("");
   const [discountsSelection, setDiscountsSelection] = React.useState<number[]>(
