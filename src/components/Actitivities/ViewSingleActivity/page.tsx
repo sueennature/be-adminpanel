@@ -91,13 +91,13 @@ const ViewSingleActivity = () => {
             <div className="flex-1">
             <div className="min-w-[200px] overflow-x-auto py-4">
             <div className="flex items-center gap-2">
-                              {activity.images?.map((image:any, index :any) => (
+                              {activity.media?.map((media:any, index :any) => (
                                 <div
                                   key={index}
                                   className="h-20 w-20 flex-shrink-0 overflow-hidden"
                                 >
                                   <Image
-                                    src={image}
+                                    src={`https://api.sueennature.com/${media}`}
                                     alt={activity.name}
                                     width={80}
                                     height={80}

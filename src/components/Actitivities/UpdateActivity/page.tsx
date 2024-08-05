@@ -1,8 +1,8 @@
 'use client';
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { ChangeEvent, useEffect, useState } from 'react'
-import SelectGroupOne from '../../SelectGroup/SelectGroupOne'
+import React, { ChangeEvent, useEffect, useState } from 'react';
+import SelectGroupOne from '../../SelectGroup/SelectGroupOne';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import Image from "next/image";
@@ -11,7 +11,7 @@ interface ActivityFormData {
   name: string;
   price: string;
   description: string;
-  images: (File | string)[];
+  media: string[];
 }
 
 const UpdateActivity = () => {
@@ -19,7 +19,7 @@ const UpdateActivity = () => {
     name: '',
     price: '',
     description: '',
-    images: []
+    media: [],
   });
 
   const searchParams = useSearchParams();
@@ -27,12 +27,32 @@ const UpdateActivity = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const handleDeleteImage = (index: number) => {
-    setImagePreviews((prevImages) => prevImages.filter((_, i) => i !== index));
-    setFormData((prevData) => ({
-      ...prevData,
-      images: prevData.images.filter((_, i) => i !== index),
-    }));
+  const handleDeleteImage = async (index: number) => {
+    const imageUrl = formData.media[index];
+    if (imageUrl) {
+        console.log("IMAGEURL", imageUrl);
+        const payload = [imageUrl] ;
+        console.log("Payload:", JSON.stringify(payload));
+        try {
+            await axios.delete(`${process.env.BE_URL}/activities/${activityId}/media`, {
+                data: payload,
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${Cookies.get('access_token')}`,
+                    'x-api-key': process.env.X_API_KEY,
+                },
+            });
+
+            setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
+            setFormData(prevData => ({
+                ...prevData,
+                media: prevData.media.filter((_, i) => i !== index),
+            }));
+        } catch (err) {
+            console.error('Error deleting image:', err);
+            toast.error('Error deleting image');
+        }
+    }
   };
 
   const router = useRouter();
@@ -64,12 +84,24 @@ const UpdateActivity = () => {
         setImagePreviews(prevImages => [...prevImages, ...base64Strings]);
         setFormData(prevData => ({
           ...prevData,
-          images: [...prevData.images, ...base64Strings]
+          media: [...prevData.media, ...base64Strings]
         }));
       }).catch((error) => {
         console.error("Error converting files to base64:", error);
       });
     }
+  };
+
+  const removeBase64Prefix = (base64String: string) => {
+    const base64Prefix = 'data:image/png;base64,';
+    if (base64String.startsWith(base64Prefix)) {
+      return base64String.substring(base64Prefix.length);
+    }
+    return base64String;
+  };
+
+  const handleDateChange = (date: Date | null, field: string) => {
+    setFormData((prev) => ({ ...prev, [field]: date }));
   };
 
   useEffect(() => {
@@ -79,16 +111,16 @@ const UpdateActivity = () => {
           const accessToken = Cookies.get('access_token'); 
 
           const response = await axios.get(`${process.env.BE_URL}/activities/${activityId}`, {
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${accessToken}`,
-                  'x-api-key': process.env.X_API_KEY, 
-              },
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`,
+              'x-api-key': process.env.X_API_KEY, 
+            },
           });
           console.log(response.data.data);
           setFormData(response.data.data);
-          if (response.data.data.images && Array.isArray(response.data.data.images)) {
-            setImagePreviews(response.data.data.images);
+          if (response.data.data.media && Array.isArray(response.data.data.media)) {
+            setImagePreviews(response.data.data.media);
           }
         } catch (err) {
           console.log(err);
@@ -101,20 +133,26 @@ const UpdateActivity = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    setLoading(true);
+    const processedFormData = {
+      media: formData.media.map(removeBase64Prefix) // Process each base64 image
+    };
+    
+    console.log(processedFormData);
 
     try {
       const response = await fetch('/api/activity/update', {
-          method: 'PUT',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ id: activityId, ...formData }),
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: activityId, ...formData }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-          throw new Error(result.error || 'Failed to update item');
+        throw new Error(result.error || 'Failed to update item');
       }
 
       toast.success('Activity updated successfully');
@@ -124,6 +162,7 @@ const UpdateActivity = () => {
     
     } catch (err) {
       console.log(err);
+      setLoading(false);
       toast.error('An error occurred');
     }
   };
@@ -181,10 +220,10 @@ const UpdateActivity = () => {
                 Image Preview
               </label>
               <div className="flex items-center gap-4">
-                {imagePreviews.map((image, index) => (
+                {imagePreviews.map((media, index) => (
                   <div key={index} className="relative">
                     <Image
-                      src={image}
+                       src={media.startsWith('data:') ? media : `https://api.sueennature.com/${media}`}
                       alt={`Preview ${index}`}
                       width={100}
                       height={100}
@@ -219,7 +258,7 @@ const UpdateActivity = () => {
               type="submit"
               className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
             >
-              Update
+              {loading ? "Updating..." : "Update"} 
             </button>
           </div>
         </form>
@@ -229,4 +268,5 @@ const UpdateActivity = () => {
 };
 
 export default UpdateActivity;
+
 

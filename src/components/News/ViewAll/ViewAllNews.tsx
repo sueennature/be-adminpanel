@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 // import roomData from "../../../components/Datatables/newsData.json";
 import Image from "next/image";
-import { Edit, Trash, Eye, Plus } from "react-feather";
+import { Edit, Trash, Eye, Plus, Video } from "react-feather";
 import Link from "next/link";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -24,6 +24,7 @@ const ViewAllNews = () => {
   const [loading, setLoading] = React.useState<boolean>(true);
   const router = useRouter();
 
+   
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -49,7 +50,6 @@ const ViewAllNews = () => {
   }, []);
 
   const [idFilter, setIdFilter] = React.useState<string>("");
-
 
   const filterednews = news?.filter(
     (news) =>
@@ -117,9 +117,7 @@ const ViewAllNews = () => {
           "x-api-key": process.env.X_API_KEY,
         },
       });
-      setNews((prevNews) =>
-        prevNews.filter((news) => news.id !== newsId),
-      );
+      setNews((prevNews) => prevNews.filter((news) => news.id !== newsId));
       toast.success("News is Deleted Successfully");
     } catch (err) {
       console.error(err);
@@ -257,12 +255,12 @@ const ViewAllNews = () => {
                               <div className="flex items-center gap-2">
                                 {news.images.map(
                                   (
-                                    image: string | StaticImport,
+                                    image: any | StaticImport,
                                     index: React.Key | null | undefined,
                                   ) => (
                                     <div key={index} className="flex-shrink-0">
                                       <Image
-                                        src={image}
+                                        src={image.startsWith('data:') ? image : `https://api.sueennature.com/${image}`}
                                         alt={news.name}
                                         width={50}
                                         height={50}
@@ -273,27 +271,27 @@ const ViewAllNews = () => {
                               </div>
                             </td>
                             <td
-  className="px-6 py-4"
-  style={{ minWidth: "200px" }}
->
-  <div className="flex items-center gap-2">
-    {news.videos.map(
-      (
-        video: string,
-        index: React.Key | null | undefined,
-      ) => (
-        <div key={index} className="flex-shrink-0">
-          <ReactPlayer
-            url={video}
-            width={140}
-            height={80}
-            controls
-          />
-        </div>
-      ),
-    )}
-  </div>
-</td>
+                              className="px-6 py-4"
+                              style={{ minWidth: "200px" }}
+                            >
+                              <div className="flex items-center gap-2">
+                                {news.videos.map(
+                                  (
+                                    video: string,
+                                    index: React.Key | null | undefined,
+                                  ) => (
+                                    <div key={index} className="flex-shrink-0">
+                                      <video
+                                        src={video.startsWith('data:') ? video : `https://api.sueennature.com/${video}`}
+                                        width={140}
+                                        height={80}
+                                        controls
+                                      />
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </td>
 
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-4 ">
@@ -312,7 +310,8 @@ const ViewAllNews = () => {
                                 <a
                                   href="#"
                                   className="font-medium text-rose-600  hover:underline"
-                                  onClick={() => confirmDelete(news.id)}>
+                                  onClick={() => confirmDelete(news.id)}
+                                >
                                   <Trash />
                                 </a>
                               </div>
