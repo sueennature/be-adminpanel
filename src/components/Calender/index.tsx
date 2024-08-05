@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import bookingsData from "../../components/Datatables/eventData.json";
 import roomsData from "../../components/Datatables/roomsTypes.json";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 interface Booking {
   start: string;
@@ -64,10 +66,55 @@ const Home: React.FC = () => {
   const popupRef = useRef<HTMLDivElement>(null);
 
   const isMobile = useMediaQuery("(max-width: 1124px)");
+  function convertToISO8601(dateStr:any) {
+    // Convert the input date string to a Date object
+    let date = new Date(dateStr);
+
+    // Convert the Date object to the desired ISO 8601 format with milliseconds
+    let isoFormattedDateStr = date.toISOString();
+
+    return isoFormattedDateStr;
+}
+  async function transformBookingData(inputArray : any) {
+    return await inputArray.map( async (booking: any) => {
+        return {
+            start: await convertToISO8601(booking.check_in),
+            end: await convertToISO8601(booking.check_out),
+            refNo: booking.booking_id,
+            personName: booking.guest_name,
+            room: booking.room_number
+        };
+    });
+}
+
+  const fetchBookings = async() =>{
+    try{
+      const accessToken = Cookies.get("access_token");
+      const response = await axios.get(`${process.env.BE_URL}/calendar/data`,{
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          "x-api-key": process.env.X_API_KEY,
+        },
+      });
+      
+     // console.log("response?.data",response)
+      console.log("bookingsData",)
+      console.log("roomsData",roomsData)
+      console.log("response",roomsData?.rooms )
+      console.log("response?.data?.rooms",response?.data?.rooms )
+      
+      const transformedArray = await transformBookingData(response?.data?.bookings);
+
+      setBookings( bookingsData || []);
+      setRooms( roomsData?.rooms || []);
+    }catch(err){
+      console.log(err)
+    }
+  }
 
   useEffect(() => {
-    setBookings(bookingsData);
-    setRooms(roomsData.rooms);
+    fetchBookings()
   }, []);
 
   const navigate = (direction: "previous" | "next") => {
@@ -124,7 +171,7 @@ const Home: React.FC = () => {
   const daysToShow = isMobile ? getDaysForWeek(startDate) : getDaysForMonth(startDate);
 
   return (
-    <div className="h-full p-4 bg-white my-8">
+    <div className="h-screen p-4">
       <div className="mb-4 flex items-center justify-between">
         <button
           className="bg-gray-200 hover:bg-gray-300 flex items-center rounded-md px-4 py-2"

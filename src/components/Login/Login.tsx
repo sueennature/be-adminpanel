@@ -36,9 +36,9 @@ export default function Login() {
     const data = await response.json();
     console.log(data)
     if (data.access_token) {
-      setTimeout(() => {
+     // setTimeout(() => {
         router.push("/home");
-      }, 1500);
+    //  }, 1500);
       return toast.success(`Successfully logged In`);
     } else if ((data.detail = "Invalid credentials")) {
       return toast.error(`Invalid Credentials`);

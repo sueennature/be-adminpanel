@@ -1,10 +1,13 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import CreateGuestBooking from "./CreateGuestBooking";
+import flatpickr from "flatpickr";
+import {countries} from "../../utils/contries";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
 import axios from "axios";
+
 interface AgentInfo {
   firstName: string;
   lastName: string;
@@ -12,6 +15,20 @@ interface AgentInfo {
   nationality: string;
   telephone: string;
   address: string;
+}
+
+interface GestInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
+  nationality: string;
+  telephone: string;
+  address: string;
+  identificationType: string;
+  dob: string,
+  identificationNo: string;
+  gender:string;
+  issueDate:string;
 }
 interface BookingRoomData {
   room_type: any;
@@ -22,19 +39,20 @@ interface BookingRoomData {
   checkOut : any;
   discountCode: any;
 }
-interface Room {
-  room_id: number;
-  category: string;
-  adults: number;
-  child: number[];
-  infants: number[];
-  meal_plan: string;
-  view: string;
-}
 
-interface FormData {
-  rooms: Room[];
-}
+// interface Room {
+//   room_id: number;
+//   category: string;
+//   adults: number;
+//   children: number[];
+//   infants: number[];
+//   meal_plan: string;
+//   view: string;
+// }
+
+// interface FormData {
+//   rooms: Room[];
+// }
 
 const BookingRoom: React.FC<BookingRoomData> = ({
   room_type,
@@ -45,8 +63,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   checkOut,
   discountCode
 }) => {
-
-
+  const dobRef = useRef<flatpickr.Instance | null>(null);
+  const issueDateRef = useRef<flatpickr.Instance | null>(null);
   const [numRooms, setNumRooms] = useState<number>(0);
   const [adultsPerRoom, setAdultsPerRoom] = useState<number[]>([]);
   const [childrenPerRoom, setChildrenPerRoom] = useState<number[]>([]);
@@ -70,6 +88,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [itemsPerPage, setItemsPerPage] = React.useState<number>(5);
   const [currentPage, setCurrentPage] = React.useState<number>(0);
   const [numRecords, setNumRecords] = React.useState<number>(0);
+  const [dob, setDob] = React.useState<any>();
+  const [issueDate, setIssueDate] = React.useState<any>();
+
+  console.log("dobdobdobdobdobdobdobdobdobdob",issueDate)
 
   const [agentInfo, setAgentInfo] = useState<AgentInfo>({
     firstName: '',
@@ -80,13 +102,18 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     address: ''
   });
 
-  const [guestInfo, setGuestInfo] = useState<AgentInfo>({
+  const [guestInfo, setGuestInfo] = useState<GestInfo>({
     firstName: '',
     lastName: '',
     email: '',
     nationality: '',
     telephone: '',
-    address: ''
+    address: '',
+    identificationType: '',
+    dob: '',
+    identificationNo: '',
+    gender: '',
+    issueDate:''
   });
 
 
@@ -206,7 +233,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       const arr = Array(val).fill(5);
       setRequestRoom((prev:any) =>
         prev?.map((item:any) =>
-          item?.room_id === id ? { ...item, child:arr || [] } : item
+          item?.room_id === id ? { ...item, children:arr || [] } : item
         )
       );
     }catch(err){
@@ -258,18 +285,13 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   }
 
   function timestampToDate(timestamp : Date) {
-    // Create a new Date object from the timestamp
     const date = new Date(timestamp);
-
-    // Extract the year, month, and day
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
     const day = String(date.getDate()).padStart(2, '0');
-
-    // Format the date as YYYY-MM-DD
     return `${year}-${month}-${day}`;
-
   }
+
   const handleAddRoom = (event:any) =>{
     try{
       const selectedId = parseInt(event.target.value, 10);
@@ -277,12 +299,14 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       console.log("Selected room object:", selectedRoom);
       let arr:any = []
       selectedRoom?.map((val:any)=>{
+        console.log("valvalvalvalval",val)
         let t = {
           "room_id": val?.id,
+          "room_number": val?.room_number,
           "category": val?.category,
           "view": val?.view,
           "adults": 0,
-          "child": [
+          "children": [
             0
           ],
           "infants": [
@@ -334,6 +358,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       console.log(err)
     }
   }
+  function convertDateToISOString(inputDate:any) {
+    const [year, month, day] = inputDate.split('-');
+    const date = new Date(Date.UTC(year, month - 1, day, 6, 30, 0, 0));
+    return date.toISOString();
+  }
   
     const handelProceedToPay = async() => {
       try{
@@ -342,9 +371,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           "check_out": checkOut,
           "booking_type": "internal",
           "payment_method": "walk-in guest",
-          "total_amount": (parseFloat(rates?.total_activities_amount || 0) + parseFloat(rates?.total_amount || 0) + parseFloat(rates?.total_meal_plan_amount || 0) + parseFloat(rates?.total_rooms_amount || 0) + parseFloat(rates?.total_tax_amount || 0)) - (parseFloat(rates?.total_discount_amount || 0)),
+          "total_amount":  parseFloat(rates?.total_amount || 0),
           "is_partial_payment": isChecked || false,
-          "paid_amount": partialAmount,
+          "paid_amount":partialAmount || 0,
+          "balance_amount":parseFloat(rates?.total_amount || 0)  - partialAmount,
+           //"balance_amount": null,
           "discount_code": discountCode || "",
           "guest_info": {
             "first_name": guestInfo?.firstName,
@@ -354,11 +385,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             "address": guestInfo?.address,
             "nationality": guestInfo?.nationality,
             "profile_image": [],
-            "identification_type": "NIC",
-            "identification_no": "1111111111",
-            "identification_issue_date": "2024-08-03T08:30:00.000Z",
-            "dob": "2024-08-03T08:30:00.000Z",
-            "gender": "Male"
+            "identification_type": guestInfo?.identificationType,
+            "identification_no":  guestInfo?.identificationNo,
+            "identification_issue_date":  convertDateToISOString(issueDate),
+            "dob":  convertDateToISOString(dob),
+            "gender":  guestInfo?.gender,
           },
           "rooms": requestRoom || [],
           "activities": convertActivities(activities || []) || [],
@@ -386,6 +417,28 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         if(response?.status === 200){
           fetchBookings();
           toast.success(`Successfully Added!`);
+          setAgentInfo({
+            firstName: '',
+            lastName: '',
+            email: '',
+            nationality: '',
+            telephone: '',
+            address: ''
+          })
+          setGuestInfo({
+            firstName: '',
+            lastName: '',
+            email: '',
+            nationality: '',
+            telephone: '',
+            address: '',
+            identificationType: '',
+            dob: '',
+            identificationNo: '',
+            gender: '',
+            issueDate:''
+          })
+          window.location.href = "https://manage.sueennature.com/dashboard";
         }else{
           toast.error("Something went wrong");
         }
@@ -413,6 +466,59 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         console.log(err)
       }
     }
+    useEffect(() => {
+      flatpickr("#dob", {
+        mode: "single",
+        static: true,
+        monthSelectorType: "static",
+        dateFormat: "Y-m-d",
+        prevArrow:
+          '<svg className="fill-current" width="7" height="11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
+        nextArrow:
+          '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
+        onChange: (selectedDates) => {
+          const date = selectedDates[0];
+          console.log("flatpickrflatpickrflatpickrflatpickrflatpickr",date)
+          const dateStr = new Date(date) // Set time to 12:00
+          const year = dateStr.getFullYear();
+          const month = String(dateStr.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+          const day = String(dateStr.getDate()).padStart(2, '0');
+          setDob(`${year}-${month}-${day}`)
+        },
+      });
+
+      flatpickr("#issueDate", {
+        mode: "single",
+        static: true,
+        monthSelectorType: "static",
+        dateFormat: "Y-m-d",
+        prevArrow:
+          '<svg className="fill-current" width="7" height="11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
+        nextArrow:
+          '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
+        onChange: (selectedDates) => {
+          const date = selectedDates[0];
+          console.log("flatpickrflatpickrflatpickrflatpickrflatpickr",date)
+          const dateStr = new Date(date) // Set time to 12:00
+          const year = dateStr.getFullYear();
+          const month = String(dateStr.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+          const day = String(dateStr.getDate()).padStart(2, '0');
+          setIssueDate(`${year}-${month}-${day}`)
+        },
+      });
+    
+      // Cleanup flatpickr instances on unmount
+      return () => {
+        if (dobRef.current) {
+          dobRef.current.destroy();
+        }
+        if (issueDateRef.current) {
+          issueDateRef.current.destroy();
+        }
+      };
+    }, []);
+
+
   useEffect(() => {
     fetchBookings();
   }, [itemsPerPage, currentPage]);
@@ -873,8 +979,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 >
                   <option value="">Select a nationality</option>
-                  <option value="foreign">Foreign</option>
-                  <option value="local">Local</option>
+                  
+                  {countries?.map((country, key)=>{
+                    return <option key={key} value={country?.value}>{country?.label}</option>
+                  })}
                 </select>
               </div>
               <div className="w-full xl:w-1/5">
@@ -891,6 +999,88 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
               </div>
+            </div>
+            {/* second */}
+            <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black">
+                 Dob
+                </label>
+                <input
+                    type="text"
+                    id="dob"
+                    name="dob"
+                    value={dob}
+                    onChange={handleChangeGuest}
+                    className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
+                    placeholder="mm/dd/yyyy"
+                    required
+                    data-class="flatpickr-right"
+                  />
+              </div>
+             
+       
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black">
+                Identification Type
+                </label>
+                <select
+                  name="identificationType"
+                  required
+                  value={guestInfo.identificationType}
+                  onChange={handleChangeGuest}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                >
+                  <option value="nic">National Identity Card (NIC)</option>
+                  <option value="Passport">Passport</option>
+                  <option value="driving_license">Driving License</option>
+                </select>
+              </div>
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black">
+                Issue Date
+                </label>
+                <input
+                    type="text"
+                    id="issueDate"
+                    name="issueDate"
+                    value={issueDate}
+                    onChange={handleChangeGuest}
+                    className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
+                    placeholder="mm/dd/yyyy"
+                    data-class="flatpickr-right"
+                  />
+              </div>
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black">
+                Identification No
+                </label>
+                <input
+                  type="text"
+                  name="identificationNo"
+                  required
+                  placeholder="Enter the Last Name"
+                  value={guestInfo.identificationNo}
+                  onChange={handleChangeGuest}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                />
+              </div>
+              <div className="w-full xl:w-1/5">
+                <label className="mb-3 block text-xl font-medium text-black">
+                  Gender
+                </label>
+                <select
+                  name="gender"
+                  required
+                  value={guestInfo.gender}
+                  onChange={handleChangeGuest}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+           
             </div>
             <div className="mb-6">
               <label className="mb-3 block text-xl font-medium text-black">
@@ -962,8 +1152,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 >
                   <option value="">Select a nationality</option>
-                  <option value="foreign">Foreign</option>
-                  <option value="local">Local</option>
+                  {countries?.map((country, key)=>{
+                    return <option key={key} value={country?.value}>{country?.label}</option>
+                  })}
+                 
                 </select>
               </div>
               <div className="w-full xl:w-1/5">
@@ -1077,7 +1269,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           }}
           className="mt-4 h-12 w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 xl:w-1/5"
         >
-          Proceed to Pay
+          Submit booking
         </button>
       </div>
 
