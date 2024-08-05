@@ -92,8 +92,9 @@ const CreateCarousel = () => {
   };
 
   const handleSubmit = async (e: any) => {
+    e.preventDefault(); // Prevent default form submission behavior
+    console.log("Hi");
     setLoading(true);
-    e.preventDefault();
     const processedFormData = {
       ...formData,
       media_urls: formData.media_urls?.map(removeBase64Prefix) 
@@ -105,7 +106,7 @@ const CreateCarousel = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(processedFormData),
+        body: JSON.stringify(formData),
       });
 
       if (response.status === 401) {
@@ -139,67 +140,67 @@ const CreateCarousel = () => {
   };
 
   return (
-    <div className="flex flex-col gap-9">
+    <form className="flex flex-col gap-9" onSubmit={handleSubmit}>
       <div className="rounded-sm border border-stroke bg-white shadow-default">
-          <div className="p-6.5">
-            <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-              <div className="w-full xl:w-1/2">
-                <label className="mb-3 block text-sm font-medium text-black">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  required
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  placeholder="Enter the Title"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-                />
-              </div>
-            </div>
-
-            <div className="mb-6">
+        <div className="p-6.5">
+          <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+            <div className="w-full xl:w-1/2">
               <label className="mb-3 block text-sm font-medium text-black">
-                Media Type
+                Title
               </label>
-              <select
-                name="media_type"
-                value={formData.media_type}
-                onChange={handleSelectChange}
+              <input
+                type="text"
+                name="title"
                 required
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              >
-                <option value="">Select a media type</option>
-                <option value="image">Image</option>
-                <option value="video">Video</option>
-              </select>
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="Enter the Title"
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              />
             </div>
-            <div className="mb-6">
-              <div>
-                <label className="mb-3 block text-sm font-medium text-black">
-                  Media
-                </label>
-                <input
-                  type="file"
-                  multiple
-                  name="media_urls"
-                  onChange={handleFileChange}
-                  className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-                />
-              </div>
-            </div>
-            <button
-              disabled={loading}
-              type="submit"
-              onSubmit={handleSubmit}
-              className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
-            >
-              {loading ? "Submitting..." : "Submit"}
-            </button>
           </div>
+
+          <div className="mb-6">
+            <label className="mb-3 block text-sm font-medium text-black">
+              Media Type
+            </label>
+            <select
+              name="media_type"
+              value={formData.media_type}
+              onChange={handleSelectChange}
+              required
+              className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+            >
+              <option value="">Select a media type</option>
+              <option value="image">Image</option>
+              <option value="video">Video</option>
+            </select>
+          </div>
+          <div className="mb-6">
+            <div>
+              <label className="mb-3 block text-sm font-medium text-black">
+                Media
+              </label>
+              <input
+                type="file"
+                multiple
+                required
+                name="media_urls"
+                onChange={handleFileChange}
+                className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              />
+            </div>
+          </div>
+          <button
+            disabled={loading}
+            type="submit"
+            className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+          >
+            {loading ? "Submitting..." : "Submit"}
+          </button>
+        </div>
       </div>
-    </div>
+    </form>
   );
 };
 

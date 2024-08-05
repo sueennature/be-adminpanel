@@ -171,6 +171,8 @@ const UpdateRoom = () => {
   
     try {
       const base64Images = await convertImagesToBase64(formData.images);
+      const { images, ...roomData } = formData;
+
       const processedFormData = {
         ...formData,
         images: base64Images
@@ -207,20 +209,7 @@ const UpdateRoom = () => {
       <div className="rounded-sm border border-stroke bg-white shadow-default">
         <div className="p-6.5">
           <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-            <div className="w-full xl:w-1/4">
-              <label className="mb-3 block text-sm font-medium text-black">
-                Room Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="Enter the Room Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              />
-            </div>
+    
             <div className="w-full xl:w-1/4">
             <label className="mb-3 block text-sm font-medium text-black">
                 Category

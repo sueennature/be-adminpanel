@@ -57,7 +57,7 @@ const UpdateGuest = () => {
       console.log("IMAGEURL", imageUrl);
       try {
         await axios.delete(`${process.env.BE_URL}/guests/${guestId}/images`, {
-          data: { images: [imageUrl] }, // Wrap imageUrl in an array
+          data: [imageUrl] , // Wrap imageUrl in an array
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${Cookies.get('access_token')}`,
@@ -191,7 +191,7 @@ const UpdateGuest = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id: guestId, ...processedFormData }),
+        body: JSON.stringify({ id: guestId, ...formData }),
       });
 
       const result = await response.json();
@@ -335,7 +335,7 @@ const UpdateGuest = () => {
             </div>
 
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-              <div className="w-full xl:w-1/5">
+              <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Gender
                 </label>
@@ -353,7 +353,7 @@ const UpdateGuest = () => {
                 </select>
               </div>
 
-              <div className="w-full xl:w-1/5">
+              <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Identification Type
                 </label>
@@ -370,7 +370,7 @@ const UpdateGuest = () => {
                   <option value="other">Other</option>
                 </select>
               </div>
-              <div className="w-full xl:w-1/5">
+              <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Identification No
                 </label>
@@ -446,7 +446,7 @@ const UpdateGuest = () => {
                     <button
                       type="button"
                       onClick={() => handleDeleteImage(index)}
-                      className="bg-red-500 relative left-[80px]  top-[-70px] rounded-full font-bold text-red"
+                      className="bg-red-500 relative left-[100px]  top-[-90px] rounded-full font-bold text-red"
                     >
                       X
                     </button>

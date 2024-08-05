@@ -135,7 +135,7 @@ const CreateGuest = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(processedFormData),
+        body: JSON.stringify(formData),
       });
 
       toast.success("Guest is created successfully")

@@ -18,11 +18,12 @@ import { format } from "date-fns";
 import useAuth from "@/hooks/useAuth";
 import Swal from "sweetalert2";
 import { useAuthRedirect } from "@/utils/checkToken";
+import ReactPlayer from "react-player";
 
 interface DiscountData {
   id: number;
   title: string;
-  media_type: number;
+  media_type: string;
   media_urls: [];
 }
 const ViewAllCarousel = () => {
@@ -183,6 +184,7 @@ const ViewAllCarousel = () => {
           </Link>
         </div>
       </div>
+      
       {!loading ? (
         <div>
           {currentItems.length > 0 ? (
@@ -256,27 +258,48 @@ const ViewAllCarousel = () => {
                           <td className="px-6 py-4">{activity.id}</td>
                           <td className="px-6 py-4">{activity.title}</td>
                           <td className="px-6 py-4">{activity.media_type}</td>
-                          <td className="min-w-[200px] overflow-x-auto px-6 py-4">
-                            <div className="flex items-center gap-2">
-                              {activity.media_urls?.map(
-                                (image: any, index: any) => (
-                                  <div
-                                    key={index}
-                                    className="h-20 w-20 flex-shrink-0 overflow-hidden"
-                                  >
-                                    <Image
-                                      src={`https://api.sueennature.com/${image}`}
-                                      alt="as"
-                                      width={80}
-                                      height={80}
-                                      className="h-full w-full object-cover"
-                                    />
-                                  </div>
-                                ),
-                              )}
-                            </div>
-                          </td>
+                          {activity.media_type ==="video" ? (
+                           <td className="min-w-[200px] min-h-[500px] overflow-x-auto px-6 py-4">
+                           <div className="flex items-center gap-2">
+                             {activity.media_urls?.map((video, index) => (
+                               <video
+                                 key={index}
+                                 controls
+                                 width="200"
+                                 height="240"
+                                 className="flex-shrink-0"
+                               >
+                                 <source src={`https://api.sueennature.com/${video}`} type="video/mp4" />
+                                 Your browser does not support the video tag.
+                               </video>
+                             ))}
+                           </div>
+                         </td>
+                         
+                          ) : (
+ <td className="min-w-[200px] overflow-x-auto px-6 py-4">
+ <div className="flex items-center gap-2">
+   {activity.media_urls?.map(
+     (image: any, index: any) => (
+       <div
+         key={index}
+         className="h-20 w-20 flex-shrink-0 overflow-hidden"
+       >
+         <Image
+           src={`https://api.sueennature.com/${image}`}
+           alt="as"
+           width={80}
+           height={80}
+           className="h-full w-full object-cover"
+         />
+       </div>
+     ),
+   )}
+ </div>
+</td>
 
+                          )}
+                         
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-4 ">
                               <button
