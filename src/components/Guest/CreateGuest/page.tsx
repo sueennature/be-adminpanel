@@ -1,10 +1,15 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import flatpickr from "flatpickr";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { useAuthRedirect } from "@/utils/checkToken";
+import Cookies from "js-cookie";
 
 const CreateGuest = () => {
-  const [formData, setFormData] = useState({
+  useAuthRedirect();
+  const [formData, setFormData] = useState<any>({
     first_name: "",
     last_name: "",
     email: "",
@@ -17,10 +22,14 @@ const CreateGuest = () => {
     dob: "",
     gender: "",
     password: "",
-    profile_image: "",
+    profile_image: [],
   });
   const dobPickerRef = useRef<flatpickr.Instance | null>(null);
   const idIssueDatePickerRef = useRef<flatpickr.Instance | null>(null);
+  const [isChecked, setIsChecked] = useState<boolean>(false);
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  
   useEffect(() => {
     flatpickr("#dob", {
       mode: "single",
@@ -33,7 +42,7 @@ const CreateGuest = () => {
         '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
       onChange: (selectedDates) => {
         const dateStr = selectedDates[0].toISOString();
-        setFormData((prevData) => ({
+        setFormData((prevData : any) => ({
           ...prevData,
           dob: dateStr,
         }));
@@ -51,7 +60,7 @@ const CreateGuest = () => {
         '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
       onChange: (selectedDates) => {
         const dateStr = selectedDates[0].toISOString();
-        setFormData((prevData) => ({
+        setFormData((prevData :any) => ({
           ...prevData,
           identification_issue_date: dateStr,
         }));
@@ -68,42 +77,119 @@ const CreateGuest = () => {
       }
     };
   }, []);
-
   const handleChange = (e: any) => {
-    const { name, value, files } = e.target;
-    
-    if (name === "profile_image" && files && files[0]) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prevData) => ({
-          ...prevData,
-          profile_image: reader.result as string,
-        }));
-      };
-      reader.readAsDataURL(files[0]);
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      const base64Promises = filesArray.map(file => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = error => reject(error);
+        });
+      });
+
+      Promise.all(base64Promises)
+        .then(base64Images => {
+          setFormData({
+            ...formData,
+            profile_image: base64Images
+          });
+        })
+        .catch(error => {
+          console.error("Error converting images to base64:", error);
+          toast.error("Error uploading images");
+        });
     }
   };
   
-  
-
-  const handleSubmit = async (e:any) => {
-    e.preventDefault();
-    console.log(formData);
-    const response = await fetch("/api/guest", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-  console.log(response)
+  const removeBase64Prefix = (base64String: string) => {
+    const base64Prefix = 'data:image/png;base64,';
+    if (base64String.startsWith(base64Prefix)) {
+      return base64String.substring(base64Prefix.length);
+    }
+    return base64String;
   };
+  
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true)
+
+    const processedFormData = {
+      ...formData,
+      profile_image: formData.profile_image?.map(removeBase64Prefix),
+    };
+
+    console.log(processedFormData);
+
+    try {
+      const response = await fetch("/api/guest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(processedFormData),
+      });
+
+      toast.success("Guest is created successfully")
+      if (!response.ok) {
+        throw new Error("Failed to create guest");
+      }
+
+      if (isChecked) {
+        const registerResponse = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          
+          body: JSON.stringify({
+            username: formData.first_name + " " + formData.last_name,
+            email: formData.email,
+            role: "guest",
+            password: formData.password,
+          }),
+        });
+
+        if(registerResponse.status === 401){
+          toast.error("Credentials Expired. Please Log in Again")
+          Cookies.remove('access_token');
+          setTimeout(()=>{
+            router.push('/')
+          },1500)
+          return;
+        }
+        if (!registerResponse.ok) {
+          throw new Error("Failed to register user");
+        }
+        if(isChecked) {
+          setLoading(false)
+          toast.success("Guest is created and user is registered successfully");
+        }
+        setTimeout(()=>{
+          router.push("/guest")
+        },1500)
+      } else {
+        setLoading(false)
+        toast.success("Guest created successfully");
+        setTimeout(()=>{
+          router.push("/guest")
+        },1500)
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setLoading(false)
+      toast.error("Error submitting form");
+    }
+  };
+  
 
   return (
     <div className="flex flex-col gap-9">
@@ -305,12 +391,38 @@ const CreateGuest = () => {
               <input
               type="file"
               name="profile_image"
-              accept="image/*"
-              onChange={handleChange} 
+              onChange={handleFileChange} 
               className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
             />
 
             </div>
+            <div>
+      <label
+        htmlFor="checkboxLabelOne"
+        className="flex cursor-pointer select-none items-center"
+      >
+        <div className="relative">
+          <input
+            type="checkbox"
+            id="checkboxLabelOne"
+            className="sr-only"
+            onChange={() => {
+              setIsChecked(!isChecked);
+            }}
+          />
+          <div
+            className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${
+              isChecked && "border-primary bg-gray dark:bg-transparent"
+            }`}
+          >
+            <span
+              className={`h-2.5 w-2.5 rounded-sm ${isChecked && "bg-primary"}`}
+            ></span>
+          </div>
+        </div>
+        Allow User
+      </label>
+    </div>
 
             <div className="flex justify-end gap-4.5">
               <button
@@ -321,9 +433,10 @@ const CreateGuest = () => {
               </button>
               <button
                 type="submit"
+                disabled={loading}
                 className="rounded bg-primary px-6 py-2 text-sm font-medium text-gray shadow transition hover:bg-opacity-90"
               >
-                Create Guest
+                  {loading ? "Creating..." : 'Create'}
               </button>
             </div>
           </div>

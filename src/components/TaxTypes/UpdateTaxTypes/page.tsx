@@ -69,6 +69,14 @@ const UpdateTaxTypes = () => {
       }
 
       toast.success('tax is updated successfully');
+      if(response.status === 401){
+        toast.error("Credentials Expired. Please Log in Again")
+        Cookies.remove('access_token');
+        setTimeout(()=>{
+          router.push('/')
+        },1500)
+        return;
+      }
       setTimeout(()=>{
         router.push('/taxestypes')
       },1000)

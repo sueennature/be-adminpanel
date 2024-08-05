@@ -12,6 +12,7 @@ interface NewsData {
   title: string;
   content: string;
   image:[];
+  videos: string[];
 }
 
 const ViewSingleNews = () => {
@@ -122,9 +123,36 @@ const ViewSingleNews = () => {
                     ),
                   )}
                 </div>
+            </div>
+            </div>
+            </div>
+              <div className="flex">
+                <div className="flex-1">
+                  <div className="m-2">Videos</div>
+                </div>
+                <div className="flex-1">
+                  <div className="min-w-[400px] overflow-x-auto py-4">
+                    <div className="flex items-center gap-2">
+                      {news.videos?.map((video:any, index:any) => (
+                        <div
+                          key={index}
+                          className="h-30 w-40 flex-shrink-0 overflow-hidden"
+                        >
+                          <video
+                            controls
+                            src={video}
+                            className="h-full w-full object-cover"
+                            style={{ maxWidth: '100%', maxHeight: '100%' }}
+                          >
+                            Your browser does not support the video tag.
+                          </video>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div> 
               </div>
-           </div> 
-        </div>
+       
         </>
         ) : (
           <p>Loading...</p>

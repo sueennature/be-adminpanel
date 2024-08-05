@@ -25,7 +25,7 @@ interface RoomFormData {
   secondary_category: string;
   description: string;
   short_description: string;
-  images: (File | string)[];
+  images: string[];
 }
 
 const UpdateRoom = () => {
@@ -55,14 +55,32 @@ const UpdateRoom = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false); 
 
-  const handleDeleteImage = (index: number) => {
-    setImagePreviews((prevImages) => prevImages.filter((_, i) => i !== index));
-    setFormData((prevData) => ({
-      ...prevData,
-      images: prevData.images.filter((_, i) => i !== index),
-    }));
-  };
 
+  const handleDeleteImage = async (index: number) => {
+    const imageUrl = formData.images[index];
+    if (imageUrl) {
+        console.log("IMAGEURL", imageUrl);
+        try {
+            await axios.delete(`${process.env.BE_URL}/rooms/${roomId}/images`, {
+                data: { files_to_delete: [imageUrl] }, 
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${Cookies.get('access_token')}`,
+                    'x-api-key': process.env.X_API_KEY,
+                },
+            });
+
+            setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
+            setFormData(prevData => ({
+                ...prevData,
+                images: prevData.images.filter((_, i) => i !== index),
+            }));
+        } catch (err) {
+            console.error('Error deleting image:', err);
+            toast.error('Error deleting image');
+        }
+    }
+};
   useEffect(() => {
     const fetchRooms = async () => {
       if (roomId) {
@@ -93,41 +111,77 @@ const UpdateRoom = () => {
     fetchRooms();
   }, [roomId]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
     });
   };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      const fileArray = Array.from(files);
-      const fileUrls = fileArray.map(file => URL.createObjectURL(file));
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      const base64Promises = filesArray.map(file => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+        });
+      });
   
-      setImagePreviews(prevImages => [...prevImages, ...fileUrls]);
-      setFormData(prevData => ({
-        ...prevData,
-        images: [...prevData.images, ...fileUrls]
-      }));
+      Promise.all(base64Promises)
+        .then(base64Images => {
+          setFormData(prevData => ({
+            ...prevData,
+            images: [...prevData.images, ...base64Images]
+          }));
+          setImagePreviews(prevImages => [...prevImages, ...base64Images]);
+        })
+        .catch(error => {
+          console.error('Error converting images to base64:', error);
+          toast.error('Error uploading images');
+        });
     }
   };
   
   
-
+  
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true); 
-
+    setLoading(true);
+  
+    const urlToBase64 = async (url: string): Promise<string> => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    };
+  
+    const convertImagesToBase64 = async (urls: string[]): Promise<string[]> => {
+      const base64Promises = urls.map(url =>
+        url.startsWith('uploads/') ? urlToBase64(`https://api.sueennature.com/${url}`) : Promise.resolve(url)
+      );
+      return Promise.all(base64Promises);
+    };
+  
     try {
+      const base64Images = await convertImagesToBase64(formData.images);
+      const processedFormData = {
+        ...formData,
+        images: base64Images
+      };
+  
       const response = await fetch('/api/room/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: roomId, ...formData }),
+        body: JSON.stringify({ id: roomId, ...processedFormData }),
       });
   
       const result = await response.json();
@@ -137,12 +191,12 @@ const UpdateRoom = () => {
       }
   
       toast.success('Room updated successfully');
-      setTimeout(()=>{
-        router.push("/rooms")
-      }, 1500)
+      setTimeout(() => {
+        router.push("/rooms");
+      }, 1500);
     } catch (err) {
       console.error(err);
-      setLoading(false); 
+      setLoading(false);
       toast.error('An error occurred');
     }
   };
@@ -168,32 +222,42 @@ const UpdateRoom = () => {
               />
             </div>
             <div className="w-full xl:w-1/4">
-              <label className="mb-3 block text-sm font-medium text-black">
+            <label className="mb-3 block text-sm font-medium text-black">
                 Category
-              </label>
-              <input
-                type="text"
-                name="category"
-                required
-                placeholder="Enter the category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              />
+                </label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                >
+                                    <option value="">Select a room category</option>
+                <option value="Single">Single </option>
+                  <option value="Deluxe">Deluxe</option>
+                  <option value="Double">Double</option>
+                  <option value="Family">Family</option>
+                  <option value="Triple">Triple</option>
+                </select>
             </div>
             <div className="w-full xl:w-1/4">
-              <label className="mb-3 block text-sm font-medium text-black">
+            <label className="mb-3 block text-sm font-medium text-black">
                 Second Category
-              </label>
-              <input
-                type="text"
-                name="secondary_category"
-                required
-                placeholder="Enter the Second Category"
-                value={formData.secondary_category}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              />
+                </label>
+                <select
+                 name="secondary_category"
+                 
+                 value={formData.secondary_category}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                >
+                  <option value="">Select a room  second category</option>
+                  <option value="Single">Single </option>
+                  <option value="Deluxe">Deluxe</option>
+                  <option value="Double">Double</option>
+                  <option value="Family">Family</option>
+                  <option value="Triple">Triple</option>
+                </select>
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -420,12 +484,12 @@ const UpdateRoom = () => {
               {imagePreviews.map((image, index) => (
                 <div key={index} className="relative">
                   <Image
-                    src={image}
-                    alt={`Preview ${index}`}
-                    width={100}
-                    height={100}
-                    className="object-cover rounded h-20"
-                  />
+      src={image.startsWith('data:') ? image : `https://api.sueennature.com/${image}`}
+      alt={`Preview ${index}`}
+      width={100}
+      height={100}
+      className="object-cover rounded h-20"
+    />
                   <button
                     type="button"
                     onClick={() => handleDeleteImage(index)}
@@ -435,6 +499,8 @@ const UpdateRoom = () => {
                   </button>
                 </div>
               ))}
+
+
             </div>
             
           </div>

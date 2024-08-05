@@ -4,8 +4,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Cookies from 'js-cookie';
+import { useAuthRedirect } from "@/utils/checkToken";
 
 const UpdateUser = () => {
+  useAuthRedirect();
+
   const [formData, setFormData] = useState({
     username:"",
     email:"",

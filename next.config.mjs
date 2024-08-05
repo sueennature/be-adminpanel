@@ -1,11 +1,14 @@
-export const env = {
-    BE_URL: process.env.BE_URL,
-    X_API_KEY : process.env.X_API_KEY
-};
-
-export const nextConfig = {
-    // Other Next.js configurations
+// next.config.js
+export default {
     experimental: {
-        middleware: true,
+      middleware: true,
     },
-};
+    images: {
+      domains: ['api.sueennature.com'], // Add your external domain here
+    },
+    env: {
+      BE_URL: process.env.BE_URL,
+      X_API_KEY: process.env.X_API_KEY,
+    },
+  };
+  

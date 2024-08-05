@@ -8,8 +8,10 @@ import Cookies from "js-cookie";
 import { format } from 'date-fns';
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useAuthRedirect } from "@/utils/checkToken";
 
 const UpdateDiscount = () => {
+  useAuthRedirect();
   const [formData, setFormData] = useState({
     name: "",
     percentage: "",
@@ -94,7 +96,14 @@ const UpdateDiscount = () => {
       });
   
       const result = await response.json();
-  
+      if(response.status === 401){
+        toast.error("Credentials Expired. Please Log in Again")
+        Cookies.remove('access_token');
+        setTimeout(()=>{
+          router.push('/')
+        },1500)
+        return;
+      }
       if (!response.ok) {
         throw new Error(result.error || 'Failed to update item');
       }

@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 
 const CreateTaxTypes = () => {
   const [formData, setFormData] = useState({
@@ -42,6 +43,14 @@ const CreateTaxTypes = () => {
       }
 
       const data = await response.json();
+      if(response.status === 401){
+        toast.error("Credentials Expired. Please Log in Again")
+        Cookies.remove('access_token');
+        setTimeout(()=>{
+          router.push('/')
+        },1500)
+        return;
+      }
       toast.success("tax is  created successfully");
       setLoading(false)
      

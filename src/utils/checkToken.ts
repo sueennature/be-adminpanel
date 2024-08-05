@@ -1,11 +1,22 @@
-// utils/checkToken.ts
+// utils/auth.js
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
+import { useEffect, useRef } from 'react';
 
-const checkToken = (): boolean => {
-  const token = Cookies.get('access_token');
-  console.log("TOKS", token)
-  return !!token;
-};
+export function useAuthRedirect() {
+    const router = useRouter();
+    const token = Cookies.get('access_token');
+    const hasNotified = useRef(false);
 
-export default checkToken;
-
+    // useEffect(() => {
+    //     if (!token && !hasNotified.current) {
+    //         toast.error("Session Terminated, Please login again");
+    //         hasNotified.current = true;
+    //         setTimeout(() => {
+    //             router.push('/');
+    //         }, 1500);
+    //     }
+    // }, [token, router]); // Ensure dependencies are correctly specified
+    console.log("sad")
+}

@@ -62,39 +62,59 @@ const CreateRoom = () => {
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
-        const files = Array.from(e.target.files);
-        const filePromises = files.map(file => {
+        const filesArray = Array.from(e.target.files);
+        const base64Promises = filesArray.map(file => {
           return new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
-            reader.onloadend = () => {
-              if (reader.result) {
-                resolve(reader.result as string);
-              } else {
-                reject(new Error('Failed to read file'));
-              }
-            };
-            reader.onerror = () => reject(new Error('Failed to read file'));
             reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = error => reject(error);
           });
         });
   
-        Promise.all(filePromises)
-          .then(fileUrls => {
+        Promise.all(base64Promises)
+          .then(base64Images => {
             setFormData({
               ...formData,
-              images: fileUrls
+              images: base64Images
             });
           })
           .catch(error => {
-            console.error('Error reading files:', error);
-            toast.error('Failed to upload files');
+            console.error("Error converting images to base64:", error);
+            toast.error("Error uploading images");
           });
-      }}
+      }
+    };
+    const removeBase64Prefix = (base64String: string) => {
+      // Define the prefixes for PNG and JPEG
+      const pngPrefix = 'data:image/png;base64,';
+      const jpegPrefix = 'data:image/jpeg;base64,';
+    
+      // Check for PNG prefix and remove it if present
+      if (base64String.startsWith(pngPrefix)) {
+        return base64String.substring(pngPrefix.length);
+      }
+    
+      // Check for JPEG prefix and remove it if present
+      if (base64String.startsWith(jpegPrefix)) {
+        return base64String.substring(jpegPrefix.length);
+      }
+    
+      // Return the original string if no known prefix is found
+      return base64String;
+    };
+    
 
       const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        const processedFormData = {
+          ...formData,
+        images: formData.images?.map(removeBase64Prefix) // Process each base64 image
+        };
         setLoading(true); 
         console.log('Form Data:', formData);
+        console.log("PROCESSED ROOM",processedFormData);
+
         try {
           const response = await fetch('/api/room', {
             method: 'POST',

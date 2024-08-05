@@ -8,6 +8,7 @@ import ReservationChart from "../BarChart";
 import AvailableRoomsProgressBar from "../AvailableRoomsProgressBar";
 import SoldRoomsProgressBar from "../SoldRoomsProgressBar";
 import CheckAvailability from '@/components/Discounts/CheckAvailability'
+
 import Cookies from "js-cookie";
 import axios from "axios";
 
@@ -23,6 +24,7 @@ const ChartThree = dynamic(() => import("@/components/Charts/ChartThree"), {
 
 const totalRooms = 26; // Replace with your actual total room count
 const ECommerce: React.FC = () => {
+
 
  
   const [totalbookings, settotalbookings] = React.useState<any>({});

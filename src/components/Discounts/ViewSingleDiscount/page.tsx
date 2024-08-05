@@ -5,9 +5,11 @@ import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import Cookies from "js-cookie";
 import { format } from "date-fns";
+import { useAuthRedirect } from '@/utils/checkToken';
 
 
 const ViewSingleDiscount = () => {
+  useAuthRedirect();
   const searchParams = useSearchParams();
   const [discount, setDiscount] = React.useState<any>([]);
 

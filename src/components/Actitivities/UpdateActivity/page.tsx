@@ -1,13 +1,21 @@
 'use client';
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { ChangeEvent,useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import SelectGroupOne from '../../SelectGroup/SelectGroupOne'
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
+import Image from "next/image";
+
+interface ActivityFormData {
+  name: string;
+  price: string;
+  description: string;
+  images: (File | string)[];
+}
 
 const UpdateActivity = () => {
-  const [formData, setFormData] = useState<any>({
+  const [formData, setFormData] = useState<ActivityFormData>({
     name: '',
     price: '',
     description: '',
@@ -16,10 +24,20 @@ const UpdateActivity = () => {
 
   const searchParams = useSearchParams();
   let activityId = searchParams.get("activityID");
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleDeleteImage = (index: number) => {
+    setImagePreviews((prevImages) => prevImages.filter((_, i) => i !== index));
+    setFormData((prevData) => ({
+      ...prevData,
+      images: prevData.images.filter((_, i) => i !== index),
+    }));
+  };
 
   const router = useRouter();
 
-  const handleInputChange = (e:any) => {
+  const handleInputChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -27,24 +45,33 @@ const UpdateActivity = () => {
     });
   };
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFormData({
-        ...formData,
-        images: Array.from(e.target.files)
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const fileArray = Array.from(files);
+      const fileReaders = fileArray.map((file) => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve(reader.result as string);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      });
+
+      Promise.all(fileReaders).then((base64Strings) => {
+        setImagePreviews(prevImages => [...prevImages, ...base64Strings]);
+        setFormData(prevData => ({
+          ...prevData,
+          images: [...prevData.images, ...base64Strings]
+        }));
+      }).catch((error) => {
+        console.error("Error converting files to base64:", error);
       });
     }
   };
 
-  // const handleSubmit = (e:any) => {
-  //   e.preventDefault();
-  //   if(!formData.activityName || !formData.price || !formData.description || !formData.images){
-  //     toast.error("Please fill All Fields")
-  //   }
-  //   console.log('Form submitted:', formData);
-  //   toast.success("Activity  created successfully")
-  // };
- 
   useEffect(() => {
     const fetchActivity = async () => {
       if (activityId) {
@@ -59,7 +86,10 @@ const UpdateActivity = () => {
               },
           });
           console.log(response.data.data);
-          setFormData(response.data.data)
+          setFormData(response.data.data);
+          if (response.data.data.images && Array.isArray(response.data.data.images)) {
+            setImagePreviews(response.data.data.images);
+          }
         } catch (err) {
           console.log(err);
         }
@@ -68,7 +98,8 @@ const UpdateActivity = () => {
 
     fetchActivity();
   }, [activityId]);
-  const handleSubmit = async (e:any) => {
+
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     try {
@@ -87,16 +118,15 @@ const UpdateActivity = () => {
       }
 
       toast.success('Activity updated successfully');
-      setTimeout(()=>{
-        router.push('/activity')
-      },1000)
+      setTimeout(() => {
+        router.push('/activity');
+      }, 1000);
     
-  } catch (err) {
-    console.log(err)
-      toast.error( 'An error occurred');
-  }
+    } catch (err) {
+      console.log(err);
+      toast.error('An error occurred');
+    }
   };
-
 
   return (
     <div className="flex flex-col gap-9">
@@ -110,7 +140,7 @@ const UpdateActivity = () => {
                 </label>
                 <input
                   type="text"
-                  name="activityName"
+                  name="name"
                   required
                   value={formData.name}
                   onChange={handleInputChange}
@@ -146,6 +176,31 @@ const UpdateActivity = () => {
                 />
               </div>
             </div>
+            <div className="mb-6.5">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Image Preview
+              </label>
+              <div className="flex items-center gap-4">
+                {imagePreviews.map((image, index) => (
+                  <div key={index} className="relative">
+                    <Image
+                      src={image}
+                      alt={`Preview ${index}`}
+                      width={100}
+                      height={100}
+                      className="object-cover rounded h-20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage(index)}
+                      className="relative top-[-80px] left-[80px] text-red bg-red-500 rounded-full font-bold"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="mb-6">
               <label className="mb-3 block text-sm font-medium text-black">
                 Description
@@ -174,3 +229,4 @@ const UpdateActivity = () => {
 };
 
 export default UpdateActivity;
+
