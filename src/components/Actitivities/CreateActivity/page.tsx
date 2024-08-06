@@ -3,6 +3,8 @@ import { useRouter } from "next/navigation";
 import React, { ChangeEvent, useState } from 'react';
 import SelectGroupOne from '../../SelectGroup/SelectGroupOne';
 import { toast } from 'react-toastify';
+import { useAuthRedirect } from "@/utils/checkToken";
+import Cookies from "js-cookie";
 
 const CreateActivity = () => {
   const [formData, setFormData] = useState<any>({
@@ -11,8 +13,9 @@ const CreateActivity = () => {
     description: '',
     media: [],
   });
-  const router = useRouter()
-
+  const router = useRouter();
+  const [loading, setLoading] = React.useState(false)
+useAuthRedirect()
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({
@@ -55,6 +58,7 @@ const CreateActivity = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    setLoading(true)
       // Process the base64 images in formData
     const processedFormData = {
       ...formData,
@@ -83,14 +87,23 @@ const CreateActivity = () => {
         toast.error("Failed to create activity");
         return;
       }
-
+      if(response.status === 401){
+        toast.error("Credentials Expired. Please Log in Again")
+        Cookies.remove('access_token');
+        setTimeout(()=>{
+          router.push('/')
+        },1500)
+        return;
+      }
       const responseData = await response.json();
+      setLoading(false)
       console.log("Success:", responseData);
       toast.success("Activity created successfully");
       setTimeout(()=>{
         router.push("/activity")
       },1500)
     } catch (error) {
+      setLoading(false)
       console.error("Error:", error);
       toast.error("Something went wrong!");
     }
@@ -161,9 +174,10 @@ const CreateActivity = () => {
             </div>
             <button
               type="submit"
+              disabled={loading}
               className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
             >
-              Submit
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </form>
