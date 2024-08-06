@@ -6,12 +6,14 @@ import flower from "../../../../public/images/flower.jpg";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
+import { useAuthRedirect } from "@/utils/checkToken";
 
 
 
 const ViewSingleActivity = () => {
   const searchParams = useSearchParams();
   const [activity, setActivity] = React.useState<any>([]);
+  useAuthRedirect()
 
   let activityId = searchParams.get("activityID");
   console.log(activityId);

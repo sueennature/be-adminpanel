@@ -6,6 +6,8 @@ import SelectGroupOne from '../../SelectGroup/SelectGroupOne';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import Image from "next/image";
+import { useAuthRedirect } from "@/utils/checkToken";
+import Swal from 'sweetalert2';
 
 interface ActivityFormData {
   name: string;
@@ -26,33 +28,76 @@ const UpdateActivity = () => {
   let activityId = searchParams.get("activityID");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  useAuthRedirect()
 
   const handleDeleteImage = async (index: number) => {
     const imageUrl = formData.media[index];
-    if (imageUrl) {
-        console.log("IMAGEURL", imageUrl);
-        const payload = [imageUrl] ;
-        console.log("Payload:", JSON.stringify(payload));
-        try {
-            await axios.delete(`${process.env.BE_URL}/activities/${activityId}/media`, {
-                data: payload,
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${Cookies.get('access_token')}`,
-                    'x-api-key': process.env.X_API_KEY,
-                },
-            });
+    const payload = [imageUrl] ;
 
-            setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
-            setFormData(prevData => ({
-                ...prevData,
-                media: prevData.media.filter((_, i) => i !== index),
-            }));
-        } catch (err) {
-            console.error('Error deleting image:', err);
-            toast.error('Error deleting image');
-        }
-    }
+    if (imageUrl) {
+      const result = await Swal.fire({
+          title: 'Are you sure?',
+          text: 'This action cannot be undone!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'
+      });
+
+      if (result.isConfirmed) {
+          console.log("IMAGEURL", imageUrl);
+          try {
+            const reponse = await axios.delete(`${process.env.BE_URL}/activities/${activityId}/media`, {
+              data: payload,
+              headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${Cookies.get('access_token')}`,
+                  'x-api-key': process.env.X_API_KEY,
+              },
+          });
+     
+          setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
+          setFormData(prevData => ({
+              ...prevData,
+              media: prevData.media.filter((_, i) => i !== index),
+          }));
+
+              Swal.fire(
+                  'Deleted!',
+                  'Image has been deleted.',
+                  'success'
+              );
+          } catch (err) {
+              console.log('Error deleting image:', err);
+              toast.error('Error deleting image');
+          }
+      }
+  }
+    // if (imageUrl) {
+    //     console.log("IMAGEURL", imageUrl);
+    //     const payload = [imageUrl] ;
+    //     console.log("Payload:", JSON.stringify(payload));
+    //     try {
+    //         await axios.delete(`${process.env.BE_URL}/activities/${activityId}/media`, {
+    //             data: payload,
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 Authorization: `Bearer ${Cookies.get('access_token')}`,
+    //                 'x-api-key': process.env.X_API_KEY,
+    //             },
+    //         });
+
+    //         setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
+    //         setFormData(prevData => ({
+    //             ...prevData,
+    //             media: prevData.media.filter((_, i) => i !== index),
+    //         }));
+    //     } catch (err) {
+    //         console.error('Error deleting image:', err);
+    //         toast.error('Error deleting image');
+    //     }
+    // }
   };
 
   const router = useRouter();

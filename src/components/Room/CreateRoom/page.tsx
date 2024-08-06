@@ -2,6 +2,8 @@
 import { useRouter } from 'next/navigation';
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
+
 interface RoomFormData {
   room_number:string;
   name: string;
@@ -130,6 +132,14 @@ const CreateRoom = () => {
             return;
           }
     
+          if(response.status === 401){
+            toast.error("Credentials Expired. Please Log in Again")
+            Cookies.remove('access_token');
+            setTimeout(()=>{
+              router.push('/')
+            },1500)
+            return;
+          }
           const data = await response.json();
           toast.success("Room created successfully");
 

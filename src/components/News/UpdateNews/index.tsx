@@ -6,6 +6,7 @@ import SelectGroupOne from '../../SelectGroup/SelectGroupOne'
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import Image from "next/image";
+import Swal from 'sweetalert2';
 
 interface NewsFormData {
     title: string;
@@ -57,9 +58,20 @@ const UpdateNews = () => {
 const handleDeleteMedia = async (index: number, mediaType: 'image' | 'video') => {
   const mediaUrl = mediaType === 'image' ? formData.images[index] : formData.videos[index];
   if (mediaUrl) {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+  });
     console.log("MEDIA URL", mediaUrl);
     const payload = [mediaUrl];
     console.log("Payload:", JSON.stringify(payload));
+    if (result.isConfirmed) {
+
     try {
       await axios.delete(`${process.env.BE_URL}/news/${newsId}/media?media_type=${mediaType}`, {
         data: payload,
@@ -76,6 +88,11 @@ const handleDeleteMedia = async (index: number, mediaType: 'image' | 'video') =>
           ...prevData,
           images: prevData.images.filter((_, i) => i !== index),
         }));
+        Swal.fire(
+          'Deleted!',
+          'Image has been deleted.',
+          'success'
+      );
       } else {
         setVideoPreviews(prevVideos => prevVideos.filter((_, i) => i !== index));
         setFormData(prevData => ({
@@ -83,10 +100,16 @@ const handleDeleteMedia = async (index: number, mediaType: 'image' | 'video') =>
           videos: prevData.videos.filter((_, i) => i !== index),
         }));
       }
+      
+      Swal.fire(
+        'Deleted!',
+        'Video has been deleted.',
+        'success'
+    );
     } catch (err) {
       console.error(`Error deleting ${mediaType}:`, err);
       toast.error(`Error deleting ${mediaType}`);
-    }
+    }}
   }
 };
 

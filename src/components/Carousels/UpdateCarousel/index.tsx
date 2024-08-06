@@ -6,6 +6,8 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import Image from "next/image";
 import { useAuthRedirect } from "@/utils/checkToken";
+import Swal from 'sweetalert2';
+
 interface FormData {
   title: string;
   media_type: string;
@@ -29,32 +31,72 @@ const UpdateCarousel: React.FC = () => {
   const handleDeleteImage = async (index: number) => {
     const imageUrl = formData.media_urls[index];
     if (imageUrl) {
-      console.log("IMAGEURL", imageUrl);
-      try {
-        await axios.delete(
-          `${process.env.BE_URL}/carousels/${carouselId}/media`,
-          {
-            data: [imageUrl], // Wrap imageUrl in an array
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${Cookies.get("access_token")}`,
-              "x-api-key": process.env.X_API_KEY,
-            },
-          },
-        );
+      const result = await Swal.fire({
+          title: 'Are you sure?',
+          text: 'This action cannot be undone!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'
+      });
 
-        setImagePreviews((prevImages) =>
-          prevImages.filter((_, i) => i !== index),
-        );
-        setFormData((prevData) => ({
-          ...prevData,
-          media_urls: prevData.media_urls.filter((_, i) => i !== index),
-        }));
-      } catch (err) {
-        console.error("Error deleting image:", err);
-        toast.error("Error deleting image");
+      if (result.isConfirmed) {
+          console.log("IMAGEURL", imageUrl);
+          try {
+            const reponse = await axios.delete(`${process.env.BE_URL}/carousels/${carouselId}/media`, {
+              data: [imageUrl],
+              headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${Cookies.get('access_token')}`,
+                  'x-api-key': process.env.X_API_KEY,
+              },
+          });
+     
+          setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
+          setFormData(prevData => ({
+              ...prevData,
+              media_urls: prevData.media_urls.filter((_, i) => i !== index),
+          }));
+
+              Swal.fire(
+                  'Deleted!',
+                  'Image has been deleted.',
+                  'success'
+              );
+          } catch (err) {
+              console.log('Error deleting image:', err);
+              toast.error('Error deleting image');
+          }
       }
-    }
+  }
+    // if (imageUrl) {
+    //   console.log("IMAGEURL", imageUrl);
+    //   try {
+    //     await axios.delete(
+    //       `${process.env.BE_URL}/carousels/${carouselId}/media`,
+    //       {
+    //         data: [imageUrl], // Wrap imageUrl in an array
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           Authorization: `Bearer ${Cookies.get("access_token")}`,
+    //           "x-api-key": process.env.X_API_KEY,
+    //         },
+    //       },
+    //     );
+
+    //     setImagePreviews((prevImages) =>
+    //       prevImages.filter((_, i) => i !== index),
+    //     );
+    //     setFormData((prevData) => ({
+    //       ...prevData,
+    //       media_urls: prevData.media_urls.filter((_, i) => i !== index),
+    //     }));
+    //   } catch (err) {
+    //     console.error("Error deleting image:", err);
+    //     toast.error("Error deleting image");
+    //   }
+    // }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

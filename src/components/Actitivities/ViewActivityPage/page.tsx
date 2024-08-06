@@ -11,6 +11,7 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import NoData from "@/components/NoData";
 import Loader from "@/components/common/Loader";
+import { useAuthRedirect } from "@/utils/checkToken";
 
 interface ActivityData {
   id: number;
@@ -28,6 +29,7 @@ const ViewActivity = () => {
   const [currentPage, setCurrentPage] = React.useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
   const router = useRouter();
+  useAuthRedirect()
 
   useEffect(() => {
     const fetchUsers = async () => {

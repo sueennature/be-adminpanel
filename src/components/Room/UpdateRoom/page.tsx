@@ -1,11 +1,13 @@
 'use client'
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
-import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
 import Cookies from "js-cookie";
 import Image from "next/image";
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
+import { useAuthRedirect } from '@/utils/checkToken';
 
 interface RoomFormData {
   name: string;
@@ -55,29 +57,51 @@ const UpdateRoom = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false); 
 
-
+  const fileInputRef = useRef<any>(null);
   const handleDeleteImage = async (index: number) => {
     const imageUrl = formData.images[index];
     if (imageUrl) {
-        console.log("IMAGEURL", imageUrl);
-        try {
-            await axios.delete(`${process.env.BE_URL}/rooms/${roomId}/images`, {
-                data: { files_to_delete: [imageUrl] }, 
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${Cookies.get('access_token')}`,
-                    'x-api-key': process.env.X_API_KEY,
-                },
-            });
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: 'This action cannot be undone!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        });
 
-            setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
-            setFormData(prevData => ({
-                ...prevData,
-                images: prevData.images.filter((_, i) => i !== index),
-            }));
-        } catch (err) {
-            console.error('Error deleting image:', err);
-            toast.error('Error deleting image');
+        if (result.isConfirmed) {
+            console.log("IMAGEURL", imageUrl);
+            try {
+                await axios.delete(`${process.env.BE_URL}/rooms/${roomId}/images`, {
+                    data: { files_to_delete: [imageUrl] }, 
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${Cookies.get('access_token')}`,
+                        'x-api-key': process.env.X_API_KEY,
+                    },
+                });
+
+                setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
+                setFormData(prevData => ({
+                    ...prevData,
+                    images: prevData.images.filter((_, i) => i !== index),
+                }));
+
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+
+                Swal.fire(
+                    'Deleted!',
+                    'Your image has been deleted.',
+                    'success'
+                );
+            } catch (err) {
+                console.error('Error deleting image:', err);
+                toast.error('Error deleting image');
+            }
         }
     }
 };
@@ -150,7 +174,6 @@ const UpdateRoom = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-  
     const urlToBase64 = async (url: string): Promise<string> => {
       const response = await fetch(url);
       const blob = await response.blob();
@@ -187,7 +210,14 @@ const UpdateRoom = () => {
       });
   
       const result = await response.json();
-  
+      if(response.status === 401){
+        toast.error("Credentials Expired. Please Log in Again")
+        Cookies.remove('access_token');
+        setTimeout(()=>{
+          router.push('/')
+        },1500)
+        return;
+      }
       if (!response.ok) {
         throw new Error(result.error || 'Failed to update item');
       }
@@ -199,7 +229,7 @@ const UpdateRoom = () => {
     } catch (err) {
       console.error(err);
       setLoading(false);
-      toast.error('An error occurred');
+      toast.error('An error occurred, Please Login Again');
     }
   };
   
@@ -461,6 +491,7 @@ const UpdateRoom = () => {
               type="file"
               accept="image/*"
               multiple
+              ref={fileInputRef}  // Assign the ref to the input
               onChange={handleFileChange}
               className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-white file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />           
@@ -469,7 +500,7 @@ const UpdateRoom = () => {
             <label className="mb-3 block text-sm font-medium text-black">
               Image Preview
             </label>
-            <div className="flex items-center gap-4">
+            <div className="flex items-start lg:items-center gap-4 flex-col lg:flex-row ">
               {imagePreviews.map((image, index) => (
                 <div key={index} className="relative">
                   <Image
