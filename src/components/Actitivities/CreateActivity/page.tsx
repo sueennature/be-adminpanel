@@ -9,7 +9,7 @@ const CreateActivity = () => {
     name: '',
     price: '',
     description: '',
-    images: []
+    media: [],
   });
   const router = useRouter()
 
@@ -37,7 +37,7 @@ const CreateActivity = () => {
         .then(base64Images => {
           setFormData({
             ...formData,
-            images: base64Images
+            media: base64Images
           });
         })
         .catch(error => {
@@ -46,11 +46,24 @@ const CreateActivity = () => {
         });
     }
   };
+ // Log the original base64 images
+  const removeBase64Prefix = (base64String: string) => {
+    // Find the comma that separates the metadata from the base64 data
+    const base64PrefixPattern = /^data:image\/(png|jpeg|jpg);base64,/;
+    return base64String.replace(base64PrefixPattern, '');
+  };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+      // Process the base64 images in formData
+    const processedFormData = {
+      ...formData,
+      media: formData.media?.map(removeBase64Prefix) // Process each base64 image
+    };
+  
+    console.log(processedFormData);
 
-    if (!formData.name || !formData.price || !formData.description || formData.images.length === 0) {
+    if (!formData.name || !formData.price || !formData.description || formData.media.length === 0) {
       toast.error("Please fill all fields");
       return;
     }
@@ -126,7 +139,7 @@ const CreateActivity = () => {
                 <input
                   type="file"
                   multiple
-                  name="images"
+                  name="media"
                   onChange={handleFileChange}
                   className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />

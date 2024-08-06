@@ -9,7 +9,7 @@ export async function POST(request: any) {
             return NextResponse.json({ error: 'Access token is missing' }, { status: 401 });
         }
 
-        const guestData = await request.json();
+        const ActivityData = await request.json();
 
         const response = await fetch('https://api.sueennature.com/activities', {
             method: 'POST',
@@ -18,12 +18,12 @@ export async function POST(request: any) {
                 'Authorization': `Bearer ${accessToken}`,
                 'x-api-key': process.env.X_API_KEY || '', 
             },
-            body: JSON.stringify(guestData),
+            body: JSON.stringify(ActivityData),
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            return NextResponse.json({ error: 'Failed to create guest', details: errorData }, { status: response.status });
+            return NextResponse.json({ error: 'Failed to create Activity', details: errorData }, { status: response.status });
         }
 
         const data = await response.json();

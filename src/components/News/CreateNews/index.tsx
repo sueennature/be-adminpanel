@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -18,7 +19,7 @@ const CreateNews = () => {
     images: [],
     videos: [],
   });
-
+  const router = useRouter()
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -54,9 +55,25 @@ const CreateNews = () => {
         .catch(error => console.error("Error converting files:", error));
     }
   };
+  const removeImageBase64Prefix = (base64String: string) => {
+    const imagePrefixPattern = /^data:image\/(png|jpeg|jpg);base64,/;
+    return base64String.replace(imagePrefixPattern, '');
+  };
+  
+  const removeVideoBase64Prefix = (base64String: string) => {
+    const videoPrefixPattern = /^data:video\/(mp4|ogg|webm);base64,/;
+    return base64String.replace(videoPrefixPattern, '');
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const processedFormData = {
+      ...formData,
+       images: formData.images.map(removeImageBase64Prefix),
+    videos: formData.videos.map(video => typeof video === 'string' ? removeVideoBase64Prefix(video) : video)
+    };
+  
+    console.log(processedFormData);
 
     // Basic validation
     if (!formData.title || !formData.content) {
@@ -64,15 +81,7 @@ const CreateNews = () => {
       return;
     }
 
-    const payload = {
-      title: formData.title,
-      content: formData.content,
-      image_url: formData.image_url,
-      images: formData.images,
-      videos: formData.videos,
-    };
-
-    console.log("Payload:", payload);
+   
 
     try {
       const response = await fetch("/api/news", {
@@ -80,7 +89,7 @@ const CreateNews = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
@@ -93,6 +102,9 @@ const CreateNews = () => {
       console.log("Success:", data);
       toast.success("The news has been created successfully!")  
       // successfull toast messsage
+      setTimeout(()=>{
+        router.push("/news")
+      },1500)
     } catch (error) {
       console.error("Error:", error);
       toast.success("Somthing went wrong!")

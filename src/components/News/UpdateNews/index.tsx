@@ -10,7 +10,7 @@ import Image from "next/image";
 interface NewsFormData {
     title: string;
     content: string;
-    images: (File | string)[];
+    images: string[]
     videos: (File | string)[];
 }
 
@@ -28,13 +28,67 @@ const UpdateNews = () => {
   const [videoPreviews, setVideoPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false); 
 
-  const handleDeleteImage = (index: number) => {
-    setImagePreviews((prevImages) => prevImages.filter((_, i) => i !== index));
-    setFormData((prevData) => ({
-      ...prevData,
-      images: prevData.images.filter((_, i) => i !== index),
-    }));
-  };
+//   const handleDeleteImage = async (index: number) => {
+//     const imageUrl = formData.images[index];
+//     if (imageUrl) {
+//         console.log("IMAGEURL", imageUrl);
+//         try {
+//             await axios.delete(`${process.env.BE_URL}/rooms/${newsId}/media`, {
+//                 data: { files_to_delete: [imageUrl] }, 
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     Authorization: `Bearer ${Cookies.get('access_token')}`,
+//                     'x-api-key': process.env.X_API_KEY,
+//                 },
+//             });
+
+//             setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
+//             setFormData(prevData => ({
+//                 ...prevData,
+//                 images: prevData.images.filter((_, i) => i !== index),
+//             }));
+//         } catch (err) {
+//             console.error('Error deleting image:', err);
+//             toast.error('Error deleting image');
+//         }
+//     }
+// };
+
+const handleDeleteMedia = async (index: number, mediaType: 'image' | 'video') => {
+  const mediaUrl = mediaType === 'image' ? formData.images[index] : formData.videos[index];
+  if (mediaUrl) {
+    console.log("MEDIA URL", mediaUrl);
+    const payload = [mediaUrl];
+    console.log("Payload:", JSON.stringify(payload));
+    try {
+      await axios.delete(`${process.env.BE_URL}/news/${newsId}/media?media_type=${mediaType}`, {
+        data: payload,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          'x-api-key': process.env.X_API_KEY,
+        },
+      });
+
+      if (mediaType === 'image') {
+        setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
+        setFormData(prevData => ({
+          ...prevData,
+          images: prevData.images.filter((_, i) => i !== index),
+        }));
+      } else {
+        setVideoPreviews(prevVideos => prevVideos.filter((_, i) => i !== index));
+        setFormData(prevData => ({
+          ...prevData,
+          videos: prevData.videos.filter((_, i) => i !== index),
+        }));
+      }
+    } catch (err) {
+      console.error(`Error deleting ${mediaType}:`, err);
+      toast.error(`Error deleting ${mediaType}`);
+    }
+  }
+};
 
   const handleDeleteVideo = (index: number) => {
     setVideoPreviews(prevVideos => prevVideos.filter((_, i) => i !== index));
@@ -120,8 +174,32 @@ const UpdateNews = () => {
     fetchNews();
   }, [newsId]);
 
+  const removeBase64Prefix = (base64String: string) => {
+    // Find the prefix pattern for images and videos
+    const imagePrefixPattern = /^data:image\/(png|jpeg|jpg);base64,/;
+    const videoPrefixPattern = /^data:video\/(mp4|ogg|webm);base64,/;
+
+    if (base64String.match(imagePrefixPattern)) {
+      return base64String.replace(imagePrefixPattern, '');
+    }
+    if (base64String.match(videoPrefixPattern)) {
+      return base64String.replace(videoPrefixPattern, '');
+    }
+    return base64String;
+  };
+
+  
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    setLoading(true);
+    const processedFormData = {
+      ...formData,
+      images: formData.images.map(removeBase64Prefix),
+      videos: formData.videos.map(video => typeof video === 'string' ? removeBase64Prefix(video) : video)
+    };
+    
+  
+    console.log(formData);
 
     try {
       const response = await fetch('/api/news/update', {
@@ -129,7 +207,7 @@ const UpdateNews = () => {
           headers: {
               'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ id: newsId, ...formData }),
+          body: JSON.stringify(formData),
       });
 
       const result = await response.json();
@@ -145,12 +223,16 @@ const UpdateNews = () => {
     
     } catch (err) {
       console.log(err);
+      setLoading(false);
       toast.error('An error occurred');
     }
   };
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleFileChange(e, 'image');
   };
+
+
+
 
   const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleFileChange(e, 'video');
@@ -196,7 +278,7 @@ const UpdateNews = () => {
                 {imagePreviews.map((image, index) => (
                   <div key={index} className="relative">
                     <Image
-                      src={image}
+                      src={image.startsWith('data:') ? image : `https://api.sueennature.com/${image}`}
                       alt={`Preview ${index}`}
                       width={100}
                       height={100}
@@ -204,7 +286,7 @@ const UpdateNews = () => {
                     />
                     <button
                       type="button"
-                      onClick={() => handleDeleteImage(index)}
+                      onClick={() => handleDeleteMedia(index,'image')}
                       className="relative top-[-80px] left-[80px] text-red bg-red-500 rounded-full font-bold"
                     >
                       X
@@ -233,7 +315,7 @@ const UpdateNews = () => {
                 {videoPreviews.map((video, index) => (
                   <div key={index} className="relative">
                     <video
-                      src={video}
+                      src={video.startsWith('data:') ? video :`https://api.sueennature.com/${video}`}
                       controls
                       width="140"
                       height="100"
@@ -241,7 +323,7 @@ const UpdateNews = () => {
                     />
                     <button
                       type="button"
-                      onClick={() => handleDeleteVideo(index)}
+                      onClick={() => handleDeleteMedia(index,'video')}
                       className="relative top-[-80px] left-[120px] text-red bg-red-500 rounded-full font-bold"
                     >
                       X
@@ -269,7 +351,7 @@ const UpdateNews = () => {
               type="submit"
               className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
             >
-              Update
+               {loading ? 'Updating...' : 'Update'}
             </button>
           </div>
         </form>

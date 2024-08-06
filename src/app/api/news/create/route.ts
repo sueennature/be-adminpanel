@@ -6,12 +6,12 @@ export async function POST(request: any) {
         const cookies = parseCookies(request);
         console.log("COOKIES", cookies)
         const accessToken = cookies.access_token;
-
+        console.log(accessToken);
         if (!accessToken) {
             return NextResponse.json({ error: 'Access token is missing' }, { status: 401 });
         }
 
-        const guestData = await request.json();
+        const newsData = await request.json();
 
         const response = await fetch('https://api.sueennature.com/news', {
             method: 'POST',
@@ -20,8 +20,9 @@ export async function POST(request: any) {
                 'Authorization': `Bearer ${accessToken}`,
                 'x-api-key': process.env.X_API_KEY || '', 
             },
-            body: JSON.stringify(guestData),
+            body: JSON.stringify(newsData),
         });
+        
 
         if (!response.ok) {
             const errorData = await response.json();
