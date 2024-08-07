@@ -65,7 +65,7 @@ const UpdateUser = () => {
       const result = await response.json();
 
       if (!response.ok) {
-          throw new Error(result.error || 'Failed to update item');
+          throw new Error(result.error || 'Failed to update user');
       }
 
       toast.success('User updated successfully');

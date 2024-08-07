@@ -149,11 +149,11 @@ const RoomTable = () => {
       setRooms((prevGuests) =>
         prevGuests.filter((guest) => guest.id !== userId),
       );
-      toast.success("User Deleted Successfully");
+      toast.success("Room Deleted Successfully");
     } catch (err) {
       console.error(err);
       toast.error(
-        "There was an error deleting the user. Please try again later",
+        "There was an error deleting the room. Please try again later",
       );
     }
   };
@@ -382,7 +382,7 @@ const RoomTable = () => {
                                   className="h-20 w-20 flex-shrink-0 overflow-hidden"
                                 >
                                   <Image
-                                    src={`https://api.sueennature.com/${image}`}
+                                    src={image.startsWith('data:') ? image : `https://api.sueennature.com/${image}`}
                                     alt={room?.room_number}
                                     width={80}
                                     height={80}

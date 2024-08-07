@@ -150,11 +150,11 @@ const ViewDiscount = () => {
       setDiscounts((prevGuests) =>
         prevGuests.filter((guest) => guest.id !== userId),
       );
-      toast.success("User Deleted Successfully");
+      toast.success("Discount Deleted Successfully");
     } catch (err) {
       console.error(err);
       toast.error(
-        "There was an error deleting the user. Please try again later",
+        "There was an error deleting the discount. Please try again later",
       );
     }
   };

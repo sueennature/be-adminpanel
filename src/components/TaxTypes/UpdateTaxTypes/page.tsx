@@ -78,7 +78,7 @@ const UpdateTaxTypes = () => {
         return;
       }
       setTimeout(()=>{
-        router.push('/taxestypes')
+        router.push('/taxtypes')
       },1000)
     
   } catch (err) {

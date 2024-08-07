@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import NoData from "@/components/NoData";
 import Loader from "@/components/common/Loader";
 import useAuth from '@/hooks/useAuth';
-import checkToken from '@/utils/checkToken';
+// import checkToken from '@/utils/checkToken';
 
 
 interface taxData {
@@ -132,11 +132,11 @@ const ViewTaxTypes = () => {
           setDiscounts((prevGuests) =>
             prevGuests.filter((guest) => guest.id !== userId),
           );
-          toast.success("User Deleted Successfully");
+          toast.success("Tax Deleted Successfully");
         } catch (err) {
           console.error(err);
           toast.error(
-            "There was an error deleting the user. Please try again later",
+            "There was an error deleting the tax. Please try again later",
           );
         }
       };
