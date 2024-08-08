@@ -20,6 +20,7 @@ const CreateNews = () => {
     videos: [],
   });
   const router = useRouter()
+  const [loading, setLoading] = React.useState(false)
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -67,6 +68,7 @@ const CreateNews = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true)
     const processedFormData = {
       ...formData,
        images: formData.images.map(removeImageBase64Prefix),
@@ -99,6 +101,7 @@ const CreateNews = () => {
       }
 
       const data = await response.json();
+      setLoading(false)
       console.log("Success:", data);
       toast.success("The news has been created successfully!")  
       // successfull toast messsage
@@ -106,6 +109,7 @@ const CreateNews = () => {
         router.push("/news")
       },1500)
     } catch (error) {
+      setLoading(false)
       console.error("Error:", error);
       toast.success("Somthing went wrong!")
       // Error toast messsage
@@ -189,9 +193,10 @@ const CreateNews = () => {
 
           <button
             type="submit"
+            disabled={loading}
             className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
           >
-            Submit
+             {loading ? "Submitting..." : "Submit"}
           </button>
         </form>
       </div>

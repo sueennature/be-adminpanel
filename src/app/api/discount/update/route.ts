@@ -16,7 +16,7 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
         }
 
-        const response = await fetch(`https://api.sueennature.com/taxes/${id}`, {
+        const response = await fetch(`https://api.sueennature.com/discounts/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ export async function PUT(request: Request) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            return NextResponse.json({ error: 'Failed to update item', details: errorData }, { status: response.status });
+            return NextResponse.json({ error: 'Failed to update discount', details: errorData }, { status: response.status });
         }
 
         const data = await response.json();

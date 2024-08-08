@@ -86,7 +86,7 @@ const ViewSingleDiscount = () => {
             <div className='m-2'>Description</div>
           </div>
           <div className='flex-1'>     
-            <div className='m-2'>_{discount.description}</div>
+            <div className='m-2'>{discount.description}</div>
            </div>
         </div>
         <div className='flex'>
