@@ -4,7 +4,7 @@ import axios from "axios";
 import flatpickr from "flatpickr";
 import BookingRoom from "./BookingRoom";
 import Cookies from "js-cookie";
-
+import {timestampToDate} from "../../utils/util"
 const CheckAvailability = () => {
   const [formData, setFormData] = useState({
     check_in: "",
@@ -22,6 +22,8 @@ const CheckAvailability = () => {
   const [selectedCheckOut, setSelectedCheckOut] = React.useState("")
   const [selectedDiscountCode, setSelectedDiscountCode] = React.useState("")
   const [reponseData, setResponseData] = useState<boolean>(false);
+
+
 
   useEffect(() => {
     flatpickr("#check_in", {
@@ -73,6 +75,7 @@ const CheckAvailability = () => {
     };
   }, []);
   
+
   
  const handleBooking = async () => {
     try {
@@ -157,7 +160,7 @@ const CheckAvailability = () => {
       </h3>
       <div className="rounded-sm border border-stroke bg-white shadow-default">
         <div className="p-6.5">
-          {!showBooking && (
+       
             <div className="mb-6.5 flex flex-col gap-2 xl:flex-row">
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -168,10 +171,10 @@ const CheckAvailability = () => {
                     type="text"
                     id="check_in"
                     name="check_in"
-                    value={formData.check_in}
+                    value={timestampToDate(formData.check_in)}
                     onChange={handleChange}
                     className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-2 py-3 font-normal text-black text-xs outline-none transition focus:border-primary active:border-primary"
-                    placeholder="mm/dd/yyyy"
+                    placeholder="DD/MM/YYYY"
                     required
                     data-class="flatpickr-right"
                   />
@@ -201,10 +204,10 @@ const CheckAvailability = () => {
                     type="text"
                     id="check_out"
                     name="check_out"
-                    value={formData.check_out}
+                    value={timestampToDate(formData.check_out)}
                     onChange={handleChange}
                     className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-2 text-xs py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
-                    placeholder="mm/dd/yyyy"
+                    placeholder="DD/MM/YYYY"
                     required
                     data-class="flatpickr-right"
                   />
@@ -287,7 +290,7 @@ const CheckAvailability = () => {
                 </button>
               </div>
             </div>
-          )}
+         
 
           {showBooking && (
             <BookingRoom isShow={handleGoBack} discountCode={selectedDiscountCode} room_type={selectedRoom} room_type_view={""} responseDatas={reponseData} checkIN={selectedCheckIn} checkOut={selectedCheckOut} />
