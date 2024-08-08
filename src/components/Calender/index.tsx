@@ -171,7 +171,7 @@ const Home: React.FC = () => {
   const daysToShow = isMobile ? getDaysForWeek(startDate) : getDaysForMonth(startDate);
 
   return (
-    <div className="h-screen p-4">
+    <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
         <button
           className="bg-gray-200 hover:bg-gray-300 flex items-center rounded-md px-4 py-2"
