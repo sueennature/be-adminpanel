@@ -912,7 +912,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                     value={dob}
                     onChange={handleChangeGuest}
                     className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
-                    placeholder="mm/dd/yyyy"
+                    placeholder="DD-MM-YYYY"
                     required
                     data-class="flatpickr-right"
                   />
@@ -947,7 +947,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                     value={issueDate}
                     onChange={handleChangeGuest}
                     className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
-                    placeholder="mm/dd/yyyy"
+                    placeholder="DD-MM-YYYY"
                     data-class="flatpickr-right"
                   />
               </div>
@@ -959,7 +959,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   type="text"
                   name="identificationNo"
                   required
-                  placeholder="Enter the Last Name"
+                  placeholder="Identification No"
                   value={guestInfo.identificationNo}
                   onChange={handleChangeGuest}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
@@ -1107,25 +1107,25 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             Total Rooms with Meal Plan
           </div>
           <div className="font-bold text-black">
-            Rs {rates?.total_meal_plan_amount || 0}
+            Rs {rates?.total_meal_plan_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
           </div>
         </div>
         <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
           <div className="text-[20px] text-black ">Total Activities Amount</div>
           <div className="font-bold text-black">
-            Rs {rates?.total_activities_amount || 0}
+            Rs {rates?.total_activities_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
           </div>
         </div>
         <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
           <div className="text-[20px] text-black ">Total Rooms Amount</div>
           <div className="font-bold text-black">
-            Rs {rates?.total_rooms_amount || 0}
+            Rs {rates?.total_rooms_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
           </div>
         </div>
         <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
           <div className="text-[20px] text-black ">Total Tax Amount</div>
           <div className="font-bold text-black">
-            Rs {rates?.total_tax_amount || 0}
+            Rs {rates?.total_tax_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
           </div>
         </div>
         {/* {taxes.map((tax: any) => (
@@ -1146,13 +1146,13 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             Discount & Special Rate
           </div>
           <div className=" font-bold text-orange-500">
-            (-{rates?.total_discount_amount})
+            (-{rates?.total_discount_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")})
           </div>
         </div>
         <div className="mt-3  flex w-full items-center justify-between border-t-2 border-black p-3 lg:flex-row">
           <div className="text-[28px] font-bold text-black">Total</div>
           <div className="font-bold text-black">
-            Rs {rates?.total_amount}
+            Rs {rates?.total_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
           </div>
         </div>
       </div>

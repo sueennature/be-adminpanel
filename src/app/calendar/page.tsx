@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import CheckAvailability from '@/components/Discounts/CheckAvailability'
-import BookingTable from "@/components/bookings";
+import BookingTable from "@/components/bookings/BookingTable";
 
 export const metadata: Metadata = {
   title: "Admin | Dashboard",
@@ -16,8 +16,8 @@ const CalendarPage = () => {
     <DefaultLayout>
       <Breadcrumb pageName="Booking Calendar" firstLink={"/calendar"}/>
       <CheckAvailability/>
-      {/* <BookingTable /> */}
       <Calendar/>
+      <BookingTable/>
     </DefaultLayout>
   );
 };
