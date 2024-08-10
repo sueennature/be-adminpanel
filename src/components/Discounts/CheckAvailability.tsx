@@ -4,16 +4,14 @@ import axios from "axios";
 import flatpickr from "flatpickr";
 import BookingRoom from "./BookingRoom";
 import Cookies from "js-cookie";
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import dayjs, { Dayjs } from 'dayjs';
+
 import {timestampToDate} from "../../utils/util"
 const CheckAvailability = () => {
-  const [formData, setFormData] = useState({
-    check_in: "",
-    check_out: "",
-    category: "",
-    view: "",
-    discount_code: "",
-  });
-  
   const startDate = useRef<flatpickr.Instance | null>(null);
   const endDate = useRef<flatpickr.Instance | null>(null);
   const [showBooking, setShowBooking] = useState(false);
@@ -23,57 +21,65 @@ const CheckAvailability = () => {
   const [selectedDiscountCode, setSelectedDiscountCode] = React.useState("")
   const [reponseData, setResponseData] = useState<boolean>(false);
 
-
-
-  useEffect(() => {
-    flatpickr("#check_in", {
-      mode: "single",
-      static: true,
-      monthSelectorType: "static",
-      dateFormat: "Y-m-d",
-      prevArrow:
-        '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
-      nextArrow:
-        '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
-      onChange: (selectedDates) => {
-        const date = selectedDates[0];
-        const dateStr = new Date(date.setHours(14, 0, 0, 0)).toISOString(); // Set time to 14:00
-        setFormData((prevData) => ({
-          ...prevData,
-          check_in: dateStr,
-        }));
-      },
-    });
+  const [chekIn, setChekIn] = React.useState<Dayjs | null>(dayjs());
+  const [chekOut, setChekOut] = React.useState<Dayjs | null>(dayjs());
+  const [formData, setFormData] = useState({
+    check_in: chekIn ? chekIn.toISOString() : "",
+    check_out: chekOut ? chekOut.toISOString() : "",
+    category: "",
+    view: "",
+    discount_code: "",
+  });
+  console.log("formDataformDataformData",formData)
+  // useEffect(() => {
+  //   flatpickr("#check_in", {
+  //     mode: "single",
+  //     static: true,
+  //     monthSelectorType: "static",
+  //     dateFormat: "Y-m-d",
+  //     prevArrow:
+  //       '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
+  //     nextArrow:
+  //       '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
+  //     onChange: (selectedDates) => {
+  //       const date = selectedDates[0];
+  //       const dateStr = new Date(date.setHours(14, 0, 0, 0)).toISOString(); // Set time to 14:00
+  //       setFormData((prevData) => ({
+  //         ...prevData,
+  //         check_in: dateStr,
+  //       }));
+  //     },
+  //   });
   
-    flatpickr("#check_out", {
-      mode: "single",
-      static: true,
-      monthSelectorType: "static",
-      dateFormat: "Y-m-d",
-      prevArrow:
-        '<svg className="fill-current" width="7" height="11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
-      nextArrow:
-        '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
-      onChange: (selectedDates) => {
-        const date = selectedDates[0];
-        const dateStr = new Date(date.setHours(12, 0, 0, 0)).toISOString(); // Set time to 12:00
-        setFormData((prevData) => ({
-          ...prevData,
-          check_out: dateStr,
-        }));
-      },
-    });
+  //   flatpickr("#check_out", {
+  //     mode: "single",
+  //     static: true,
+  //     monthSelectorType: "static",
+  //     dateFormat: "Y-m-d",
+  //     prevArrow:
+  //       '<svg className="fill-current" width="7" height="11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
+  //     nextArrow:
+  //       '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
+  //     onChange: (selectedDates) => {
+  //       const date = selectedDates[0];
+  //       const dateStr = new Date(date.setHours(12, 0, 0, 0)).toISOString(); // Set time to 12:00
+  //       setFormData((prevData) => ({
+  //         ...prevData,
+  //         check_out: dateStr,
+  //       }));
+  //     },
+  //   });
   
-    // Cleanup flatpickr instances on unmount
-    return () => {
-      if (startDate.current) {
-        startDate.current.destroy();
-      }
-      if (endDate.current) {
-        endDate.current.destroy();
-      }
-    };
-  }, []);
+  //   // Cleanup flatpickr instances on unmount
+  //   return () => {
+  //     if (startDate.current) {
+  //       startDate.current.destroy();
+  //     }
+  //     if (endDate.current) {
+  //       endDate.current.destroy();
+  //     }
+  //   };
+  // }, []);
   
 
   
@@ -167,17 +173,16 @@ const CheckAvailability = () => {
                   Check In
                 </label>
                 <div className="relative">
-                  <input
-                    type="text"
-                    id="check_in"
-                    name="check_in"
-                    value={timestampToDate(formData.check_in)}
-                    onChange={handleChange}
-                    className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-2 py-3 font-normal text-black text-xs outline-none transition focus:border-primary active:border-primary"
-                    placeholder="DD/MM/YYYY"
-                    required
-                    data-class="flatpickr-right"
-                  />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                    <DateTimePicker
+                      label="Check In"
+                      value={chekIn}
+                      onChange={(newValue) => setChekIn(newValue)}
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
+                  
                   <div className="pointer-events-none absolute inset-0 left-auto right-2 flex items-center">
                     <svg
                       width="10"
@@ -200,17 +205,15 @@ const CheckAvailability = () => {
                   Check Out
                 </label>
                 <div className="relative">
-                  <input
-                    type="text"
-                    id="check_out"
-                    name="check_out"
-                    value={timestampToDate(formData.check_out)}
-                    onChange={handleChange}
-                    className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-2 text-xs py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
-                    placeholder="DD/MM/YYYY"
-                    required
-                    data-class="flatpickr-right"
-                  />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                    <DateTimePicker
+                      label="Check Out"
+                      value={chekOut}
+                      onChange={(newValue) => setChekOut(newValue)}
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
                   <div className="pointer-events-none absolute inset-0 left-auto right-2 flex items-center">
                     <svg
                       width="10"
@@ -249,7 +252,7 @@ const CheckAvailability = () => {
               </div>
 
               <div className="w-full xl:w-1/6">
-                <label className="mb-3 block text-sm font-medium text-black">
+                <label className="mb-3 mt- block text-sm font-medium text-black">
                   Room View
                 </label>
                 <select
