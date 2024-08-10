@@ -104,8 +104,8 @@ const Home: React.FC = () => {
       console.log("response",roomsData?.rooms )
       console.log("response?.data?.rooms",response?.data?.rooms )
       
-      const transformedArray = await transformBookingData(response?.data?.bookings);
-
+      const transformedArray = await transformBookingData(response?.data);
+      console.log("transformedArray",response?.data)
       setBookings( bookingsData || []);
       setRooms( roomsData?.rooms || []);
     }catch(err){
@@ -113,6 +113,7 @@ const Home: React.FC = () => {
     }
   }
 
+  
   useEffect(() => {
     fetchBookings()
   }, []);
@@ -301,11 +302,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
-
-
-
-
-
-
-
