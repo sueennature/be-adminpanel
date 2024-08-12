@@ -3,13 +3,13 @@ import UpdateGuest from '@/components/Guest/UpdateGuest'
 import DefaultLayout from '@/components/Layouts/DefaultLayout'
 import React from 'react'
 
-const UpdateGuestPage = () => {
+const UpdateAgentPage = () => {
   return (
     <DefaultLayout>
-    <Breadcrumb pageName={'Guests'} pageNameTwo='Update' firstLink={"/guest"}/>
-      <UpdateGuest/>
+    <Breadcrumb pageName={'Agents'} pageNameTwo='Update' firstLink={"/agent"}/>
+       <UpdateGuest/>
   </DefaultLayout>
   )
 }
 
-export default UpdateGuestPage
+export default UpdateAgentPage
