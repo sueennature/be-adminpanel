@@ -8,7 +8,14 @@ import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 import { useAuthRedirect } from '@/utils/checkToken';
+import Checkbox from '@mui/material/Checkbox';
+import { Dayjs } from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
+const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 interface RoomFormData {
   name: string;
   category: string;
@@ -56,6 +63,8 @@ const UpdateRoom = () => {
   const router = useRouter();
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false); 
+  const [startTime, setStartTime] = React.useState<Dayjs | null>(null);
+  const [endTime, setEndTime] = React.useState<Dayjs | null>(null);
 
   const fileInputRef = useRef<any>(null);
   const handleDeleteImage = async (index: number) => {
@@ -242,7 +251,7 @@ const UpdateRoom = () => {
     
             <div className="w-full xl:w-1/4">
             <label className="mb-3 block text-sm font-medium text-black">
-                Category
+                First Category
                 </label>
                 <select
                   name="category"
@@ -337,6 +346,7 @@ const UpdateRoom = () => {
               />
             </div>
           </div>
+          <p className='mb-3 mt-3 text-xl font-bold'>First Category</p>
           <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -391,6 +401,65 @@ const UpdateRoom = () => {
                 placeholder="Full Board"
                 value={formData.full_board}
                 onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+            </div>
+          </div>
+          <p className='mb-3 mt-3 text-xl font-bold'>Second Category</p>
+          <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Room Only
+              </label>
+              <input
+                type="number"
+                name="room_only"
+                required
+                placeholder="Room Only"
+                value={""}
+                //onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+            </div>
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Bread & Breakfast
+              </label>
+              <input
+                type="number"
+                name="bread_breakfast"
+                required
+                placeholder="Bread & Breakfast"
+                value={""}
+                //onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+            </div>
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Half Board
+              </label>
+              <input
+                type="number"
+                name="half_board"
+                required
+                placeholder="Half Board"
+                value={""}
+                //onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+            </div>
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Full Board
+              </label>
+              <input
+                type="number"
+                name="full_board"
+                required
+                placeholder="Full Board"
+                value={""}
+                //onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
             </div>
@@ -483,6 +552,25 @@ const UpdateRoom = () => {
               />
             </div>
           </div>
+          <label className="mb-3 mt-3 text-xl font-bold">
+            Room Status
+          </label>
+          <div className="flex items-center space-x-4 mb-6">
+            <Checkbox {...label} />
+            <label className="mr-2">Availability</label>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={['DatePicker']}>
+                <DatePicker value={startTime} onChange={(newValue) => setStartTime(newValue)} />
+              </DemoContainer>
+            </LocalizationProvider>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DemoContainer components={['DatePicker']}>
+                <DatePicker value={endTime} onChange={(newValue) => setEndTime(newValue)} />
+              </DemoContainer>
+            </LocalizationProvider>
+          </div>
+
+          
           <div className="mb-4">
             <label className="mb-3 block text-sm font-medium text-black">
               Upload Room Images

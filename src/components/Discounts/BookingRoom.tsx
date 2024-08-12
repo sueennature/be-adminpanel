@@ -85,6 +85,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [partialAmount, setPartialAmount] = useState<number>(0);
   const [requestRoom, setRequestRoom] = useState<any>([]);
   const [activities, setActivities] = useState<any>([]);
+  const [notes, setNotes] = useState<any>("");
+
   const [tax, setTax] = useState<any>([]);
 
   const [rates, setRates] = useState<any>({});
@@ -638,7 +640,22 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
                   {/* Other components here */}
                 </div>
-
+                <div>
+                  <label className="mb-2 block text-xl font-medium text-black">
+                    Room category
+                  </label>
+                  <select
+                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                    onChange={(e) => {
+                      //handleUpdateMealPlan(e, room?.room_id);
+                    }}
+                  >
+                    <option value={""}>Select Category</option>
+                    {Object.entries(responseDatas?.category_counts || {}).map(([roomType, count], key) => (
+                        <option key={key} value={`${roomType}`}>{roomType}</option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="mb-2 block text-xl font-medium text-black">
                     Meal Plan per Room
@@ -1119,6 +1136,20 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                 placeholder="Enter the Address"
                 value={agentInfo.address}
                 onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              ></textarea>
+            </div>
+            <div className="mb-6">
+              <label className="mb-3 block text-xl font-medium text-black">
+                Notes
+              </label>
+              <textarea
+                name="note"
+                rows={6}
+                required
+                placeholder="Notes"
+                value={notes}
+                onChange={(e)=>{setNotes(e.target.value)}}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               ></textarea>
             </div>
