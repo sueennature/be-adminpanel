@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect } from "react";
-import guestData from "../../../components/Datatables/guestsData.json";
 import Image from "next/image";
 import { Edit, Trash, Eye, Plus } from "react-feather";
 import Link from "next/link";
@@ -40,17 +39,32 @@ const ViewAgent = () => {
     const fetchAgents = async () => {
       try {
         const accessToken = Cookies.get("access_token");
-
-        const response = await axios.get(`${process.env.BE_URL}/agents`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": process.env.X_API_KEY,
-          },
-        });
-        console.log(response.data);
-console.log(response.data.length); // Check the number of agents returned
-        setAgents(response.data);
+        const limit = 50; // Number of items per page
+        let skip = 0; // Initial offset
+        let allAgents: AgentData[] = []; // Specify type here
+        let hasMore = true;
+    
+        while (hasMore) {
+          const response = await axios.get<AgentData[]>(`${process.env.BE_URL}/agents`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+              "x-api-key": process.env.X_API_KEY,
+            },
+            params: {
+              skip,
+              limit,
+            },
+          });
+    
+          const data = response.data;
+          allAgents = [...allAgents, ...data];
+          skip += limit; // Move to the next page
+          hasMore = data.length === limit; // Continue if there are more items
+        }
+    
+        console.log(allAgents);
+        setAgents(allAgents);
         setLoading(false);
       } catch (err) {
         setLoading(false);
