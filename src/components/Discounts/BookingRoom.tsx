@@ -107,7 +107,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [dob, setDob] = React.useState<any>();
   const [issueDate, setIssueDate] = React.useState<any>();
   const [additionalServicesByRoom, setAdditionalServicesByRoom] = useState<{[key: string]: any[]}>({});
-  //console.log("additionalServicesByRoomadditionalServicesByRoom",additionalServicesByRoom)
+  console.log("additionalServicesByRoomadditionalServicesByRoom",additionalServicesByRoom)
 
   const [agentInfo, setAgentInfo] = useState<AgentInfo>({
     firstName: '',
@@ -132,7 +132,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     issueDate: ''
   });
 
-  // console.log("responseDatasresponseDatasresponseDatasresponseDatas", responseDatas)
+  console.log("responseDatasresponseDatasresponseDatasresponseDatas", responseDatas)
   
   const handleCheckboxChangeTax = (taxId: number) => {
     setSelectedTaxes((prevSelected) => {
@@ -354,7 +354,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     setRequestRoom(arr)
   }
 
-  // console.log("additionalServicesByRoom?.[val?.id]",additionalServicesByRoom?.[30])
+  console.log("additionalServicesByRoom?.[val?.id]",additionalServicesByRoom?.[30])
 
   const getrates = async () => {
     try {
@@ -377,7 +377,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         "discount_code": discountCode || "",
       
       }
-      // console.log("getrates", requestBody)
+      console.log("getrates", requestBody)
       const accessToken = await Cookies.get("access_token");
       const response = await axios.post(`${process.env.BE_URL}/rooms/get-rates/`, requestBody, {
         headers: {
@@ -398,7 +398,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     const date = new Date(Date.UTC(year, month - 1, day, 6, 30, 0, 0));
     return date.toISOString();
   }
-
+//df
   const handelProceedToPay = async () => {
     try {
       // let temp_rooms = requestRoom;
