@@ -29,7 +29,7 @@ const CheckAvailability = () => {
   });
   console.log("formDataformDataformData",formData)
 
-  
+  //ddd
 
   
  const handleBooking = async () => {
