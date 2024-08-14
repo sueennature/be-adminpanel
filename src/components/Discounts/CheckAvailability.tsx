@@ -10,10 +10,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs, { Dayjs } from 'dayjs';
 
-import {timestampToDate} from "../../utils/util"
 const CheckAvailability = () => {
-  const startDate = useRef<flatpickr.Instance | null>(null);
-  const endDate = useRef<flatpickr.Instance | null>(null);
   const [showBooking, setShowBooking] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState("")
   const [selectedCheckIn, setSelectedCheckIn] = React.useState("")
@@ -26,73 +23,20 @@ const CheckAvailability = () => {
   const [formData, setFormData] = useState({
     check_in: chekIn ? chekIn.toISOString() : "",
     check_out: chekOut ? chekOut.toISOString() : "",
-    category: "",
-    view: "",
+    categories: "",
+    views: "",
     discount_code: "",
   });
   console.log("formDataformDataformData",formData)
-  // useEffect(() => {
-  //   flatpickr("#check_in", {
-  //     mode: "single",
-  //     static: true,
-  //     monthSelectorType: "static",
-  //     dateFormat: "Y-m-d",
-  //     prevArrow:
-  //       '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
-  //     nextArrow:
-  //       '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
-  //     onChange: (selectedDates) => {
-  //       const date = selectedDates[0];
-  //       const dateStr = new Date(date.setHours(14, 0, 0, 0)).toISOString(); // Set time to 14:00
-  //       setFormData((prevData) => ({
-  //         ...prevData,
-  //         check_in: dateStr,
-  //       }));
-  //     },
-  //   });
-  
-  //   flatpickr("#check_out", {
-  //     mode: "single",
-  //     static: true,
-  //     monthSelectorType: "static",
-  //     dateFormat: "Y-m-d",
-  //     prevArrow:
-  //       '<svg className="fill-current" width="7" height="11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
-  //     nextArrow:
-  //       '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
-  //     onChange: (selectedDates) => {
-  //       const date = selectedDates[0];
-  //       const dateStr = new Date(date.setHours(12, 0, 0, 0)).toISOString(); // Set time to 12:00
-  //       setFormData((prevData) => ({
-  //         ...prevData,
-  //         check_out: dateStr,
-  //       }));
-  //     },
-  //   });
-  
-  //   // Cleanup flatpickr instances on unmount
-  //   return () => {
-  //     if (startDate.current) {
-  //       startDate.current.destroy();
-  //     }
-  //     if (endDate.current) {
-  //       endDate.current.destroy();
-  //     }
-  //   };
-  // }, []);
+
   
 
   
  const handleBooking = async () => {
     try {
       const accessToken = Cookies.get("access_token");
-  
-      // Convert formData to query parameters
       const queryParams = new URLSearchParams(formData).toString();
-  
-      // Construct the URL with query parameters
       const url = `${process.env.BE_URL}/rooms/availability/?${queryParams}`;
-  
       const response = await axios.get(url, {
         headers: {
           'Authorization': `Bearer ${accessToken}`, 
@@ -100,7 +44,7 @@ const CheckAvailability = () => {
         }
       });
   
-      setSelectedRoom(formData.category)
+      setSelectedRoom(formData.categories)
       setSelectedCheckIn(formData.check_in)
       setSelectedCheckOut(formData.check_out)
       setSelectedDiscountCode(formData.discount_code)
@@ -112,47 +56,13 @@ const CheckAvailability = () => {
     }
   };
 
-// const handleBooking = async () => {
-//   try {
-//     const accessToken = Cookies.get("access_token");
-//     console.log("Access Token:", accessToken);
-//     console.log("Backend URL:", process.env.BE_URL);
-//     console.log("Form Data:", formData);
-
-//     const response = await axios.post(`${process.env.BE_URL}/rooms/availability`, formData, {
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'Authorization': `Bearer ${accessToken}`, 
-//         "x-api-key": process.env.X_API_KEY,
-//       }
-//     });
-
-//     console.log("Response Data:", response.data);
-//     setShowBooking(true);
-//   } catch (error) {
-//     console.log("Error checking availability:", error.response || error.message);
-//   }
-// };
-
-  // const handleBooking = async (e:any) => {
-  //   e.preventDefault();
-  //   console.log(formData);
-  //   const response = await fetch("/api/checkroom", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify(formData),
-  //   });
-
-  // console.log(response)
-  // };
   const handleGoBack = () => {
     setShowBooking(false);
   };
 
   const handleChange = (e:any) => {
     const { name, value } = e.target;
+    console.log("name, value",name, value)
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -176,6 +86,7 @@ const CheckAvailability = () => {
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
                     <DateTimePicker
+                        
                       label="Check In"
                       value={chekIn}
                       onChange={(newValue) => setChekIn(newValue)}
@@ -236,8 +147,8 @@ const CheckAvailability = () => {
                   Room Type
                 </label>
                 <select
-                  name="category"
-                  value={formData.category}
+                  name="categories"
+                  value={formData.categories}
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-2 text-xs py-3 text-black outline-none transition focus:border-primary active:border-primary"
                   required
@@ -256,8 +167,8 @@ const CheckAvailability = () => {
                   Room View
                 </label>
                 <select
-                  name="view"
-                  value={formData.view}
+                  name="views"
+                  value={formData.views}
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-2 text-xs py-3 text-black outline-none transition focus:border-primary active:border-primary"
                   required

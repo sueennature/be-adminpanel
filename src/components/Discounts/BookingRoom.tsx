@@ -71,27 +71,43 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     { title: 'laundry', year: 1957 },
   ];
 
+  interface Discount {
+    name: string;
+    description: string;
+    percentage: number;
+    start_date: string;
+    end_date: string;
+    discount_code: string;
+    id: number;
+  }
+  interface Tax {
+    name: string;
+    description: string;
+    percentage: number;
+    tax_type: string;
+    id: number;
+  }
   const dobRef = useRef<flatpickr.Instance | null>(null);
   const issueDateRef = useRef<flatpickr.Instance | null>(null);
   const [numRooms, setNumRooms] = useState<number>(0);
   const [childrenPerRoom, setChildrenPerRoom] = useState<number[]>([]);
   const [childrenAgesPerRoom, setChildrenAgesPerRoom] = useState<number[][]>([],);
-  const [mealPlanCosts, setMealPlanCosts] = useState(new Array(responseDatas?.rooms?.length).fill(0));
   const [infantsPerRoom, setInfantsPerRoom] = useState<number[]>([]);
   const [infantAgesPerRoom, setInfantAgesPerRoom] = useState<number[][]>([]);
-
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [partialAmount, setPartialAmount] = useState<number>(0);
   const [requestRoom, setRequestRoom] = useState<any>([]);
+  const [aditionalService, setAditionalService] = useState<any>([]);
   const [activities, setActivities] = useState<any>([]);
   const [notes, setNotes] = useState<any>("");
-
-  const [tax, setTax] = useState<any>([]);
-
+  const [selectedDiscounts, setSelectedDiscounts] = useState<number[]>([]);
+  const [selectedTaxes, setSelectedTaxes] = useState<number[]>([]);
   const [rates, setRates] = useState<any>({});
   const [dob, setDob] = React.useState<any>();
   const [issueDate, setIssueDate] = React.useState<any>();
+  const [additionalServicesByRoom, setAdditionalServicesByRoom] = useState<{[key: string]: any[]}>({});
+  //console.log("additionalServicesByRoomadditionalServicesByRoom",additionalServicesByRoom)
 
   const [agentInfo, setAgentInfo] = useState<AgentInfo>({
     firstName: '',
@@ -116,9 +132,27 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     issueDate: ''
   });
 
-  console.log("responseDatasresponseDatasresponseDatasresponseDatas", responseDatas)
-  console.log("requestRoomrequestRoomrequestRoom", requestRoom)
-  console.log("requestRoom?.find((r:any)=> r.room_id == 23)",requestRoom?.find((r:any)=> r.room_id == 23)?.meal_plan == 23 )
+  // console.log("responseDatasresponseDatasresponseDatasresponseDatas", responseDatas)
+  
+  const handleCheckboxChangeTax = (taxId: number) => {
+    setSelectedTaxes((prevSelected) => {
+      if (prevSelected.includes(taxId)) {
+        return prevSelected.filter((id) => id !== taxId);
+      } else {
+        return [...prevSelected, taxId];
+      }
+    });
+  };
+
+ const handleCheckboxChangeDiscount = (discountId: number) => {
+    setSelectedDiscounts((prevSelected) => {
+      if (prevSelected.includes(discountId)) {
+        return prevSelected.filter((id) => id !== discountId);
+      } else {
+        return [...prevSelected, discountId];
+      }
+    });
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -162,21 +196,6 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     }
   };
 
-  const handleSelectTax = (data: any) => {
-    try {
-      let temp = [...tax];
-      let find = temp?.find((obj) => obj?.id === data?.id);
-      if (!find) {
-        setTax((prev: any) => [...prev, data]);
-      } else {
-        setTax((prev: any) => prev?.filter((obj: any) => obj?.id !== data?.id));
-      }
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const handleUpdateMealPlan = (event: any, id: any) => {
     try {
       const val = event.target.value
@@ -184,6 +203,34 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       setRequestRoom((prev: any) =>
         prev?.map((item: any) =>
           item?.room_id === id ? { ...item, meal_plan: val } : item
+        )
+      );
+    } catch (err) {
+      console.log(err)
+    }
+  }
+  const handleUpdateStartWithMeal = (event: any, id: any) => {
+    try {
+      const val = event.target.value
+
+      setRequestRoom((prev: any) =>
+        prev?.map((item: any) =>
+          item?.room_id === id ? { ...item, starting_meals_with: val } : item
+        )
+      );
+    } catch (err) {
+      console.log(err)
+    }
+  }
+  
+
+  const handleUpdateCatogory = (event: any, id: any) => {
+    try {
+      const val = event.target.value
+
+      setRequestRoom((prev: any) =>
+        prev?.map((item: any) =>
+          item?.room_id === id ? { ...item, category: val } : item
         )
       );
     } catch (err) {
@@ -257,10 +304,38 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  // const handleAddAdditionalServise = (room_id:any, event: any, value: any[]) => {
+  //   let arr: any = []
+  //   value?.map((val: any) => {
+  //     let temp = {
+  //       "additional_service_id": val?.id,
+  //       "additional_service_name": val?.name,
+  //       "additional_service_price": val?.price,
+  //     }
+  //     arr.push(temp);
+  //   })
+  //   setAditionalService(arr)
+  // }
+
+  const handleAddAdditionalServise = (room_id: any, event: any, value: any[]) => {
+    let arr: any[] = value?.map((val: any) => ({
+      "additional_service_id": val?.id,
+      "additional_service_name": val?.name,
+      "additional_service_price": val?.price,
+    }));
+  
+    // Create a new object with updated services for the specific room_id
+    setAdditionalServicesByRoom(prev => ({
+      ...prev,
+      [room_id]: arr,  // update the array for the given room_id
+    }));
+  };
+
   const handleAddRoom = (event: any, value: any[]) => {
     let arr: any = []
-    console.log("valuevalue", value)
+    
     value?.map((val: any) => {
+      
       let temp = {
         "room_id": val?.id,
         "room_number": val?.room_number,
@@ -271,15 +346,21 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         "infants": [],
         "meal_plan": "",
         "max_adults": val?.max_adults,
-        "max_childs": val?.max_childs
+        "max_childs": val?.max_childs,
+        "additional_services": additionalServicesByRoom?.[val?.id] || []
       }
       arr.push(temp);
     })
     setRequestRoom(arr)
   }
 
+  // console.log("additionalServicesByRoom?.[val?.id]",additionalServicesByRoom?.[30])
+
   const getrates = async () => {
     try {
+      const selectedDiscountsArray = selectedDiscounts.map((id) => ({ discount_id: id }));
+      const selectedTaxesArray = selectedTaxes.map((id) => ({ tax_id: id }));
+
       const requestBody = {
         "check_in": checkIN,
         "check_out": checkOut,
@@ -291,11 +372,12 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           meal_plan: room.meal_plan
         })),
         "activities": await activities?.map((activity: any) => ({ activity_id: activity?.id })),
-        "taxes": await responseDatas?.taxes?.map((tax: any) => ({ tax_id: tax?.id })),
-        "discounts": await responseDatas?.discounts?.map((discount: any) => ({ discount_id: discount?.id })),
-        "discount_code": discountCode || ""
+        "taxes": selectedTaxesArray,
+        "discounts": selectedDiscountsArray,
+        "discount_code": discountCode || "",
+      
       }
-      console.log("getrates", requestBody)
+      // console.log("getrates", requestBody)
       const accessToken = await Cookies.get("access_token");
       const response = await axios.post(`${process.env.BE_URL}/rooms/get-rates/`, requestBody, {
         headers: {
@@ -305,7 +387,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         },
       });
       setRates(response?.data || {})
-      console.log("gettrace", response)
+      // console.log("gettrace", response)
 
     } catch (err) {
       console.log(err)
@@ -319,6 +401,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
   const handelProceedToPay = async () => {
     try {
+      // let temp_rooms = requestRoom;
+      // temp_rooms?.map((RR:any)=>{
+        
+      // })
       const requestBody = {
         "check_in": checkIN,
         "check_out": checkOut,
@@ -357,6 +443,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         "total_rooms_charge": rates?.total_rooms_amount,
         "total_activities_charge": rates?.total_activities_amount,
         "total_discount_amount": rates?.total_discount_amount,
+        "booking_note": notes,
+        "total_additional_services_amount": await aditionalService?.reduce((sum:any, service:any) => sum + service.additional_service_price, 0)
       }
       const accessToken = Cookies.get("access_token");
       const response = await axios.post(`${process.env.BE_URL}/bookings/internal`, requestBody, {
@@ -442,7 +530,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
   useEffect(() => {
     getrates()
-  }, [partialAmount, activities, checkIN, checkOut, requestRoom]);
+  }, [partialAmount, activities, checkIN, checkOut, requestRoom, selectedDiscounts, selectedTaxes]);
 
 
 
@@ -465,7 +553,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                 className="flex w-full items-center justify-between p-3 lg:flex-row"
               >
                 <Checkbox
-                  disabled
+                  checked={selectedDiscounts.includes(discount.id)}
+                  onChange={() => handleCheckboxChangeDiscount(discount.id)}
                   {...label}
                 />
                 <div>
@@ -556,7 +645,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   return (
                     <ListItem key={key}>
                       <ListItemIcon>
-                        <Checkbox {...label}  disabled/>
+                        <Checkbox 
+                        checked={selectedTaxes.includes(data.id)}
+                        onChange={() => handleCheckboxChangeTax(data.id)}
+                        {...label}  />
                       </ListItemIcon>
                       <ListItemText id={labelId} primary={data.name || ""} />
                     </ListItem>
@@ -647,7 +739,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   <select
                     className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                     onChange={(e) => {
-                      //handleUpdateMealPlan(e, room?.room_id);
+                      handleUpdateCatogory(e, room?.room_id);
                     }}
                   >
                     <option value={""}>Select Category</option>
@@ -682,7 +774,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   <select
                     className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                     onChange={(e) => {
-                      //handleUpdateMealPlan(e, room?.room_id);
+                      handleUpdateStartWithMeal(e, room?.room_id);
                     }}
                   >
                     <option value={""}>Select the meal</option>
@@ -702,9 +794,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                       style={{width: 200}}
                       multiple
                       id="tags-outlined"
-                      options={top100Films}
-                      getOptionLabel={(option) => option.title}
+                      options={responseDatas?.additional_services || []}
+                      getOptionLabel={(option:any) => option?.name}
                       filterSelectedOptions
+                      onChange={(event, value) => handleAddAdditionalServise (room?.room_id, event, value)}
                       renderInput={(params) => (
                         <TextField
                           {...params}
