@@ -651,6 +651,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             ))}
           </div>
 
+
           <div className="mb-12 mt-1 w-full rounded-md p-3 shadow-md shadow-black/50 lg:w-[48%]">
             <h4 className="ml-3 text-xl font-bold text-black">Do you want to modify the Taxes  <Checkbox checked={mofifyTaxes} onChange={()=>setMofifyTaxes((prev:boolean) => !prev)}  {...label}  /></h4>
             <div className="flex w-full items-center justify-between p-3 lg:flex-row">
