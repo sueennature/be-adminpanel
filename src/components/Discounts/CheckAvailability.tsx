@@ -27,11 +27,7 @@ const CheckAvailability = () => {
     views: "",
     discount_code: "",
   });
-  console.log("formDataformDataformData",formData)
 
-  //ddd
-
-  
  const handleBooking = async () => {
     try {
       const accessToken = Cookies.get("access_token");
@@ -49,7 +45,6 @@ const CheckAvailability = () => {
       setSelectedCheckOut(formData.check_out)
       setSelectedDiscountCode(formData.discount_code)
       setResponseData(response.data)
-      console.log(response.data);
       setShowBooking(true);
     } catch (error) {
       console.log("Error checking availability:", error);
@@ -62,7 +57,6 @@ const CheckAvailability = () => {
 
   const handleChange = (e:any) => {
     const { name, value } = e.target;
-    console.log("name, value",name, value)
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -84,10 +78,23 @@ const CheckAvailability = () => {
                 </label>
                 <div className="relative">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                  <DemoContainer 
+                    sx={{
+                      overflow: 'hidden', // Prevent any overflow in the container
+                    }} 
+                    components={['DateTimePicker', 'DateTimePicker']}>
                     <DateTimePicker
-                        
-                      label="Check In"
+                      sx={{
+                        width: '200px', // Adjust width
+                        '& .MuiInputBase-root': {
+                          height: '40px', // Adjust height
+                          minHeight: 'unset', // Remove minimum height restriction
+                        },
+                        '& .MuiSvgIcon-root': {
+                          fontSize: '1rem', // Adjust icon size if needed
+                        },
+                      }}
+                     
                       value={chekIn}
                       onChange={(newValue) => setChekIn(newValue)}
                     />
@@ -117,9 +124,22 @@ const CheckAvailability = () => {
                 </label>
                 <div className="relative">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
+                  <DemoContainer sx={{
+                      overflow: 'hidden', // Prevent any overflow in the container
+                    }} 
+                    components={['DateTimePicker', 'DateTimePicker']}>
                     <DateTimePicker
-                      label="Check Out"
+                       sx={{
+                        width: '200px', // Adjust width
+                        '& .MuiInputBase-root': {
+                          height: '40px', // Adjust height
+                          minHeight: 'unset', // Remove minimum height restriction
+                        },
+                        '& .MuiSvgIcon-root': {
+                          fontSize: '1rem', // Adjust icon size if needed
+                        },
+                      }}
+                     
                       value={chekOut}
                       onChange={(newValue) => setChekOut(newValue)}
                     />
