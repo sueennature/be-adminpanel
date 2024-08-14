@@ -87,6 +87,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     tax_type: string;
     id: number;
   }
+  interface Room {
+    room_id: string; // Example property, adjust based on actual properties
+    // add other properties as needed
+    additional_services?: any[]; // Adjust the type of additional_services as needed
+  }
   const dobRef = useRef<flatpickr.Instance | null>(null);
   const issueDateRef = useRef<flatpickr.Instance | null>(null);
   const [numRooms, setNumRooms] = useState<number>(0);
@@ -107,7 +112,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [dob, setDob] = React.useState<any>();
   const [issueDate, setIssueDate] = React.useState<any>();
   const [additionalServicesByRoom, setAdditionalServicesByRoom] = useState<{[key: string]: any[]}>({});
-  console.log("additionalServicesByRoomadditionalServicesByRoom",additionalServicesByRoom)
+  const [mofifyDiscount, setMofifyDiscount] = useState<boolean>(false);
+  const [mofifyTaxes, setMofifyTaxes] = useState<boolean>(false);
 
   const [agentInfo, setAgentInfo] = useState<AgentInfo>({
     firstName: '',
@@ -132,8 +138,21 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     issueDate: ''
   });
 
-  console.log("responseDatasresponseDatasresponseDatasresponseDatas", responseDatas)
+  // function getMinimumTax(taxes) {
+  //   if (taxes.length === 0) {
+  //     return null;
+  //   }
   
+  //   let minTax = taxes[0];
+  
+  //   for (let i = 1; i < taxes.length; i++) {
+  //     if (taxes[i].percentage < minTax.percentage) {
+  //       minTax = taxes[i];
+  //     }
+  //   }
+  
+  //   return minTax;
+  // }
   const handleCheckboxChangeTax = (taxId: number) => {
     setSelectedTaxes((prevSelected) => {
       if (prevSelected.includes(taxId)) {
@@ -354,13 +373,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     setRequestRoom(arr)
   }
 
-  console.log("additionalServicesByRoom?.[val?.id]",additionalServicesByRoom?.[30])
 
   const getrates = async () => {
     try {
       const selectedDiscountsArray = selectedDiscounts.map((id) => ({ discount_id: id }));
       const selectedTaxesArray = selectedTaxes.map((id) => ({ tax_id: id }));
-
       const requestBody = {
         "check_in": checkIN,
         "check_out": checkOut,
@@ -369,15 +386,15 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           adults: room.adults,
           children: room.child,
           infants: room.infants,
-          meal_plan: room.meal_plan
+          meal_plan: room.meal_plan,
+          additional_services : additionalServicesByRoom?.[room?.room_id]?.map(service => service.additional_service_id) || []
         })),
         "activities": await activities?.map((activity: any) => ({ activity_id: activity?.id })),
         "taxes": selectedTaxesArray,
         "discounts": selectedDiscountsArray,
         "discount_code": discountCode || "",
-      
       }
-      console.log("getrates", requestBody)
+
       const accessToken = await Cookies.get("access_token");
       const response = await axios.post(`${process.env.BE_URL}/rooms/get-rates/`, requestBody, {
         headers: {
@@ -387,8 +404,6 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         },
       });
       setRates(response?.data || {})
-      // console.log("gettrace", response)
-
     } catch (err) {
       console.log(err)
     }
@@ -401,10 +416,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 //df
   const handelProceedToPay = async () => {
     try {
-      // let temp_rooms = requestRoom;
-      // temp_rooms?.map((RR:any)=>{
-        
-      // })
+      let rooms: Room[] = [];
+      await requestRoom.map((room : any) => (
+        rooms.push({...room, additional_services:additionalServicesByRoom?.[room?.room_id] || []})
+      ))
       const requestBody = {
         "check_in": checkIN,
         "check_out": checkOut,
@@ -429,7 +444,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           "dob": convertDateToISOString(dob),
           "gender": guestInfo?.gender,
         },
-        "rooms": requestRoom || [],
+        "rooms": rooms || [],
         "activities": convertActivities(activities || []) || [],
         "agent_info": {
           "first_name": agentInfo?.firstName || "",
@@ -444,7 +459,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         "total_activities_charge": rates?.total_activities_amount,
         "total_discount_amount": rates?.total_discount_amount,
         "booking_note": notes,
-        "total_additional_services_amount": await aditionalService?.reduce((sum:any, service:any) => sum + service.additional_service_price, 0)
+        "total_additional_services_amount": rates?.total_additional_services_amount
       }
       const accessToken = Cookies.get("access_token");
       const response = await axios.post(`${process.env.BE_URL}/bookings/internal`, requestBody, {
@@ -530,7 +545,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
   useEffect(() => {
     getrates()
-  }, [partialAmount, activities, checkIN, checkOut, requestRoom, selectedDiscounts, selectedTaxes]);
+  }, [additionalServicesByRoom, partialAmount, activities, checkIN, checkOut, requestRoom, selectedDiscounts, selectedTaxes]);
 
 
 
@@ -546,7 +561,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         {/* Meal Plan Info and Discount */}
         <div className="flex flex-col items-start justify-center gap-4 lg:flex-row">
           <div className=" mb-12 w-full rounded-md bg-slate-300 p-3 shadow-md shadow-black/50 lg:w-[50%]">
-            <h4 className="ml-3 text-xl font-bold text-black">Discounts</h4>
+            <h4 className="ml-3 text-xl font-bold text-black">Do you want to modify the discount <Checkbox checked={mofifyDiscount} onChange={()=>setMofifyDiscount((prev:boolean) => !prev)} {...label} /></h4>
             {responseDatas?.discounts?.map((discount: any, index: any) => (
               <div
                 key={index}
@@ -637,7 +652,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           </div>
 
           <div className="mb-12 mt-1 w-full rounded-md p-3 shadow-md shadow-black/50 lg:w-[48%]">
-            <h4 className="ml-3 text-xl font-bold text-black">Taxes</h4>
+            <h4 className="ml-3 text-xl font-bold text-black">Do you want to modify the Taxes  <Checkbox checked={mofifyTaxes} onChange={()=>setMofifyTaxes((prev:boolean) => !prev)}  {...label}  /></h4>
             <div className="flex w-full items-center justify-between p-3 lg:flex-row">
               <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
                 {responseDatas?.taxes?.map((data: any, key: any) => {
@@ -650,7 +665,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                         onChange={() => handleCheckboxChangeTax(data.id)}
                         {...label}  />
                       </ListItemIcon>
-                      <ListItemText id={labelId} primary={data.name || ""} />
+                      <ListItemText id={labelId} primary={`${data.name} - ${data?.percentage}%` || ""} />
                     </ListItem>
                   );
                 })}
@@ -1345,6 +1360,13 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           <div className="text-[20px] text-black ">Total Tax Amount</div>
           <div className="font-bold text-black">
             Rs {rates?.total_tax_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
+          </div>
+        </div>
+
+        <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
+          <div className="text-[20px] text-black ">Total Additional Services Amount</div>
+          <div className="font-bold text-black">
+            Rs {rates?.total_additional_services_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
           </div>
         </div>
         {/* {taxes.map((tax: any) => (
