@@ -89,16 +89,39 @@ const UpdateRoom = () => {
   const [startTime, setStartTime] = React.useState<Dayjs | null>(null);
   const [endTime, setEndTime] = React.useState<Dayjs | null>(null);
 
-  const handleStatusChange = (
+  const handleStatusChange = async(
     event: ChangeEvent<{}> | null,
     status: boolean,
   ) => {
-    // Handle the status update
+    if (formData.status && !status) {
+      // Show confirmation dialog when changing from "Available" to "Out-of-Service"
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "Changing the status to Out-of-Service will require you to set a start and end date.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, change status",
+        cancelButtonText: "Cancel",
+      });
+      if (result.isConfirmed) {
+        // User confirmed the change, update the status
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          status: status,
+        }));
+      } else {
+        // User cancelled the change, do nothing
+        return;
+      }
+    } else {
     setFormData((prevFormData) => ({
       ...prevFormData,
       status: status,
     }));
-  };
+  }
+};
 
   const fileInputRef = useRef<any>(null);
   const handleDeleteImage = async (index: number) => {
@@ -236,10 +259,16 @@ const UpdateRoom = () => {
     try {
       const base64Images = await convertImagesToBase64(formData.images);
       const { images, ...roomData } = formData;
+      // Add start and end dates to the form data
+      const formattedStartTime = startTime ? startTime.format("YYYY-MM-DD") : "";
+      const formattedEndTime = endTime ? endTime.format("YYYY-MM-DD") : "";
+
 
       const processedFormData = {
         ...formData,
         images: base64Images,
+        out_of_service_start: formattedStartTime,
+        out_of_service_end: formattedEndTime,
       };
 
       const response = await fetch("/api/room/update", {
