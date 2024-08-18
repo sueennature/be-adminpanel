@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-// import CreateGuestBooking from "./CreateGuestBooking";
 import flatpickr from "flatpickr";
 import { countries } from "../../utils/contries";
 import { toast } from "react-toastify";
@@ -13,13 +12,9 @@ import Stack from '@mui/material/Stack';
 import { timestampToDate } from "../../utils/util"
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import CommentIcon from '@mui/icons-material/Comment';
-
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 interface AgentInfo {
   firstName: string;
@@ -88,30 +83,35 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     id: number;
   }
   interface Room {
-    room_id: string; // Example property, adjust based on actual properties
-    // add other properties as needed
-    additional_services?: any[]; // Adjust the type of additional_services as needed
+    room_id: string;
+    additional_services?: any[];
   }
+
+  function getLeastPercentageDiscountId(discounts: any) {
+    let minDiscount = discounts.reduce((min: any, discount: any) => {
+      return discount.percentage < min.percentage ? discount : min;
+    });
+    return minDiscount.id;
+  }
+  
+  const leastDiscountId = getLeastPercentageDiscountId(responseDatas?.discounts || []);
+
+  console.log("responseDatasresponseDatas", responseDatas)
+  const taxesIds = responseDatas?.taxes?.map((item: any) => item.id)
   const dobRef = useRef<flatpickr.Instance | null>(null);
   const issueDateRef = useRef<flatpickr.Instance | null>(null);
-  const [numRooms, setNumRooms] = useState<number>(0);
-  const [childrenPerRoom, setChildrenPerRoom] = useState<number[]>([]);
-  const [childrenAgesPerRoom, setChildrenAgesPerRoom] = useState<number[][]>([],);
-  const [infantsPerRoom, setInfantsPerRoom] = useState<number[]>([]);
-  const [infantAgesPerRoom, setInfantAgesPerRoom] = useState<number[][]>([]);
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [partialAmount, setPartialAmount] = useState<number>(0);
   const [requestRoom, setRequestRoom] = useState<any>([]);
-  const [aditionalService, setAditionalService] = useState<any>([]);
   const [activities, setActivities] = useState<any>([]);
   const [notes, setNotes] = useState<any>("");
-  const [selectedDiscounts, setSelectedDiscounts] = useState<number[]>([]);
-  const [selectedTaxes, setSelectedTaxes] = useState<number[]>([]);
+  const [selectedDiscounts, setSelectedDiscounts] = useState<number[]>([leastDiscountId || null]);
+  const [selectedTaxes, setSelectedTaxes] = useState<number[]>([...taxesIds || []]);
   const [rates, setRates] = useState<any>({});
   const [dob, setDob] = React.useState<any>();
   const [issueDate, setIssueDate] = React.useState<any>();
-  const [additionalServicesByRoom, setAdditionalServicesByRoom] = useState<{[key: string]: any[]}>({});
+  const [additionalServicesByRoom, setAdditionalServicesByRoom] = useState<{ [key: string]: any[] }>({});
   const [mofifyDiscount, setMofifyDiscount] = useState<boolean>(false);
   const [mofifyTaxes, setMofifyTaxes] = useState<boolean>(false);
 
@@ -138,21 +138,24 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     issueDate: ''
   });
 
-  // function getMinimumTax(taxes) {
-  //   if (taxes.length === 0) {
-  //     return null;
-  //   }
-  
-  //   let minTax = taxes[0];
-  
-  //   for (let i = 1; i < taxes.length; i++) {
-  //     if (taxes[i].percentage < minTax.percentage) {
-  //       minTax = taxes[i];
-  //     }
-  //   }
-  
-  //   return minTax;
-  // }
+  const handleCheckTaxes = () => {
+    try {
+      setMofifyTaxes((prev: boolean) => !prev);
+      mofifyTaxes ? setSelectedTaxes([...taxesIds || []]) : setSelectedTaxes([])
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleCheckDiscount = () => {
+    try {
+      setMofifyDiscount((prev: boolean) => !prev);
+      mofifyDiscount ? setSelectedDiscounts([leastDiscountId || null]) : setSelectedDiscounts([])
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   const handleCheckboxChangeTax = (taxId: number) => {
     setSelectedTaxes((prevSelected) => {
       if (prevSelected.includes(taxId)) {
@@ -163,7 +166,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     });
   };
 
- const handleCheckboxChangeDiscount = (discountId: number) => {
+  const handleCheckboxChangeDiscount = (discountId: number) => {
     setSelectedDiscounts((prevSelected) => {
       if (prevSelected.includes(discountId)) {
         return prevSelected.filter((id) => id !== discountId);
@@ -241,7 +244,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       console.log(err)
     }
   }
-  
+
 
   const handleUpdateCatogory = (event: any, id: any) => {
     try {
@@ -297,44 +300,53 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     }
   }
 
-
-  const handleChildAgeChange = (
-    roomIndex: number,
-    childIndex: number,
-    value: number,
-  ) => {
-    const updatedAges = [...childrenAgesPerRoom];
-    updatedAges[roomIndex][childIndex] = value;
-    setChildrenAgesPerRoom(updatedAges);
-  };
-
-  const handleInfantAgeChange = (
-    roomIndex: number,
-    infantIndex: number,
-    value: number,
-  ) => {
-    const updatedAges = [...infantAgesPerRoom];
-    updatedAges[roomIndex][infantIndex] = value;
-    setInfantAgesPerRoom(updatedAges);
-  };
-
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  // const handleAddAdditionalServise = (room_id:any, event: any, value: any[]) => {
-  //   let arr: any = []
-  //   value?.map((val: any) => {
-  //     let temp = {
-  //       "additional_service_id": val?.id,
-  //       "additional_service_name": val?.name,
-  //       "additional_service_price": val?.price,
-  //     }
-  //     arr.push(temp);
-  //   })
-  //   setAditionalService(arr)
-  // }
+  const handleClear = () => {
+    try {
+      setIsChecked(false);
+      setPaymentMethod('');
+      setPartialAmount(0);
+      setRequestRoom([]);
+      setActivities([]);
+      setNotes("");
+      setSelectedDiscounts([]);
+      setSelectedTaxes([]);
+      setRates({});
+      setDob("");
+      setIssueDate("");
+      setAdditionalServicesByRoom({});
+      setMofifyDiscount(false);
+      setMofifyTaxes(false);
+      setAgentInfo({
+        firstName: '',
+        lastName: '',
+        email: '',
+        nationality: '',
+        telephone: '',
+        address: ''
+      })
+
+      setGuestInfo({
+        firstName: '',
+        lastName: '',
+        email: '',
+        nationality: '',
+        telephone: '',
+        address: '',
+        identificationType: '',
+        dob: '',
+        identificationNo: '',
+        gender: '',
+        issueDate: ''
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   const handleAddAdditionalServise = (room_id: any, event: any, value: any[]) => {
     let arr: any[] = value?.map((val: any) => ({
@@ -342,7 +354,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       "additional_service_name": val?.name,
       "additional_service_price": val?.price,
     }));
-  
+
     // Create a new object with updated services for the specific room_id
     setAdditionalServicesByRoom(prev => ({
       ...prev,
@@ -352,9 +364,9 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
   const handleAddRoom = (event: any, value: any[]) => {
     let arr: any = []
-    
+
     value?.map((val: any) => {
-      
+
       let temp = {
         "room_id": val?.id,
         "room_number": val?.room_number,
@@ -387,7 +399,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           children: room.child,
           infants: room.infants,
           meal_plan: room.meal_plan,
-          additional_services : additionalServicesByRoom?.[room?.room_id]?.map(service => service.additional_service_id) || []
+          additional_services: additionalServicesByRoom?.[room?.room_id]?.map(service => service.additional_service_id) || []
         })),
         "activities": await activities?.map((activity: any) => ({ activity_id: activity?.id })),
         "taxes": selectedTaxesArray,
@@ -413,12 +425,12 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     const date = new Date(Date.UTC(year, month - 1, day, 6, 30, 0, 0));
     return date.toISOString();
   }
-//df
+  //df
   const handelProceedToPay = async () => {
     try {
       let rooms: Room[] = [];
-      await requestRoom.map((room : any) => (
-        rooms.push({...room, additional_services:additionalServicesByRoom?.[room?.room_id] || []})
+      await requestRoom.map((room: any) => (
+        rooms.push({ ...room, additional_services: additionalServicesByRoom?.[room?.room_id] || [] })
       ))
       const requestBody = {
         "check_in": checkIN,
@@ -561,13 +573,14 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         {/* Meal Plan Info and Discount */}
         <div className="flex flex-col items-start justify-center gap-4 lg:flex-row">
           <div className=" mb-12 w-full rounded-md bg-slate-300 p-3 shadow-md shadow-black/50 lg:w-[50%]">
-            <h4 className="ml-3 text-xl font-bold text-black">Do you want to modify the discount <Checkbox checked={mofifyDiscount} onChange={()=>setMofifyDiscount((prev:boolean) => !prev)} {...label} /></h4>
+            <h4 className="ml-3 text-xl font-bold text-black">Do you want to modify the discount <Checkbox checked={mofifyDiscount} onChange={() => handleCheckDiscount()} {...label} /></h4>
             {responseDatas?.discounts?.map((discount: any, index: any) => (
               <div
                 key={index}
                 className="flex w-full items-center justify-between p-3 lg:flex-row"
               >
                 <Checkbox
+                  disabled={!mofifyDiscount}
                   checked={selectedDiscounts.includes(discount.id)}
                   onChange={() => handleCheckboxChangeDiscount(discount.id)}
                   {...label}
@@ -618,8 +631,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                       />
                       <div
                         className={`mr-4 flex h-5 w-5 items-center justify-center rounded border ${!!activities?.find((obj: any) => obj?.id === activity?.id)
-                            ? "border-primary bg-gray dark:bg-transparent"
-                            : ""
+                          ? "border-primary bg-gray dark:bg-transparent"
+                          : ""
                           }`}
                       >
                         <span
@@ -653,7 +666,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
 
           <div className="mb-12 mt-1 w-full rounded-md p-3 shadow-md shadow-black/50 lg:w-[48%]">
-            <h4 className="ml-3 text-xl font-bold text-black">Do you want to modify the Taxes  <Checkbox checked={mofifyTaxes} onChange={()=>setMofifyTaxes((prev:boolean) => !prev)}  {...label}  /></h4>
+            <h4 className="ml-3 text-xl font-bold text-black">Do you want to modify the Taxes  <Checkbox checked={mofifyTaxes} onChange={() => handleCheckTaxes()}  {...label} /></h4>
             <div className="flex w-full items-center justify-between p-3 lg:flex-row">
               <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
                 {responseDatas?.taxes?.map((data: any, key: any) => {
@@ -661,10 +674,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   return (
                     <ListItem key={key}>
                       <ListItemIcon>
-                        <Checkbox 
-                        checked={selectedTaxes.includes(data.id)}
-                        onChange={() => handleCheckboxChangeTax(data.id)}
-                        {...label}  />
+                        <Checkbox
+                          disabled={!mofifyTaxes}
+                          checked={selectedTaxes.includes(data.id)}
+                          onChange={() => handleCheckboxChangeTax(data.id)}
+                          {...label} />
                       </ListItemIcon>
                       <ListItemText id={labelId} primary={`${data.name} - ${data?.percentage}%` || ""} />
                     </ListItem>
@@ -686,30 +700,12 @@ const BookingRoom: React.FC<BookingRoomData> = ({
               >
                 Rooms
               </label>
-              {/* <select
-                id="roomNumber"
-                required
-                onChange={(e) => {
-                  handleAddRoom(e);
-                }}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              >
-                <option value="">Choose a number of rooms</option>
-                {responseDatas?.rooms?.map((val: any, index: any) => {
-                  return (
-                    <option key={index} value={index + 1}>
-                      {index + 1}
-                    </option>
-                  );
-                })}
-              </select> */}
               <Stack spacing={3} sx={{ width: 500 }}>
                 <Autocomplete
                   multiple
                   id="tags-outlined"
                   options={responseDatas?.rooms || []}
                   getOptionLabel={(option: any) => option?.room_number}
-                  // value={requestRoom}
                   onChange={handleAddRoom}
                   filterSelectedOptions
                   renderInput={(params) => (
@@ -722,22 +718,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                 />
               </Stack>
             </div>
-
-            {/* <div>
-              <h3 className="text-xl font-medium text-black">Selected Rooms</h3>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {rooms?.map((room: any, index: any) => (
-                  <div
-                    key={room.id}
-                    className="bg-gray-100 flex h-[40px] w-12 items-center justify-center rounded border p-2"
-                  >
-                    {room.room_number}
-                  </div>
-                ))}
-              </div>
-            </div> */}
           </div>
-              
+
           <div className=" flex flex-col gap-6 lg:flex-row">
             {requestRoom?.map((room: any, index: any) => (
               <div key={room?.room_id} className="w-full">
@@ -760,7 +742,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   >
                     <option value={""}>Select Category</option>
                     {Object.entries(responseDatas?.category_counts || {}).map(([roomType, count], key) => (
-                        <option key={key} value={`${roomType}`}>{roomType}</option>
+                      <option key={key} value={`${roomType}`}>{roomType}</option>
                     ))}
                   </select>
                 </div>
@@ -781,63 +763,62 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                     <option value={`full_board`}>Full Board</option>
                   </select>
                 </div>
-                
-               { (requestRoom?.find((r:any)=> r.room_id == room?.room_id)?.meal_plan == "half_board" || requestRoom?.find((r:any)=> r.room_id == room?.room_id)?.meal_plan == "full_board") &&
-                 <div>
-                  <label className="mb-2 block text-xl font-medium text-black">
-                    Start With
-                  </label>
-                  <select
-                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                    onChange={(e) => {
-                      handleUpdateStartWithMeal(e, room?.room_id);
-                    }}
-                  >
-                    <option value={""}>Select the meal</option>
-                    <option value={`breakfast`}>breakfast</option>
-                    <option value={`lunch`}>lunch</option>
-                    <option value={`dinner`}>dinner</option>
-                  </select>
-                  
-                </div>
-               } 
 
-<div>
+                {(requestRoom?.find((r: any) => r.room_id == room?.room_id)?.meal_plan == "half_board" || requestRoom?.find((r: any) => r.room_id == room?.room_id)?.meal_plan == "full_board") &&
+                  <div>
+                    <label className="mb-2 block text-xl font-medium text-black">
+                      Start With
+                    </label>
+                    <select
+                      className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                      onChange={(e) => {
+                        handleUpdateStartWithMeal(e, room?.room_id);
+                      }}
+                    >
+                      <option value={""}>Select the meal</option>
+                      <option value={`breakfast`}>breakfast</option>
+                      <option value={`lunch`}>lunch</option>
+                      <option value={`dinner`}>dinner</option>
+                    </select>
+
+                  </div>
+                }
+
+                <div>
                   <label className="mb-2 block text-xl font-medium text-black">
-                    Additional services 
+                    Additional services
                   </label>
                   <Autocomplete
-                      style={{width: 200}}
-                      multiple
-                      id="tags-outlined"
-                      options={responseDatas?.additional_services || []}
-                      getOptionLabel={(option:any) => option?.name}
-                      filterSelectedOptions
-                      onChange={(event, value) => handleAddAdditionalServise (room?.room_id, event, value)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Additional services"
-                          placeholder="Additional services "
-                        />
-                      )}
-                    />
-                  
+                    style={{ width: 200 }}
+                    multiple
+                    id="tags-outlined"
+                    options={responseDatas?.additional_services || []}
+                    getOptionLabel={(option: any) => option?.name}
+                    filterSelectedOptions
+                    onChange={(event, value) => handleAddAdditionalServise(room?.room_id, event, value)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Additional services"
+                        placeholder="Additional services "
+                      />
+                    )}
+                  />
+
                 </div>
 
                 <div>
                   <label className="mb-2 block text-xl  font-medium text-black"> Adults per Room  </label>
                   <select
-                    onChange={(e) =>
-                      handleUpdateAdults(e, room?.room_id)
-                    }
+                    onChange={(e) => handleUpdateAdults(e, room?.room_id)}
                     className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                   >
                     <option>0</option>
-                    {Array?.from({ length: room?.max_adults || 0 }, (_, i) => i + 1)?.map((num) => {
-                      return <option>{num}</option>
-                    })}
-
+                    {room?.category !== "Single"
+                      ? Array.from({ length: room?.max_adults || 0 }, (_, i) => i + 1).map((num) => (
+                        <option key={num}>{num}</option>
+                      ))
+                      : <option>1</option>}
                   </select>
                 </div>
                 {room?.category != "Single" && <div>
@@ -873,111 +854,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
               </div>
             ))}
           </div>
-
-          {/* 
-    {selectedRooms > 0 && (
-      <div className=" flex flex-col gap-6 lg:flex-row ">
-          {responseDatas?.rooms.slice(0, selectedRooms).map((room :any, index:any) => (
-              <div key={room.id} className="w-full ">
-                <div className="mb-2 flex flex-col items-start">
-                <label className="mb-2 block text-xl  font-medium text-black">
-                Meal Plan per Room
-                </label>
-                  <select
-                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                    onChange={(e) => {
-                      handleMealPlanChange(index, e.target.value)
-                      handleUpdateMealPlan(e.target.value)
-                    }}
-                  >
-                    <option value="">Select Meal Plan</option>
-                    <option value="room_only">Room Only</option>
-                    <option value="bread_breakfast">Bread & Breakfast</option>
-                    <option value="half_board">Half Board</option>
-                    <option value="full_board">Full Board</option>
-                  </select>
-                  <div className="ml-2 text-black">
-                    {mealPlanCosts[index] ? `RS ${mealPlanCosts[index]}` : ''}
-                  </div>
-                </div>
-              </div>
-            ))}
-        </div>
-      )} */}
         </div>
       </div>
-      {/* Adults, Children and Infants */}
-      <div className="relative top-[-10px] mb-12 flex flex-col gap-6 lg:flex-row ">
-        {numRooms > 0 &&
-          [...Array(numRooms)].map((_, roomIndex) => (
-            <div key={`room-${roomIndex}`} className="w-full lg:w-1/5">
-
-
-
-
-              {childrenPerRoom[roomIndex] > 0 && (
-                <div className="mt-4">
-                  <label className="mb-2 mt-4 block text-xl  font-medium text-black">
-                    Select Children Age
-                  </label>
-                  {[...Array(childrenPerRoom[roomIndex])].map(
-                    (_, childIndex) => (
-                      <select
-                        key={`child-${roomIndex}-${childIndex}`}
-                        value={childrenAgesPerRoom[roomIndex][childIndex] || ""}
-                        onChange={(e) =>
-                          handleChildAgeChange(
-                            roomIndex,
-                            childIndex,
-                            parseInt(e.target.value, 10),
-                          )
-                        }
-                        className="mb-4 w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                      >
-                        <option value="">Choose age</option>
-                        <option value="3">3 - 10 years</option>
-                      </select>
-                    ),
-                  )}
-                </div>
-              )}
-
-
-              {infantsPerRoom[roomIndex] > 0 && (
-                <div className="mt-4">
-                  <label className="mb-2 mt-4 block text-xl  font-medium text-black">
-                    Select Infants Age
-                  </label>
-                  {[...Array(infantsPerRoom[roomIndex])].map(
-                    (_, infantIndex) => (
-                      <select
-                        key={`infant-${roomIndex}-${infantIndex}`}
-                        value={infantAgesPerRoom[roomIndex][infantIndex]}
-                        onChange={(e) =>
-                          handleInfantAgeChange(
-                            roomIndex,
-                            infantIndex,
-                            parseInt(e.target.value, 10),
-                          )
-                        }
-                        className="mb-4 w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                      >
-                        <option value="">Choose age</option>
-                        <option value="0">0</option>
-                        {[...Array(2)].map((_, age) => (
-                          <option key={age + 1} value={age + 1}>
-                            {age + 1}
-                          </option>
-                        ))}
-                      </select>
-                    ),
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-      </div>
-
       <div className="w-full"></div>
       <div className="w-full">
         <div className="flex flex-col gap-9">
@@ -1258,7 +1136,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                 required
                 placeholder="Notes"
                 value={notes}
-                onChange={(e)=>{setNotes(e.target.value)}}
+                onChange={(e) => { setNotes(e.target.value) }}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               ></textarea>
             </div>
@@ -1274,7 +1152,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
               Payment Method
             </label>
             <select
-              style={{width:220}}
+              style={{ width: 220 }}
               name="category"
               value={paymentMethod}
               onChange={handlePaymentMethodChange}
@@ -1330,25 +1208,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                 value={partialAmount}
                 style={{ marginTop: 20 }}
                 onChange={(e) => {
-                  setPartialAmount(parseInt(e.target.value));
+                  setPartialAmount(parseInt(e.target.value || 0));
                 }}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               />
             )}
-          </div>
-        </div>
-        <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
-          <div className="text-[20px]  text-black">
-            Total Rooms with Meal Plan
-          </div>
-          <div className="font-bold text-black">
-            Rs {rates?.total_meal_plan_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
-          </div>
-        </div>
-        <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
-          <div className="text-[20px] text-black ">Total Activities Amount</div>
-          <div className="font-bold text-black">
-            Rs {rates?.total_activities_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
           </div>
         </div>
         <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
@@ -1358,31 +1222,31 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           </div>
         </div>
         <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
-          <div className="text-[20px] text-black ">Total Tax Amount</div>
+          <div className="text-[20px]  text-black">
+            Total Meal Plan Amount
+          </div>
           <div className="font-bold text-black">
-            Rs {rates?.total_tax_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
+            Rs {rates?.total_meal_plan_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
           </div>
         </div>
-
         <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
           <div className="text-[20px] text-black ">Total Additional Services Amount</div>
           <div className="font-bold text-black">
             Rs {rates?.total_additional_services_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
           </div>
         </div>
-        {/* {taxes.map((tax: any) => (
-          <div key={tax.id}>
-            <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
-              <div className="text-[20px] text-black ">
-                {tax.name}{" "}
-                <span className="ml-4 text-rose-400">({tax.percentage}%)</span>
-              </div>
-              <div className="font-bold text-black">
-                Rs {(totalOrigin * (tax.percentage / 100))?.toLocaleString()}
-              </div>
-            </div>
+        <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
+          <div className="text-[20px] text-black ">Total Activities Amount</div>
+          <div className="font-bold text-black">
+            Rs {rates?.total_activities_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
           </div>
-        ))} */}
+        </div>
+        <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
+          <div className="text-[20px] text-black ">Total Tax Amount</div>
+          <div className="font-bold text-black">
+            Rs {rates?.total_tax_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || 0}
+          </div>
+        </div>
         <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
           <div className="text-[20px] text-orange-500">
             Discount & Special Rate
@@ -1391,10 +1255,24 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             (-{rates?.total_discount_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")})
           </div>
         </div>
+
         <div className="mt-3  flex w-full items-center justify-between border-t-2 border-black p-3 lg:flex-row">
-          <div className="text-[28px] font-bold text-black">Total</div>
+          <div className="text-[28px] font-bold text-black">Total Amount</div>
           <div className="font-bold text-black">
             Rs {rates?.total_amount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          </div>
+        </div>
+        <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
+          <div className="text-[20px] text-black ">Partial Paid Amount</div>
+          <div className="font-bold text-black">
+            Rs {partialAmount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          </div>
+        </div>
+        
+        <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
+          <div className="text-[20px] text-black ">Blance Amount</div>
+          <div className="font-bold text-black">
+            Rs {(rates?.total_amount - partialAmount || 0)?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
           </div>
         </div>
       </div>
@@ -1405,6 +1283,14 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           className="mt-4 h-12 w-full justify-center rounded bg-gray p-3 font-medium text-black hover:bg-opacity-90 xl:w-1/5"
         >
           Go Back
+        </button>
+        <button
+          onClick={() => {
+            handleClear()
+          }}
+          className="mt-4 h-12 w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 xl:w-1/5"
+        >
+          Reset Form
         </button>
         <button
           onClick={() => {

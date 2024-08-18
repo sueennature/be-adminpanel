@@ -9,6 +9,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs, { Dayjs } from 'dayjs';
+import { toast } from "react-toastify";
+import RoomList from "./RoomList";
 
 const CheckAvailability = () => {
   const [showBooking, setShowBooking] = useState(false);
@@ -16,7 +18,7 @@ const CheckAvailability = () => {
   const [selectedCheckIn, setSelectedCheckIn] = React.useState("")
   const [selectedCheckOut, setSelectedCheckOut] = React.useState("")
   const [selectedDiscountCode, setSelectedDiscountCode] = React.useState("")
-  const [reponseData, setResponseData] = useState<boolean>(false);
+  const [reponseData, setResponseData] = useState<any>();
 
   const [chekIn, setChekIn] = React.useState<Dayjs | null>(dayjs());
   const [chekOut, setChekOut] = React.useState<Dayjs | null>(dayjs());
@@ -39,15 +41,22 @@ const CheckAvailability = () => {
           "x-api-key": process.env.X_API_KEY,
         }
       });
-  
-      setSelectedRoom(formData.categories)
-      setSelectedCheckIn(formData.check_in)
-      setSelectedCheckOut(formData.check_out)
-      setSelectedDiscountCode(formData.discount_code)
-      setResponseData(response.data)
-      setShowBooking(true);
+      if(response?.status === 200){
+        setSelectedRoom(formData.categories)
+        setSelectedCheckIn(formData.check_in)
+        setSelectedCheckOut(formData.check_out)
+        setSelectedDiscountCode(formData.discount_code)
+        setResponseData(response.data)
+        setShowBooking(true);
+        
+      }else if(response?.status === 204){
+        toast.error(`No available rooms found for the specified criteria`);
+      }else{
+
+      }
     } catch (error) {
       console.log("Error checking availability:", error);
+      
     }
   };
 
@@ -73,7 +82,7 @@ const CheckAvailability = () => {
        
             <div className="mb-6.5 flex flex-col gap-2 xl:flex-row">
               <div className="w-full xl:w-1/4">
-                <label className="mb-3 block text-sm font-medium text-black">
+                <label className="mb-1 block text-sm font-medium text-black">
                   Check In
                 </label>
                 <div className="relative">
@@ -85,9 +94,9 @@ const CheckAvailability = () => {
                     components={['DateTimePicker', 'DateTimePicker']}>
                     <DateTimePicker
                       sx={{
-                        width: '200px', // Adjust width
                         '& .MuiInputBase-root': {
                           height: '40px', // Adjust height
+                          width:'220px',
                           minHeight: 'unset', // Remove minimum height restriction
                         },
                         '& .MuiSvgIcon-root': {
@@ -119,7 +128,7 @@ const CheckAvailability = () => {
               </div>
 
               <div className="w-full xl:w-1/4">
-                <label className="mb-3 block text-sm font-medium text-black">
+                <label className="mb-1 block text-sm font-medium text-black">
                   Check Out
                 </label>
                 <div className="relative">
@@ -133,6 +142,7 @@ const CheckAvailability = () => {
                         width: '200px', // Adjust width
                         '& .MuiInputBase-root': {
                           height: '40px', // Adjust height
+                          width:'220px',
                           minHeight: 'unset', // Remove minimum height restriction
                         },
                         '& .MuiSvgIcon-root': {
@@ -225,7 +235,7 @@ const CheckAvailability = () => {
               </div>
             </div>
          
-
+          <RoomList rooms={reponseData?.rooms || []}/>
           {showBooking && (
             <BookingRoom isShow={handleGoBack} discountCode={selectedDiscountCode} room_type={selectedRoom} room_type_view={""} responseDatas={reponseData} checkIN={selectedCheckIn} checkOut={selectedCheckOut} />
           )}

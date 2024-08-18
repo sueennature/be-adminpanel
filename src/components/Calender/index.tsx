@@ -55,7 +55,7 @@ const useMediaQuery = (query: string): boolean => {
 
 const Home: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
-const [rooms, setRooms] = useState<Room[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [startDate, setStartDate] = useState(dayjs().startOf("month"));
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date()); //for get date from search input field
   const [showPopup, setShowPopup] = useState<boolean>(false);
@@ -102,22 +102,18 @@ const [rooms, setRooms] = useState<Room[]>([]);
         },
       });
 
-      // console.log("response?.data",response)
-      console.log("bookingsData");
-      console.log("roomsData", roomsData);
-      console.log("response", roomsData?.rooms);
-      console.log("response?.data?.rooms", response?.data?.rooms);
-
-      const transformedArray = await transformBookingData(response?.data);
-      console.log("transformedArray", response?.data);
-      setBookings(bookingsData || []);
-      setRooms(roomsData?.rooms || []);
+      console.log("bookingsData",response?.data);
+      setRooms(response?.data?.rooms || []);
+      setBookings(response?.data?.bookings || []);
+      
     } catch (err) {
       console.log(err);
     }
   };
 
   useEffect(() => {
+    
+   
     fetchBookings();
   }, []);
 
@@ -277,8 +273,8 @@ const [rooms, setRooms] = useState<Room[]>([]);
                   className="border px-2 py-1 text-center text-xxs 2xl:text-xxs"
                 >
                   <div className="flex justify-center font-bold">
-      {String(day).padStart(2, '0')}
-    </div>
+                    {String(day).padStart(2, '0')}
+                  </div>
                 </th>
               ))}
             </tr>
@@ -287,49 +283,48 @@ const [rooms, setRooms] = useState<Room[]>([]);
             {rooms.map((room) => (
               <tr key={room.id}>
                 <td className="text-nowrap text-white border-black px-2 py-1 text-center text-xxs 2xl:text-xs bg-blue-900" style={{
-    
-    boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
-  }}>
+
+                  boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
+                }}>
                   {room.room_type}
                 </td>
                 <td className="border-black text-white px-2 py-1 text-center text-xxs 2xl:text-xs bg-blue-900" style={{
-    
-    boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
-  }}>
+
+                  boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
+                }}>
                   {room.id}
                 </td>
                 <td className="text-nowrap text-white border-black px-2 py-1 text-center text-xxs 2xl:text-xs bg-blue-900" style={{
-    
-    boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
-  }}>
+
+                  boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
+                }}>
                   Lake View
                 </td>
                 <td className="border-2 border-green-600 px-2 py-1 text-center text-xxs text-black 2xl:text-xs" style={{
-    boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
-  }}>
+                  boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
+                }}>
 
                 </td>
                 {daysToShow.map((day) => {
                   const booking = bookings.find(
-                    (booking) =>
+                    (booking:any) =>
                       booking.room === room.id &&
-                      dayjs(booking.start).date() <= day &&
-                      dayjs(booking.end).date() >= day &&
-                      dayjs(booking.start).month() + 1 ===
-                        startDate.month() + 1 &&
-                      dayjs(booking.start).year() === startDate.year(),
+                      dayjs(booking.check_in).date() <= day &&
+                      dayjs(booking.check_out).date() >= day &&
+                      dayjs(booking.check_in).month() + 1 ===
+                      startDate.month() + 1 &&
+                      dayjs(booking.check_in).year() === startDate.year(),
                   );
 
                   return (
                     <td
                       key={`${room.id}-${day}`}
-                      className={`border px-2 py-1 ${
-                        booking
+                      className={`border px-2 py-1 ${booking
                           ? `${getColorForBooking(
-                              bookings.indexOf(booking),
-                            )} cursor-pointer border-black text-white`
+                            bookings.indexOf(booking),
+                          )} cursor-pointer border-black text-white`
                           : "cursor-pointer"
-                      }`}
+                        }`}
                       style={{ width: "1rem", height: "1.58rem" }}
                       onMouseEnter={() => handleMouseEnter(room.id, day)}
                       onMouseLeave={handleMouseLeave}

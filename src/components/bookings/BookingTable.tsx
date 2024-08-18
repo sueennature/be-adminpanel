@@ -3,7 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { timestampToDate } from "../../utils/util"
 import Cookies from "js-cookie";
 import axios from "axios";
-
+import { Edit, Trash, Eye, Plus } from "react-feather";
+import BookingEdit from './BookingEdit';
+import BookingShow from './BookingShow';
+import ConfirmAlertDialog from '../common/Notifications/ConfirmMessage';
 type HelloWorldProps = {
     
 };
@@ -13,6 +16,36 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
     const [numRecords, setNumRecords] = React.useState<number>(0);
     const [currentPage, setCurrentPage] = React.useState<number>(0);
     const [itemsPerPage, setItemsPerPage] = React.useState<number>(5);
+    const [open, setOpen] = React.useState(false);
+    const [openView, setOpenView] = React.useState(false);
+    const [selectedItem, setSelectedItem] = React.useState();
+
+    const [openDelete, setOpenDelete] = React.useState(false);
+
+
+    const [bookingData, setBookingData] = React.useState({});
+
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+    const handleClose = () => {
+      setOpen(false);
+    };
+
+    const handleClickOpenView = () => {
+        setOpenView(true);
+      };
+      const handleCloseView = () => {
+        setOpenView(false);
+      };
+
+      const handleClickOpenDelete = () => {
+        setOpenDelete(true);
+      };
+      const handleCloseDelete = () => {
+        setOpenDelete(false);
+      };
+
     const nextPage = () => {
         setCurrentPage((prev) => prev + itemsPerPage);
     };
@@ -27,6 +60,52 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
         setItemsPerPage(Number(e.target.value));
         setCurrentPage(0);
     };
+
+    const handleDelete = async (id:any) => {
+        try{
+            const accessToken = Cookies.get("access_token");
+            const response = await axios.delete(`${process.env.BE_URL}/bookings/${id}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                    "x-api-key": process.env.X_API_KEY,
+                },
+            });
+            console.log("AUTH:::", {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                    "x-api-key": process.env.X_API_KEY,
+                }})
+            console.log("URL::::", `${process.env.BE_URL}/bookings/${id}`)
+            console.log("handleDelete response?.data", response)
+            
+            await fetchBookings()
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+    const fetchBookingById = async (id:any) => {
+        try{
+            await handleClickOpenView()
+            const accessToken = Cookies.get("access_token");
+            const response = await axios.get(`${process.env.BE_URL}/bookings/${id}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                    "x-api-key": process.env.X_API_KEY,
+                },
+            });
+            if(response?.status === 200){
+                setBookingData(response?.data)
+            }else{
+                console.log("first")
+            }
+        }catch(err){
+            console.log(err)
+        }
+    }
 
     const fetchBookings = async () => {
         try {
@@ -78,6 +157,9 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
                         Payment Method
                     </th>
                     <th className="px-6 py-4">Receipt</th>
+                    <th scope="col" className="px-6 py-3">
+                        Action
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -92,11 +174,35 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
                         <td className="px-6 py-4">{data?.activities?.map((activity: any) => activity?.activity_name).join(', ')}</td>
                         <td className="px-6 py-4">{data?.payment_method}</td>
                         <td className="px-6 py-4"><a href={`https://api.sueennature.com/receipts/booking_receipt_${data?.id}.pdf`}>Download</a></td>
+                        <td><div className="flex items-center gap-4 ">
+                              <button
+                                //onClick={() => handleEditPush(room)}
+                                className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                              >
+                                <Edit onClick={handleClickOpen}/>
+                              </button>
+                              <button
+                                onClick={() => fetchBookingById(data?.id)}
+                                className="dark:text-red-500 font-medium text-green-600 hover:underline"
+                              >
+                                <Eye />
+                              </button>
+                              <button
+                                className="font-medium text-rose-600  hover:underline"
+                                onClick={() => {
+                                    handleClickOpenDelete()
+                                    setSelectedItem(data)
+                                }}
+                              >
+                                <Trash />
+                              </button>
+                            </div></td>
                     </tr>
                 })}
 
             </tbody>
         </table>
+        
         <div className="mt-4 flex justify-between p-4">
             <div className="flex items-center gap-4">
                 <select
@@ -127,7 +233,11 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
                     Next
                 </button>
             </div>
+            <BookingEdit handleClose={handleClose} open={open} />
+            <BookingShow handleClose={handleCloseView} open={openView} data={bookingData || {}}/>
+            <ConfirmAlertDialog handleClose={handleCloseDelete} handleDelete={handleDelete} open={openDelete} data={selectedItem}/>
         </div>
+        
     </div>;
 };
 
