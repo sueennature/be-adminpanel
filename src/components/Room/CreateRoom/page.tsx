@@ -1,8 +1,10 @@
 'use client'
 import { useRouter } from 'next/navigation';
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useState,useRef,useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
+import flatpickr from "flatpickr";
+import 'flatpickr/dist/flatpickr.min.css'; // Import flatpickr CSS
 
 interface RoomFormData {
   room_number:string;
@@ -25,6 +27,11 @@ interface RoomFormData {
   description: string;
   short_description: string;
   images: string[]; 
+  secondary_room_only:string;
+  secondary_bread_breakfast:string;
+  secondary_half_board:string;
+  secondary_full_board:string;
+ 
 }
 
 const CreateRoom = () => {
@@ -48,20 +55,28 @@ const CreateRoom = () => {
     secondary_category: '',
     description: '',
     short_description: '',
-    images: []
+    images: [],
+    secondary_room_only:'',
+    secondary_bread_breakfast:'',
+    secondary_half_board:'',
+    secondary_full_board:'',
+    
   });
 
   const router = useRouter();
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    
-      setFormData({
-        ...formData,
-        [name]: value
-      });
-    }
+  
     const [loading, setLoading] = useState(false); 
-
+   
+    
+    const handleChange = (e: any) => {
+      const { name, value } = e.target;
+      
+        setFormData({
+          ...formData,
+          [name]: value
+        });
+      }
+      
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
         const filesArray = Array.from(e.target.files);
@@ -163,7 +178,11 @@ const CreateRoom = () => {
             secondary_category: '',
             description: '',
             short_description: '',
-            images: []
+            images: [],
+            secondary_room_only:'',
+            secondary_bread_breakfast:'',
+            secondary_half_board:'',
+            secondary_full_board:'',
           });
           setTimeout(()=>{
             router.push("/rooms")
@@ -206,9 +225,9 @@ const CreateRoom = () => {
                   value={formData.category}
                   onChange={handleChange}
                   required
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white placeholder:text-md text-sm"
                 >
-                                    <option value="">Select a room category</option>
+                <option value="">Select a room category</option>
                 <option value="Single">Single </option>
                   <option value="Deluxe">Deluxe</option>
                   <option value="Double">Double</option>
@@ -226,7 +245,7 @@ const CreateRoom = () => {
                  
                  value={formData.secondary_category}
                   onChange={handleChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white placeholder:text-md text-sm"
                 >
                   <option value="">Select a room  second category</option>
                   <option value="Single">Single </option>
@@ -309,6 +328,10 @@ const CreateRoom = () => {
                 />
               </div>
             </div>
+            {/* Title Label for First Category */}
+            <div className="mb-6.5">
+              <h2 className="text-lg font-semibold text-black">Primary Category Prices</h2>
+            </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -367,6 +390,72 @@ const CreateRoom = () => {
                 />
               </div>
             </div>
+            {/* Title Label for First Category */}
+            <div className="mb-6.5">
+              <h2 className="text-lg font-semibold text-black">Secondary Category Prices</h2>
+            </div>
+            <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+              <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Room Only
+                </label>
+                <input
+                  type="number"
+                  name="room_only"
+                  required
+                  placeholder="Enter the price"
+                  value={formData.secondary_room_only}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+              </div>
+              <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Bread and Breakfast
+                </label>
+                <input
+                  type="number"
+                  name="bread_breakfast"
+                  required
+                  placeholder="Enter the price"
+                  value={formData.secondary_bread_breakfast}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+              </div>
+              <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Half Board
+                </label>
+                <input
+                  type="number"
+                  name="half_board"
+                  required
+                  placeholder="Enter the price"
+                  value={formData.secondary_half_board}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+              </div>
+              <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Full Board
+                </label>
+                <input
+                  type="number"
+                  name="full_board"
+                  required
+                  placeholder="Enter the price"
+                  value={formData.secondary_full_board}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+              </div>
+            </div>
+
+            {/* Horizontal separator */}
+            <hr className="my-10 border-t border-stroke" />
+            
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">

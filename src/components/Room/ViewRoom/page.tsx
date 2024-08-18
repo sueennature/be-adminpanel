@@ -48,6 +48,22 @@ const ViewRoom = () => {
         <div className="mt-4 flex flex-col  justify-center">
           <div className="flex">
             <div className="flex-1">
+              <div className="m-2">Room Status</div>
+            </div>
+            <div className="flex-1">
+              <div
+                className={`m-2 capitalize ${
+                  roomData.status === "available"
+                    ? "text-green-500"
+                    : "text-red-500"
+                }`}
+              >
+                {roomData.status}
+              </div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
               <div className="m-2">id</div>
             </div>
             <div className="flex-1">
@@ -110,12 +126,16 @@ const ViewRoom = () => {
               <div className="m-2">{roomData.secondary_category}</div>
             </div>
           </div>
+          {/* Horizontal separator */}
+          <hr className="my-10 border-t border-stroke" />
+          <h2 className="m-2 text-lg font-semibold">Primary Category Prices</h2>
+
           <div className="flex">
             <div className="flex-1">
               <div className="m-2">Room Only</div>
             </div>
             <div className="flex-1">
-              <div className="m-2">{(roomData.room_only)?.toLocaleString()}</div>
+              <div className="m-2">{roomData.room_only?.toLocaleString()}</div>
             </div>
           </div>
           <div className="flex">
@@ -124,7 +144,7 @@ const ViewRoom = () => {
             </div>
             <div className="flex-1">
               <div className="m-2">
-                {(roomData.bread_breakfast)?.toLocaleString()}
+                {roomData.bread_breakfast?.toLocaleString()}
               </div>
             </div>
           </div>
@@ -133,7 +153,7 @@ const ViewRoom = () => {
               <div className="m-2">Half board</div>
             </div>
             <div className="flex-1">
-              <div className="m-2">{(roomData.half_board)?.toLocaleString()}</div>
+              <div className="m-2">{roomData.half_board?.toLocaleString()}</div>
             </div>
           </div>
           <div className="flex">
@@ -141,9 +161,56 @@ const ViewRoom = () => {
               <div className="m-2">Full board</div>
             </div>
             <div className="flex-1">
-              <div className="m-2">{(roomData.full_board)?.toLocaleString()}</div>
+              <div className="m-2">{roomData.full_board?.toLocaleString()}</div>
             </div>
           </div>
+          {/* Horizontal separator */}
+          <hr className="my-10 border-t border-stroke" />
+          <h2 className="m-2 text-lg font-semibold">
+            Secondary Category Prices
+          </h2>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Room Only</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">
+                {roomData.secondary_room_only?.toLocaleString()}
+              </div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Break fast</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">
+                {roomData.secondary_bread_breakfast?.toLocaleString()}
+              </div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Half board</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">
+                {roomData.secondary_half_board?.toLocaleString()}
+              </div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Full board</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">
+                {roomData.secondary_full_board?.toLocaleString()}
+              </div>
+            </div>
+          </div>
+          {/* Horizontal separator */}
+          <hr className="my-10 border-t border-stroke" />
           <div className="flex">
             <div className="flex-1">
               <div className="m-2">Beds</div>
