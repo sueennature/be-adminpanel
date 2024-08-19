@@ -1208,7 +1208,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                 value={partialAmount}
                 style={{ marginTop: 20 }}
                 onChange={(e) => {
-                  setPartialAmount(parseInt(e.target.value || 0));
+                  setPartialAmount(parseInt(e.target.value || '0', 10));
                 }}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               />

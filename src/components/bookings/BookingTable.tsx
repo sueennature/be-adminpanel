@@ -81,7 +81,9 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
             console.log("handleDelete response?.data", response)
             
             await fetchBookings()
+            handleCloseDelete()
         }catch(err){
+            handleCloseDelete()
             console.log(err)
         }
     }
@@ -175,12 +177,12 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
                         <td className="px-6 py-4">{data?.payment_method}</td>
                         <td className="px-6 py-4"><a href={`https://api.sueennature.com/receipts/booking_receipt_${data?.id}.pdf`}>Download</a></td>
                         <td><div className="flex items-center gap-4 ">
-                              <button
+                              {/* <button
                                 //onClick={() => handleEditPush(room)}
                                 className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                               >
                                 <Edit onClick={handleClickOpen}/>
-                              </button>
+                              </button> */}
                               <button
                                 onClick={() => fetchBookingById(data?.id)}
                                 className="dark:text-red-500 font-medium text-green-600 hover:underline"
