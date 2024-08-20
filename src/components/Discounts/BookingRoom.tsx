@@ -49,6 +49,7 @@ interface BookingRoomData {
   discountCode: any;
 }
 
+
 const BookingRoom: React.FC<BookingRoomData> = ({
   room_type,
   room_type_view,
@@ -96,7 +97,6 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   
   const leastDiscountId = getLeastPercentageDiscountId(responseDatas?.discounts || []);
 
-  console.log("responseDatasresponseDatas", responseDatas)
   const taxesIds = responseDatas?.taxes?.map((item: any) => item.id)
   const dobRef = useRef<flatpickr.Instance | null>(null);
   const issueDateRef = useRef<flatpickr.Instance | null>(null);
@@ -1208,7 +1208,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                 value={partialAmount}
                 style={{ marginTop: 20 }}
                 onChange={(e) => {
-                  setPartialAmount(parseInt(e.target.value || 0));
+                  setPartialAmount(parseInt(e.target.value || '0', 10));
                 }}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               />

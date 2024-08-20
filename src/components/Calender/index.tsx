@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
-import bookingsData from "../../components/Datatables/eventData.json";
-import roomsData from "../../components/Datatables/roomsTypes.json";
+// import bookingsData from "../../components/Datatables/eventData.json";
+// import roomsData from "../../components/Datatables/roomsTypes.json";
 import Cookies from "js-cookie";
 import axios from "axios";
 import DatePicker from "react-datepicker";
@@ -53,6 +53,7 @@ const useMediaQuery = (query: string): boolean => {
   return matches;
 };
 
+
 const Home: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -70,25 +71,11 @@ const Home: React.FC = () => {
   const popupRef = useRef<HTMLDivElement>(null);
 
   const isMobile = useMediaQuery("(max-width: 1124px)");
+  
   function convertToISO8601(dateStr: any) {
-    // Convert the input date string to a Date object
     let date = new Date(dateStr);
-
-    // Convert the Date object to the desired ISO 8601 format with milliseconds
     let isoFormattedDateStr = date.toISOString();
-
     return isoFormattedDateStr;
-  }
-  async function transformBookingData(inputArray: any) {
-    return await inputArray.map(async (booking: any) => {
-      return {
-        start: await convertToISO8601(booking.check_in),
-        end: await convertToISO8601(booking.check_out),
-        refNo: booking.booking_id,
-        personName: booking.guest_name,
-        room: booking.room_number,
-      };
-    });
   }
 
   const fetchBookings = async () => {
@@ -104,7 +91,17 @@ const Home: React.FC = () => {
 
       console.log("bookingsData",response?.data);
       setRooms(response?.data?.rooms || []);
-      setBookings(response?.data?.bookings || []);
+
+      const transformedBookings = response?.data?.bookings?.map((data:any) => ({
+        check_in: convertToISO8601(data?.check_in),
+        check_out: convertToISO8601(data?.check_out),
+        refNo: "refNo",
+        personName: data?.guest_name,
+        room: "1",
+      }));
+
+      console.log("transformedBookings",transformedBookings);
+      setBookings(transformedBookings || []);
       
     } catch (err) {
       console.log(err);
