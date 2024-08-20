@@ -1,7 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import flatpickr from "flatpickr";
 import BookingRoom from "./BookingRoom";
 import Cookies from "js-cookie";
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
@@ -13,27 +12,32 @@ import { toast } from "react-toastify";
 import RoomList from "./RoomList";
 
 const CheckAvailability = () => {
+  const today = dayjs();
+  const tomorrow = dayjs().add(1, 'day');
   const [showBooking, setShowBooking] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState("")
   const [selectedCheckIn, setSelectedCheckIn] = React.useState("")
   const [selectedCheckOut, setSelectedCheckOut] = React.useState("")
   const [selectedDiscountCode, setSelectedDiscountCode] = React.useState("")
   const [reponseData, setResponseData] = useState<any>();
+  const [chekIn, setChekIn] = useState<Dayjs | null>(today); // Set today's date as default
+  const [chekOut, setChekOut] = useState<Dayjs | null>(tomorrow); // Set tomorrow's date as default
+  const [discountCode, setDiscountCode] = React.useState("");
+  const [categories, setCategories] = React.useState("");
+  const [views, setViews] = React.useState("");
 
-  const [chekIn, setChekIn] = React.useState<Dayjs | null>(dayjs());
-  const [chekOut, setChekOut] = React.useState<Dayjs | null>(dayjs());
-  const [formData, setFormData] = useState({
-    check_in: chekIn ? chekIn.toISOString() : "",
-    check_out: chekOut ? chekOut.toISOString() : "",
-    categories: "",
-    views: "",
-    discount_code: "",
-  });
 
  const handleBooking = async () => {
     try {
       const accessToken = Cookies.get("access_token");
-      const queryParams = new URLSearchParams(formData).toString();
+      const queryParams = new URLSearchParams({
+        ...(chekIn ? { check_in: chekIn.toISOString() } : {}),
+        ...(chekOut ? { check_out: chekOut.toISOString() } : {}),
+        categories: categories,
+        views: views,
+        discount_code: discountCode,
+      }).toString();
+      
       const url = `${process.env.BE_URL}/rooms/availability/?${queryParams}`;
       const response = await axios.get(url, {
         headers: {
@@ -42,34 +46,25 @@ const CheckAvailability = () => {
         }
       });
       if(response?.status === 200){
-        setSelectedRoom(formData.categories)
-        setSelectedCheckIn(formData.check_in)
-        setSelectedCheckOut(formData.check_out)
-        setSelectedDiscountCode(formData.discount_code)
+        setSelectedRoom(categories)
+        setSelectedCheckIn(chekIn?.toISOString() || "")
+        setSelectedCheckOut(chekOut?.toISOString() || "")
+        setSelectedDiscountCode(discountCode)
         setResponseData(response.data)
         setShowBooking(true);
         
       }else if(response?.status === 204){
         toast.error(`No available rooms found for the specified criteria`);
       }else{
-
+        toast.error(`Internal server error`);
       }
     } catch (error) {
       console.log("Error checking availability:", error);
-      
     }
   };
 
   const handleGoBack = () => {
     setShowBooking(false);
-  };
-
-  const handleChange = (e:any) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
   };
 
   return (
@@ -178,8 +173,8 @@ const CheckAvailability = () => {
                 </label>
                 <select
                   name="categories"
-                  value={formData.categories}
-                  onChange={handleChange}
+                  value={categories}
+                  onChange={(e)=>setCategories(e.target.value)}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-2 text-xs py-3 text-black outline-none transition focus:border-primary active:border-primary"
                   required
                 >
@@ -198,8 +193,8 @@ const CheckAvailability = () => {
                 </label>
                 <select
                   name="views"
-                  value={formData.views}
-                  onChange={handleChange}
+                  value={views}
+                  onChange={(e)=>setViews(e.target.value)}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-2 text-xs py-3 text-black outline-none transition focus:border-primary active:border-primary"
                   required
                 >
@@ -217,8 +212,8 @@ const CheckAvailability = () => {
                 <input
                   type="text"
                   name="discount_code"
-                  value={formData.discount_code}
-                  onChange={handleChange}
+                  value={discountCode}
+                  onChange={(e)=>setDiscountCode(e.target.value)}
                   placeholder="Enter code"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-2 text-xs py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
                 />

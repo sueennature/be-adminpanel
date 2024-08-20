@@ -49,6 +49,7 @@ interface BookingRoomData {
   discountCode: any;
 }
 
+
 const BookingRoom: React.FC<BookingRoomData> = ({
   room_type,
   room_type_view,
@@ -96,7 +97,6 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   
   const leastDiscountId = getLeastPercentageDiscountId(responseDatas?.discounts || []);
 
-  console.log("responseDatasresponseDatas", responseDatas)
   const taxesIds = responseDatas?.taxes?.map((item: any) => item.id)
   const dobRef = useRef<flatpickr.Instance | null>(null);
   const issueDateRef = useRef<flatpickr.Instance | null>(null);
