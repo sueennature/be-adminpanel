@@ -24,13 +24,7 @@ interface Room {
 
 const colors = [
   "bg-blue-400",
-  "bg-rose-400",
-  "bg-green-400",
-  "bg-yellow-400",
-  "bg-purple-400",
-  "bg-pink-400",
-  "bg-indigo-400",
-  "bg-teal-400",
+  
 ];
 
 const getColorForBooking = (index: number) => {
@@ -97,7 +91,7 @@ const Home: React.FC = () => {
         check_out: convertToISO8601(data?.check_out),
         refNo: "refNo",
         personName: data?.guest_name,
-        room: "1",
+        room: `${data?.room_id}`,
       }));
 
       console.log("transformedBookings",transformedBookings);
@@ -257,6 +251,7 @@ const Home: React.FC = () => {
               <th className="w-16 border px-2 py-1 text-xxs 2xl:w-30 2xl:text-xs">
                 Room Type
               </th>
+              
               <th className="w-10 border px-2 py-1 text-xxs 2xl:w-24 2xl:text-xs">
                 Room
               </th>
@@ -279,29 +274,37 @@ const Home: React.FC = () => {
           <tbody>
             {rooms.map((room) => (
               <tr key={room.id}>
-                <td className="text-nowrap text-white border-black px-2 py-1 text-center text-xxs 2xl:text-xs bg-blue-900" style={{
+                <td className={`text-nowrap text-white border-black px-2 py-1 text-center text-xxs 2xl:text-xs bg-blue-900`} style={ room?.status ? {
 
                   boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
+                  
+                } : {
+                  boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
+                  backgroundColor:"red"
                 }}>
                   {room.room_type}
                 </td>
-                <td className="border-black text-white px-2 py-1 text-center text-xxs 2xl:text-xs bg-blue-900" style={{
+                <td className="border-black text-white px-2 py-1 text-center text-xxs 2xl:text-xs bg-blue-900" style={ room?.status ? {
 
                   boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
-                }}>
+
+                  } : {
+                  boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
+                  backgroundColor:"red"
+                  }}>
                   {room.id}
                 </td>
-                <td className="text-nowrap text-white border-black px-2 py-1 text-center text-xxs 2xl:text-xs bg-blue-900" style={{
+                <td className="text-nowrap text-white border-black px-2 py-1 text-center text-xxs 2xl:text-xs bg-blue-900" style={ room?.status ? {
 
                   boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
-                }}>
+
+                  } : {
+                  boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
+                  backgroundColor:"red"
+                  }}>
                   Lake View
                 </td>
-                <td className="border-2 border-green-600 px-2 py-1 text-center text-xxs text-black 2xl:text-xs" style={{
-                  boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
-                }}>
-
-                </td>
+                
                 {daysToShow.map((day) => {
                   const booking = bookings.find(
                     (booking:any) =>
