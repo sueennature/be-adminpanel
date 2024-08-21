@@ -89,7 +89,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   }
 
   function getLeastPercentageDiscountId(discounts: any) {
-    let minDiscount = discounts.reduce((min: any, discount: any) => {
+    let minDiscount = discounts?.reduce((min: any, discount: any) => {
       return discount.percentage < min.percentage ? discount : min;
     });
     return minDiscount.id;
