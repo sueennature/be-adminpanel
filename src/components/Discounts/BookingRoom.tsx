@@ -104,6 +104,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [partialAmount, setPartialAmount] = useState<number>(0);
   const [requestRoom, setRequestRoom] = useState<any>([]);
+  console.log("requestRoomrequestRoomrequestRoom",requestRoom)
   const [activities, setActivities] = useState<any>([]);
   const [notes, setNotes] = useState<any>("");
   const [selectedDiscounts, setSelectedDiscounts] = useState<number[]>([leastDiscountId || null]);
@@ -399,6 +400,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           children: room.child,
           infants: room.infants,
           meal_plan: room.meal_plan,
+          category: room?.category,
           additional_services: additionalServicesByRoom?.[room?.room_id]?.map(service => service.additional_service_id) || []
         })),
         "activities": await activities?.map((activity: any) => ({ activity_id: activity?.id })),
