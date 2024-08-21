@@ -88,14 +88,18 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     additional_services?: any[];
   }
 
-  function getLeastPercentageDiscountId(discounts: any) {
-    let minDiscount = discounts?.reduce((min: any, discount: any) => {
+  function getLeastPercentageDiscountId(discounts: { id: string; percentage: number }[]): string | undefined {
+    if (!discounts || discounts.length === 0) {
+      return undefined; // Return undefined if discounts array is empty or undefined
+    }
+  
+    const minDiscount = discounts.reduce((min, discount) => {
       return discount.percentage < min.percentage ? discount : min;
     });
+  
     return minDiscount.id;
   }
-  
-  const leastDiscountId = getLeastPercentageDiscountId(responseDatas?.discounts || []);
+  const leastDiscountId : any = getLeastPercentageDiscountId(responseDatas?.discounts?.length === 0 ? [] :responseDatas?.discounts);
 
   const taxesIds = responseDatas?.taxes?.map((item: any) => item.id)
   const dobRef = useRef<flatpickr.Instance | null>(null);
@@ -104,7 +108,6 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [partialAmount, setPartialAmount] = useState<number>(0);
   const [requestRoom, setRequestRoom] = useState<any>([]);
-  console.log("requestRoomrequestRoomrequestRoom",requestRoom)
   const [activities, setActivities] = useState<any>([]);
   const [notes, setNotes] = useState<any>("");
   const [selectedDiscounts, setSelectedDiscounts] = useState<number[]>([leastDiscountId || null]);
@@ -389,7 +392,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
   const getrates = async () => {
     try {
-      const selectedDiscountsArray = selectedDiscounts.map((id) => ({ discount_id: id }));
+      const selectedDiscountsArray = selectedDiscounts?.map((id) => ({ discount_id: id }));
       const selectedTaxesArray = selectedTaxes.map((id) => ({ tax_id: id }));
       const requestBody = {
         "check_in": checkIN,
@@ -405,7 +408,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         })),
         "activities": await activities?.map((activity: any) => ({ activity_id: activity?.id })),
         "taxes": selectedTaxesArray,
-        "discounts": selectedDiscountsArray,
+        "discounts": selectedDiscountsArray?.filter(item => item.discount_id !== null),
         "discount_code": discountCode || "",
       }
 
