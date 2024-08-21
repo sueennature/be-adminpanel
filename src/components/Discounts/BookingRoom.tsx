@@ -408,7 +408,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         })),
         "activities": await activities?.map((activity: any) => ({ activity_id: activity?.id })),
         "taxes": selectedTaxesArray,
-        "discounts": selectedDiscountsArray?.filter(item => item.discount_id !== null),
+        "discounts": await selectedDiscountsArray?.filter(item => item.discount_id !== null),
         "discount_code": discountCode || "",
       }
 
