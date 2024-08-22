@@ -10,6 +10,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import { toast } from "react-toastify";
 import RoomList from "./RoomList";
+import CircularProgress from '@mui/material/CircularProgress';
 
 const CheckAvailability = () => {
   const today = dayjs();
@@ -25,10 +26,12 @@ const CheckAvailability = () => {
   const [discountCode, setDiscountCode] = React.useState("");
   const [categories, setCategories] = React.useState("");
   const [views, setViews] = React.useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
  const handleBooking = async () => {
     try {
+      setIsLoading(true)
       const accessToken = Cookies.get("access_token");
       const queryParams = new URLSearchParams({
         ...(chekIn ? { check_in: chekIn.toISOString() } : {}),
@@ -58,6 +61,7 @@ const CheckAvailability = () => {
       }else{
         toast.error(`Internal server error`);
       }
+      setIsLoading(false)
     } catch (error) {
       console.log("Error checking availability:", error);
     }
@@ -225,7 +229,7 @@ const CheckAvailability = () => {
                   onClick={handleBooking}
                   className="flex w-full relative text-nowrap top-8 justify-center rounded bg-primary p-3 text-xs font-medium text-gray"
                 >
-                  Check Availability
+                  Check Availability {isLoading && <CircularProgress style={{color:"white", height:16, width:16, marginLeft:10}}/>}
                 </button>
               </div>
             </div>
