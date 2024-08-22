@@ -22,13 +22,17 @@ interface Room {
   status: string; // Added status field
 }
 
-const colors = [
-  "bg-blue-400",
-  
-];
+function filterBookingById(bookings:any, id:any) {
+  return bookings?.filter((b:any) => b.id == id)?.[0];
+}
 
-const getColorForBooking = (index: number) => {
-  return colors[index % colors.length];
+const getColorForBooking = (id: any, bookings:any) => {
+  const booking = filterBookingById(bookings,id)
+  if(booking?.booking_type === 'internal'){
+    return 'bg-blue-400';
+  }else if(booking?.booking_type === 'website'){
+    return 'bg-green-400';
+  }
 };
 
 const useMediaQuery = (query: string): boolean => {
@@ -46,6 +50,10 @@ const useMediaQuery = (query: string): boolean => {
 
   return matches;
 };
+
+function filterById(rooms:any, id:any) {
+  return rooms?.filter((room:any) => room.id == id)?.[0];
+}
 
 
 const Home: React.FC = () => {
@@ -83,7 +91,6 @@ const Home: React.FC = () => {
         },
       });
 
-      console.log("bookingsData",response?.data);
       setRooms(response?.data?.rooms || []);
 
       const transformedBookings = response?.data?.bookings?.map((data:any) => ({
@@ -92,9 +99,9 @@ const Home: React.FC = () => {
         refNo: "refNo",
         personName: data?.guest_name,
         room: `${data?.room_id}`,
+        booking_type: data?.booking_type
       }));
 
-      console.log("transformedBookings",transformedBookings);
       setBookings(transformedBookings || []);
       
     } catch (err) {
@@ -272,7 +279,7 @@ const Home: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {rooms.map((room) => (
+            {rooms.map((room : any) => (
               <tr key={room.id}>
                 <td className={`text-nowrap text-white border-black px-2 py-1 text-center text-xxs 2xl:text-xs bg-blue-900`} style={ room?.status ? {
 
@@ -292,7 +299,7 @@ const Home: React.FC = () => {
                   boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
                   backgroundColor:"red"
                   }}>
-                  {room.id}
+                  { filterById(rooms, `${room.id}`)?.room_number}
                 </td>
                 <td className="text-nowrap text-white border-black px-2 py-1 text-center text-xxs 2xl:text-xs bg-blue-900" style={ room?.status ? {
 
@@ -302,11 +309,11 @@ const Home: React.FC = () => {
                   boxShadow: '0 -5px 5px -5px rgba(0, 0, 0, 0.7), 0 5px 5px -5px rgba(0, 0, 0, 0.7)',
                   backgroundColor:"red"
                   }}>
-                  Lake View
+                  {room?.view}
                 </td>
                 
                 {daysToShow.map((day) => {
-                  const booking = bookings.find(
+                  const booking:any = bookings.find(
                     (booking:any) =>
                       booking.room === room.id &&
                       dayjs(booking.check_in).date() <= day &&
@@ -321,7 +328,7 @@ const Home: React.FC = () => {
                       key={`${room.id}-${day}`}
                       className={`border px-2 py-1 ${booking
                           ? `${getColorForBooking(
-                            bookings.indexOf(booking),
+                            booking?.id,bookings
                           )} cursor-pointer border-black text-white`
                           : "cursor-pointer"
                         }`}

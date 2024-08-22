@@ -135,6 +135,9 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
             <thead className="text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 text-xs uppercase">
                 <tr>
                     <th scope="col" className="px-6 py-3">
+                        Booking ID
+                    </th>
+                    <th scope="col" className="px-6 py-3">
                         Check-in
                     </th>
                     <th scope="col" className="px-6 py-3">
@@ -167,12 +170,13 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
             <tbody>
                 {bookings?.map((data: any) => {
                     return <tr className="dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-b bg-white">
+                        <td className="px-6 py-4">{data?.id}</td>
                         <td className="px-6 py-4">{timestampToDate(data?.check_in)}</td>
                         <td className="px-6 py-4">{timestampToDate(data?.check_out)}</td>
                         <td className="px-6 py-4">{data?.booking_type}</td>
                         <td className="px-6 py-4">{(parseFloat(data?.total_amount || 0) + parseFloat(data?.total_activities_charge || 0) + parseFloat(data?.total_rooms_charge || 0) + parseFloat(data?.total_taxes || 0)) - (parseFloat(data?.total_discount_amount || 0))}</td>
                         <td className="px-6 py-4">{data?.guest_info?.first_name || ""} {data?.guest_info?.last_name || ""}</td>
-                        <td className="px-6 py-4">{data?.rooms?.map((room: any) => room?.room_id).join(', ')}</td>
+                        <td className="px-6 py-4">{data?.rooms?.map((room: any) => room?.room_number).join(', ')}</td>
                         <td className="px-6 py-4">{data?.activities?.map((activity: any) => activity?.activity_name).join(', ')}</td>
                         <td className="px-6 py-4">{data?.payment_method}</td>
                         <td className="px-6 py-4"><a href={`https://api.sueennature.com/receipts/booking_receipt_${data?.id}.pdf`}>Download</a></td>

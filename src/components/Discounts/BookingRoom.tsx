@@ -15,6 +15,8 @@ import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
+import CircularProgress from '@mui/material/CircularProgress';
+
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 interface AgentInfo {
   firstName: string;
@@ -110,14 +112,17 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [requestRoom, setRequestRoom] = useState<any>([]);
   const [activities, setActivities] = useState<any>([]);
   const [notes, setNotes] = useState<any>("");
-  const [selectedDiscounts, setSelectedDiscounts] = useState<number[]>([leastDiscountId || null]);
-  const [selectedTaxes, setSelectedTaxes] = useState<number[]>([...taxesIds || []]);
+  // const [selectedDiscounts, setSelectedDiscounts] = useState<number[]>([leastDiscountId || null]);
+  const [selectedDiscounts, setSelectedDiscounts] = useState<number[]>([]);
+  // const [selectedTaxes, setSelectedTaxes] = useState<number[]>([...taxesIds || []]);
+  const [selectedTaxes, setSelectedTaxes] = useState<number[]>([]);
   const [rates, setRates] = useState<any>({});
   const [dob, setDob] = React.useState<any>();
   const [issueDate, setIssueDate] = React.useState<any>();
   const [additionalServicesByRoom, setAdditionalServicesByRoom] = useState<{ [key: string]: any[] }>({});
   const [mofifyDiscount, setMofifyDiscount] = useState<boolean>(false);
   const [mofifyTaxes, setMofifyTaxes] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [agentInfo, setAgentInfo] = useState<AgentInfo>({
     firstName: '',
@@ -433,6 +438,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   //df
   const handelProceedToPay = async () => {
     try {
+      setIsLoading(true)
       let rooms: Room[] = [];
       await requestRoom.map((room: any) => (
         rooms.push({ ...room, additional_services: additionalServicesByRoom?.[room?.room_id] || [] })
@@ -510,6 +516,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           issueDate: ''
         })
         window.location.href = "https://manage.sueennature.com/calendar";
+        setIsLoading(false)
       } else {
         toast.error("Something went wrong");
       }
@@ -578,14 +585,17 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         {/* Meal Plan Info and Discount */}
         <div className="flex flex-col items-start justify-center gap-4 lg:flex-row">
           <div className=" mb-12 w-full rounded-md bg-slate-300 p-3 shadow-md shadow-black/50 lg:w-[50%]">
-            <h4 className="ml-3 text-xl font-bold text-black">Do you want to modify the discount <Checkbox checked={mofifyDiscount} onChange={() => handleCheckDiscount()} {...label} /></h4>
+            <h4 className="ml-3 text-xl font-bold text-black">Discounts 
+              {/* <Checkbox checked={mofifyDiscount} onChange={() => handleCheckDiscount()} {...label} /> */}
+                
+              </h4>
             {responseDatas?.discounts?.map((discount: any, index: any) => (
               <div
                 key={index}
                 className="flex w-full items-center justify-between p-3 lg:flex-row"
               >
                 <Checkbox
-                  disabled={!mofifyDiscount}
+                  // disabled={!mofifyDiscount}
                   checked={selectedDiscounts.includes(discount.id)}
                   onChange={() => handleCheckboxChangeDiscount(discount.id)}
                   {...label}
@@ -671,7 +681,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
 
           <div className="mb-12 mt-1 w-full rounded-md p-3 shadow-md shadow-black/50 lg:w-[48%]">
-            <h4 className="ml-3 text-xl font-bold text-black">Do you want to modify the Taxes  <Checkbox checked={mofifyTaxes} onChange={() => handleCheckTaxes()}  {...label} /></h4>
+            <h4 className="ml-3 text-xl font-bold text-black">Taxes  
+              {/* <Checkbox checked={mofifyTaxes} onChange={() => handleCheckTaxes()}  {...label} /> */}
+
+              </h4>
             <div className="flex w-full items-center justify-between p-3 lg:flex-row">
               <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
                 {responseDatas?.taxes?.map((data: any, key: any) => {
@@ -680,7 +693,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                     <ListItem key={key}>
                       <ListItemIcon>
                         <Checkbox
-                          disabled={!mofifyTaxes}
+                          // disabled={!mofifyTaxes}
                           checked={selectedTaxes.includes(data.id)}
                           onChange={() => handleCheckboxChangeTax(data.id)}
                           {...label} />
@@ -818,7 +831,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                     onChange={(e) => handleUpdateAdults(e, room?.room_id)}
                     className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                   >
-                    <option>0</option>
+                    {room?.category !== "Single" && <option>0</option>}
                     {room?.category !== "Single"
                       ? Array.from({ length: room?.max_adults || 0 }, (_, i) => i + 1).map((num) => (
                         <option key={num}>{num}</option>
@@ -1303,7 +1316,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           }}
           className="mt-4 h-12 w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 xl:w-1/5"
         >
-          Submit booking
+          Submit booking {isLoading && <CircularProgress style={{color:"white", height:20, width:20, marginLeft:10}}/>}
         </button>
       </div>
     </div>

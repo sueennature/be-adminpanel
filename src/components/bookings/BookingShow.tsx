@@ -9,7 +9,11 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
-
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Chip from '@mui/material/Chip';
 // Define the type for the props
 interface BookingShowProps {
   handleClose: () => void;
@@ -145,6 +149,58 @@ export default function BookingShow({ handleClose, open, data }: BookingShowProp
           {viewData.activities && viewData.activities.map((activity: any, index: number) => (
             <Grid item xs={12} sm={6} key={index}>
               <Typography>{activity.activity_name} - {activity.activity_cost}</Typography>
+            </Grid>
+          ))}
+        </Grid>
+        <Typography variant="h6" sx={{ mt: 2 }}>Rooms</Typography>
+        <Grid container spacing={2}>
+          {viewData.rooms && viewData.rooms.map((room: any, index: number) => (
+            <Grid item xs={12} sm={6} key={index}>
+              
+              <Card sx={{ minWidth: 275 }}>
+                <CardContent>
+               
+                  <Typography variant="h6" component="div">
+                    Room number - {room?.room_number}
+                  </Typography>
+                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                    view - {room?.view}
+                  </Typography>
+                  { room?.starting_meals_with && <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                    starting Meals With - {room?.starting_meals_with}
+                  </Typography>}
+                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                    Room Amount - {room?.room_amount}
+                  </Typography>
+                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                    Category - {room?.category}
+                  </Typography>
+                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                    Meal Plan - {room?.meal_plan}
+                  </Typography>
+                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                    No.Adults - {room?.adults}
+                  </Typography>
+                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                    No.Children - {room?.children?.length}
+                  </Typography>
+                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                    No.Infants - {room?.infants?.length}
+                  </Typography>
+                  {room?.additional_services?.length > 0 && <div>
+                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                      Additional Services
+                    </Typography>
+                    {room?.additional_services && room?.additional_services?.map((servise: any, index: number) => (
+                      <Grid item xs={12} sm={6} key={index}>
+                        <Chip label={servise.additional_service_name} />
+                      </Grid>
+                    ))}
+                  </div>}
+                
+                </CardContent>
+                
+              </Card>
             </Grid>
           ))}
         </Grid>
