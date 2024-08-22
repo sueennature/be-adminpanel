@@ -28,10 +28,9 @@ function filterBookingById(bookings:any, id:any) {
 
 const getColorForBooking = (id: any, bookings:any) => {
   const booking = filterBookingById(bookings,id)
-  console.log("booking?.booking_type",booking?.booking_type)
-  if(booking?.booking_type == 'internal'){
+  if(booking?.booking_type === 'internal'){
     return 'bg-blue-400';
-  }else{
+  }else if(booking?.booking_type === 'website'){
     return 'bg-green-400';
   }
 };
@@ -92,7 +91,6 @@ const Home: React.FC = () => {
         },
       });
 
-      console.log("bookingsData",response?.data);
       setRooms(response?.data?.rooms || []);
 
       const transformedBookings = response?.data?.bookings?.map((data:any) => ({
@@ -104,7 +102,6 @@ const Home: React.FC = () => {
         booking_type: data?.booking_type
       }));
 
-      console.log("transformedBookings",transformedBookings);
       setBookings(transformedBookings || []);
       
     } catch (err) {
