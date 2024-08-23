@@ -479,6 +479,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         },
         "total_taxes": rates?.total_tax_amount,
         "total_rooms_charge": rates?.total_rooms_amount,
+        "total_meal_plan_amount": rates?.total_meal_plan_amount,
         "total_activities_charge": rates?.total_activities_amount,
         "total_discount_amount": rates?.total_discount_amount,
         "booking_note": notes,
@@ -831,7 +832,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                     onChange={(e) => handleUpdateAdults(e, room?.room_id)}
                     className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                   >
-                    {room?.category !== "Single" && <option>0</option>}
+                    {/* {room?.category !== "Single" && <option>0</option>} */}
+                    <option>0</option>
                     {room?.category !== "Single"
                       ? Array.from({ length: room?.max_adults || 0 }, (_, i) => i + 1).map((num) => (
                         <option key={num}>{num}</option>
