@@ -275,4 +275,13 @@ input[type="search"]::-webkit-search-cancel-button {
    width: 100%;
 }
 
-  
+
+  .react-calendar-timeline .rct-sidebar .rct-sidebar-row{
+    padding: 0 !important;
+  }
+
+  .rct-item {
+   
+    font-size: 0.5em !important;
+   
+}
