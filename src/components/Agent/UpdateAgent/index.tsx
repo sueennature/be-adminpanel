@@ -1,14 +1,10 @@
 "use client";
 import React, { useState, useEffect, ChangeEvent } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { format } from "date-fns";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { useAuthRedirect } from "@/utils/checkToken";
 import Swal from 'sweetalert2';
 
@@ -19,7 +15,7 @@ interface FormData {
     telephone: string;
     address: string;
     nationality: string;
-  }
+}
 
 const UpdateAgent = () => {
   const [formData, setFormData] = useState<FormData>({
@@ -29,87 +25,21 @@ const UpdateAgent = () => {
     telephone: "",
     address: "",
     nationality: ""
-});
+  });
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  useAuthRedirect()
   const router = useRouter();
   const searchParams = useSearchParams();
   let agentId = searchParams.get("agentID");
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-  // const handleDeleteImage = async (index: number) => {
-  //   const imageUrl = formData.profile_image[index];
-  //   if (imageUrl) {
-  //     const result = await Swal.fire({
-  //         title: 'Are you sure?',
-  //         text: 'This action cannot be undone!',
-  //         icon: 'warning',
-  //         showCancelButton: true,
-  //         confirmButtonColor: '#3085d6',
-  //         cancelButtonColor: '#d33',
-  //         confirmButtonText: 'Yes, delete it!'
-  //     });
-
-  //     if (result.isConfirmed) {
-  //         console.log("IMAGEURL", imageUrl);
-  //         try {
-  //           const reponse = await axios.delete(`${process.env.BE_URL}/guests/${guestId}/images`, {
-  //             data: [imageUrl] ,
-  //             headers: {
-  //                 'Content-Type': 'application/json',
-  //                 Authorization: `Bearer ${Cookies.get('access_token')}`,
-  //                 'x-api-key': process.env.X_API_KEY,
-  //             },
-  //         });
-  //         console.log("ASD",reponse)
-  //         setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
-  //         setFormData(prevData => ({
-  //             ...prevData,
-  //             profile_image: prevData.profile_image.filter((_, i) => i !== index),
-  //         }));
-
-  //             Swal.fire(
-  //                 'Deleted!',
-  //                 'Image has been deleted.',
-  //                 'success'
-  //             );
-  //         } catch (err) {
-  //             console.log('Error deleting image:', err);
-  //             toast.error('Error deleting image, Please Login and try again');
-  //         }
-  //     }
-  // }
-  //   // if (imageUrl) {
-  //   //   console.log("IMAGEURL", imageUrl);
-  //   //   try {
-  //   //     await axios.delete(`${process.env.BE_URL}/guests/${guestId}/images`, {
-  //   //       data: [imageUrl] , // Wrap imageUrl in an array
-  //   //       headers: {
-  //   //         'Content-Type': 'application/json',
-  //   //         Authorization: `Bearer ${Cookies.get('access_token')}`,
-  //   //         'x-api-key': process.env.X_API_KEY,
-  //   //       },
-  //   //     });
-  
-  //   //     setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
-  //   //     setFormData(prevData => ({
-  //   //       ...prevData,
-  //   //       profile_image: prevData.profile_image.filter((_, i) => i !== index),
-  //   //     }));
-  //   //   } catch (err) {
-  //   //     console.error('Error deleting image:', err);
-  //   //     toast.error('Error deleting image');
-  //   //   }
-  //   // }
-  // };
+  useAuthRedirect();
 
   useEffect(() => {
-    const fetchActivity = async () => {
+    const fetchAgent = async () => {
       if (agentId) {
         try {
           const accessToken = Cookies.get("access_token");
-
           const response = await axios.get(
             `${process.env.BE_URL}/agents/${agentId}`,
             {
@@ -120,86 +50,69 @@ const UpdateAgent = () => {
               },
             },
           );
-          console.log(response.data);
-          
-          setFormData({
-            ...response.data,
-           
-          });
-          
+          setFormData({ ...response.data });
         } catch (err) {
           console.log(err);
         }
       }
     };
-
-    fetchActivity();
+    fetchAgent();
   }, [agentId]);
-  
-  const handleChange = (e: any) => {
+
+  const validateFields = () => {
+    let errors: { [key: string]: string } = {};
+    
+    if (!formData.first_name.trim()) {
+      errors.first_name = "First name is required";
+    }
+
+    if (!formData.last_name.trim()) {
+      errors.last_name = "Last name is required";
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = "Email is invalid";
+    }
+
+    if (!formData.telephone.trim()) {
+      errors.telephone = "Telephone is required";
+    } else if (!/^\d+$/.test(formData.telephone)) {
+      errors.telephone = "Telephone must contain only numbers";
+    } else if (formData.telephone.length !== 10) {
+      errors.telephone = "Telephone must be exactly 10 digits";
+    }
+
+    if (!formData.address.trim()) {
+      errors.address = "Address is required";
+    }
+
+    if (!formData.nationality.trim()) {
+      errors.nationality = "Nationality is required";
+    }
+
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
     });
-  };
-  // const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files) {
-  //     const filesArray = Array.from(e.target.files);
-  //     const base64Promises = filesArray.map(file => {
-  //       return new Promise<string>((resolve, reject) => {
-  //         const reader = new FileReader();
-  //         reader.readAsDataURL(file);
-  //         reader.onload = () => resolve(reader.result as string);
-  //         reader.onerror = error => reject(error);
-  //       });
-  //     });
-  
-  //     Promise.all(base64Promises)
-  //     .then(base64Images => {
-  //       setFormData(prevData => ({
-  //         ...prevData,
-  //         profile_image: base64Images 
-  //       }));
-  //     })
-  //     .catch(error => {
-  //       console.error("Error converting images to base64:", error);
-  //       toast.error("Error uploading images");
-  //     });
-  //   }
-  // };
-  
-  
-  // const removeBase64Prefix = (base64String: string) => {
-  //   // Find the comma that separates the metadata from the base64 data
-  //   const base64Prefix = 'data:image/png;base64,';
-  //   if (base64String.startsWith(base64Prefix)) {
-  //     return base64String.substring(base64Prefix.length);
-  //   }
-  //   return base64String;
-  // };
-  const handleDateChange = (date: Date | null, field: string) => {
-    setFormData((prev) => ({ ...prev, [field]: date }));
+    setErrors({
+      ...errors,
+      [name]: ""
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!validateFields()) return;
+
     setLoading(true);
-
-  
-
-    const dataToSubmit = {
-      ...formData,
-    
-    };
-    const processedFormData = {
-        ...dataToSubmit,
-        
-      };
-      
-    
-      console.log(processedFormData);
-    
     try {
       const response = await fetch("/api/agent/update", {
         method: "PUT",
@@ -210,20 +123,20 @@ const UpdateAgent = () => {
       });
 
       const result = await response.json();
-      if(response.status === 401){
-        toast.error("Credentials Expired. Please Log in Again")
+      if (response.status === 401) {
+        toast.error("Credentials Expired. Please Log in Again");
         Cookies.remove('access_token');
-        setTimeout(()=>{
-          router.push('/')
-        },1500)
+        setTimeout(() => {
+          router.push('/');
+        }, 1500);
         return;
       }
       if (!response.ok) {
-        throw new Error(result.error || "Failed to update item");
+        throw new Error(result.error || "Failed to update agent");
       }
 
       setLoading(false);
-      toast.success("Agent is updated successfully");
+      toast.success("Agent updated successfully");
       setTimeout(() => {
         router.push("/agent");
       }, 1500);
@@ -232,7 +145,6 @@ const UpdateAgent = () => {
       setLoading(false);
       toast.error("An error occurred");
     }
-    console.log("Form Data:", dataToSubmit);
   };
 
   return (
@@ -252,8 +164,11 @@ const UpdateAgent = () => {
                   onChange={handleChange}
                   required
                   placeholder="Enter the First Name"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary"
                 />
+                {errors.first_name && (
+                  <span className="text-red">{errors.first_name}</span>
+                )}
               </div>
               <div className="w-full xl:w-1/2">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -266,8 +181,11 @@ const UpdateAgent = () => {
                   onChange={handleChange}
                   required
                   placeholder="Enter the Last Name"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary"
                 />
+                {errors.last_name && (
+                  <span className="text-red">{errors.last_name}</span>
+                )}
               </div>
             </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
@@ -281,11 +199,13 @@ const UpdateAgent = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  placeholder="Enter the email"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                  placeholder="Enter the Email"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary"
                 />
+                {errors.email && (
+                  <span className="text-red">{errors.email}</span>
+                )}
               </div>
-
               <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Nationality
@@ -295,26 +215,32 @@ const UpdateAgent = () => {
                   value={formData.nationality}
                   onChange={handleChange}
                   required
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary"
                 >
                   <option value="">Select a nationality</option>
                   <option value="foreign">Foreign</option>
                   <option value="local">Local</option>
                 </select>
+                {errors.nationality && (
+                  <span className="text-red">{errors.nationality}</span>
+                )}
               </div>
               <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Telephone
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   name="telephone"
                   value={formData.telephone}
                   onChange={handleChange}
                   required
                   placeholder="Enter the Telephone"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary"
                 />
+                {errors.telephone && (
+                  <span className="text-red">{errors.telephone}</span>
+                )}
               </div>
             </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
@@ -329,17 +255,20 @@ const UpdateAgent = () => {
                   onChange={handleChange}
                   required
                   placeholder="Enter the Address"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary"
                 />
+                {errors.address && (
+                  <span className="text-red">{errors.address}</span>
+                )}
               </div>
             </div>
             <div className="flex justify-end gap-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center justify-center rounded bg-primary px-6 py-3 text-center text-base font-medium text-white transition hover:bg-opacity-90"
+                className="inline-flex items-center justify-center rounded bg-primary px-6 py-3 font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
               >
-                {loading ? "Saving..." : "Save"}
+                {loading ? "Loading..." : "Update Agent"}
               </button>
             </div>
           </div>
@@ -350,3 +279,4 @@ const UpdateAgent = () => {
 };
 
 export default UpdateAgent;
+

@@ -75,11 +75,17 @@ const ViewAgent = () => {
     fetchAgents();
   }, []);
 
+  // const filteredAgents = agents.filter(
+  //   (agent) =>
+  //     agent.first_name.toLowerCase().includes(nameFilter.toLowerCase()) &&
+  //     String(agent.id).toLowerCase().includes(idFilter.toLowerCase()),
+  // );
   const filteredAgents = agents.filter(
     (agent) =>
-      agent.first_name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-      String(agent.id).toLowerCase().includes(idFilter.toLowerCase()),
+      agent.first_name?.toLowerCase().includes(nameFilter?.toLowerCase() || '') &&
+      String(agent.id).toLowerCase().includes(idFilter?.toLowerCase() || '')
   );
+  
   
 
   const indexOfLastItem = currentPage * itemsPerPage;
