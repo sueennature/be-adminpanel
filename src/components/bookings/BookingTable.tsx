@@ -174,7 +174,7 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
                         <td className="px-6 py-4">{timestampToDate(data?.check_in)}</td>
                         <td className="px-6 py-4">{timestampToDate(data?.check_out)}</td>
                         <td className="px-6 py-4">{data?.booking_type}</td>
-                        <td className="px-6 py-4">{(parseFloat(data?.total_amount || 0) + parseFloat(data?.total_activities_charge || 0) + parseFloat(data?.total_rooms_charge || 0) + parseFloat(data?.total_taxes || 0)) - (parseFloat(data?.total_discount_amount || 0))}</td>
+                        <td className="px-6 py-4">{parseFloat(data?.total_amount || 0)}</td>
                         <td className="px-6 py-4">{data?.guest_info?.first_name || ""} {data?.guest_info?.last_name || ""}</td>
                         <td className="px-6 py-4">{data?.rooms?.map((room: any) => room?.room_number).join(', ')}</td>
                         <td className="px-6 py-4">{data?.activities?.map((activity: any) => activity?.activity_name).join(', ')}</td>

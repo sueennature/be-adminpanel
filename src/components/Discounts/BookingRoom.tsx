@@ -16,6 +16,13 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { useRouter } from "next/navigation";
+import dayjs from 'dayjs';
+import { BE_URL, X_API_KEY, FRONT_URL } from '@/config/config'
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 interface AgentInfo {
@@ -35,10 +42,10 @@ interface GestInfo {
   telephone: string;
   address: string;
   identificationType: string;
-  dob: string,
+  
   identificationNo: string;
   gender: string;
-  issueDate: string;
+  
 }
 
 interface BookingRoomData {
@@ -61,30 +68,24 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   checkOut,
   discountCode
 }) => {
-  const top100Films = [
-    { title: 'bed 1', year: 3500 },
-    { title: 'Spa', year: 1972 },
-    { title: 'Room service', year: 1974 },
-    { title: 'transportations', year: 2008 },
-    { title: 'laundry', year: 1957 },
-  ];
 
-  interface Discount {
-    name: string;
-    description: string;
-    percentage: number;
-    start_date: string;
-    end_date: string;
-    discount_code: string;
-    id: number;
-  }
-  interface Tax {
-    name: string;
-    description: string;
-    percentage: number;
-    tax_type: string;
-    id: number;
-  }
+
+  // interface Discount {
+  //   name: string;
+  //   description: string;
+  //   percentage: number;
+  //   start_date: string;
+  //   end_date: string;
+  //   discount_code: string;
+  //   id: number;
+  // }
+  // interface Tax {
+  //   name: string;
+  //   description: string;
+  //   percentage: number;
+  //   tax_type: string;
+  //   id: number;
+  // }
   interface Room {
     room_id: string;
     additional_services?: any[];
@@ -101,11 +102,12 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   
     return minDiscount.id;
   }
-  const leastDiscountId : any = getLeastPercentageDiscountId(responseDatas?.discounts?.length === 0 ? [] :responseDatas?.discounts);
+  // const leastDiscountId : any = getLeastPercentageDiscountId(responseDatas?.discounts?.length === 0 ? [] :responseDatas?.discounts);
 
-  const taxesIds = responseDatas?.taxes?.map((item: any) => item.id)
-  const dobRef = useRef<flatpickr.Instance | null>(null);
-  const issueDateRef = useRef<flatpickr.Instance | null>(null);
+  // const taxesIds = responseDatas?.taxes?.map((item: any) => item.id)
+  // const dobRef = useRef<flatpickr.Instance | null>(null);
+  // const issueDateRef = useRef<flatpickr.Instance | null>(null);
+  const router = useRouter();
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [partialAmount, setPartialAmount] = useState<number>(0);
@@ -117,12 +119,19 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   // const [selectedTaxes, setSelectedTaxes] = useState<number[]>([...taxesIds || []]);
   const [selectedTaxes, setSelectedTaxes] = useState<number[]>([]);
   const [rates, setRates] = useState<any>({});
-  const [dob, setDob] = React.useState<any>();
-  const [issueDate, setIssueDate] = React.useState<any>();
+  const [dob, setDob] = React.useState<any>({
+    date: null,
+    dateStr: ''
+  });
+  const [issueDate, setIssueDate] =useState<any>({
+    date: null,
+    dateStr: ''
+   });
   const [additionalServicesByRoom, setAdditionalServicesByRoom] = useState<{ [key: string]: any[] }>({});
-  const [mofifyDiscount, setMofifyDiscount] = useState<boolean>(false);
-  const [mofifyTaxes, setMofifyTaxes] = useState<boolean>(false);
+  // const [mofifyDiscount, setMofifyDiscount] = useState<boolean>(false);
+  // const [mofifyTaxes, setMofifyTaxes] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errors, setErrors] = useState({});
 
   const [agentInfo, setAgentInfo] = useState<AgentInfo>({
     firstName: '',
@@ -141,29 +150,83 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     telephone: '',
     address: '',
     identificationType: '',
-    dob: '',
+    
     identificationNo: '',
     gender: '',
-    issueDate: ''
+    
   });
 
-  const handleCheckTaxes = () => {
-    try {
-      setMofifyTaxes((prev: boolean) => !prev);
-      mofifyTaxes ? setSelectedTaxes([...taxesIds || []]) : setSelectedTaxes([])
-    } catch (err) {
-      console.log(err)
-    }
-  }
 
-  const handleCheckDiscount = () => {
-    try {
-      setMofifyDiscount((prev: boolean) => !prev);
-      mofifyDiscount ? setSelectedDiscounts([leastDiscountId || null]) : setSelectedDiscounts([])
-    } catch (err) {
-      console.log(err)
+  // const handleCheckTaxes = () => {
+  //   try {
+  //     setMofifyTaxes((prev: boolean) => !prev);
+  //     mofifyTaxes ? setSelectedTaxes([...taxesIds || []]) : setSelectedTaxes([])
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
+  // }
+
+  // const handleCheckDiscount = () => {
+  //   try {
+  //     setMofifyDiscount((prev: boolean) => !prev);
+  //     mofifyDiscount ? setSelectedDiscounts([leastDiscountId || null]) : setSelectedDiscounts([])
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
+  // }
+
+  const handleDobChange = (newValue: any) => {
+    const formattedDate = newValue ? newValue.toISOString() : '';
+    setDob({
+      date: newValue,
+      dateStr: formattedDate
+    }); // Logs the selected date in 'YYYY-MM-DD' format
+  };
+  const handleIssueChange = (newValue: any) => {
+    const formattedDate = newValue ? newValue.toISOString() : '';
+    setIssueDate({
+      date: newValue,
+      dateStr: formattedDate
+    }); // Logs the selected date in 'YYYY-MM-DD' format
+
+  };
+
+
+  const validate = () => {
+    let tempErrors:any = {};
+
+    if (!guestInfo.firstName) tempErrors.firstName = "Guest First Name is required!";
+    if (!guestInfo.lastName) tempErrors.lastName = "Guest Last Name is required!";
+    
+    // Simple email validation
+    if (!guestInfo.email) {
+      tempErrors.email = "Guest Email is required!";
+    } else if (!/\S+@\S+\.\S+/.test(guestInfo.email)) {
+      tempErrors.email = "Guest Email is invalid!";
     }
-  }
+
+    if (!guestInfo.nationality) tempErrors.nationality = "Guest Nationality is required!";
+    if (!guestInfo.telephone) {
+      tempErrors.telephone = "Guest Telephone is required!";
+    } else if (!/^\d{10,15}$/.test(guestInfo.telephone)) {
+      tempErrors.telephone = "Guest Telephone must be between 10 and 15 digits!";
+    }
+
+    if (!guestInfo.address) tempErrors.address = "Guest Address is required!";
+    if (!guestInfo.identificationType) tempErrors.identificationType = "Guest Identification Type is required!";
+    if (!dob?.dateStr) tempErrors.dob = "Guest Date of Birth is required!";
+    if (!guestInfo.identificationNo) tempErrors.identificationNo = "Guest Identification No. is required!";
+    if (!guestInfo.gender) tempErrors.gender = "Guest Gender is required!";
+    if (!issueDate.dateStr) tempErrors.issueDate = "Guest Issue Date is required!";
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  const renderErrorMessages = () => {
+    return Object.values(errors).map((error : any, index: any) => (
+      <p key={index} style={{ color: 'red', fontWeight:800,textAlign:"right" }}>{error}</p>
+    ));
+  };
 
   const handleCheckboxChangeTax = (taxId: number) => {
     setSelectedTaxes((prevSelected) => {
@@ -328,8 +391,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       setDob("");
       setIssueDate("");
       setAdditionalServicesByRoom({});
-      setMofifyDiscount(false);
-      setMofifyTaxes(false);
+      //setMofifyDiscount(false);
+      //setMofifyTaxes(false);
       setAgentInfo({
         firstName: '',
         lastName: '',
@@ -347,10 +410,9 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         telephone: '',
         address: '',
         identificationType: '',
-        dob: '',
+       
         identificationNo: '',
         gender: '',
-        issueDate: ''
       })
     } catch (err) {
       console.log(err)
@@ -430,156 +492,120 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       console.log(err)
     }
   }
-  function convertDateToISOString(inputDate: any) {
-    const [year, month, day] = inputDate.split('-');
-    const date = new Date(Date.UTC(year, month - 1, day, 6, 30, 0, 0));
-    return date.toISOString();
-  }
-  //df
+
+  
+
   const handelProceedToPay = async () => {
     try {
-      setIsLoading(true)
-      let rooms: Room[] = [];
-      await requestRoom.map((room: any) => (
-        rooms.push({ ...room, additional_services: additionalServicesByRoom?.[room?.room_id] || [] })
-      ))
-      const requestBody = {
-        "check_in": checkIN,
-        "check_out": checkOut,
-        "booking_type": "internal",
-        "payment_method": "walk-in guest",
-        "total_amount": parseFloat(rates?.total_amount || 0),
-        "is_partial_payment": isChecked || false,
-        "paid_amount": partialAmount || 0,
-        "balance_amount": parseFloat(rates?.total_amount || 0) - partialAmount,
-        "discount_code": discountCode || "",
-        "guest_info": {
-          "first_name": guestInfo?.firstName,
-          "last_name": guestInfo?.lastName,
-          "email": guestInfo?.email,
-          "telephone": guestInfo?.telephone,
-          "address": guestInfo?.address,
-          "nationality": guestInfo?.nationality,
-          "profile_image": [],
-          "identification_type": guestInfo?.identificationType,
-          "identification_no": guestInfo?.identificationNo,
-          "identification_issue_date": convertDateToISOString(issueDate),
-          "dob": convertDateToISOString(dob),
-          "gender": guestInfo?.gender,
-        },
-        "rooms": rooms || [],
-        "activities": convertActivities(activities || []) || [],
-        "agent_info": {
-          "first_name": agentInfo?.firstName || "",
-          "last_name": agentInfo?.lastName || "",
-          "email": agentInfo?.email || "",
-          "telephone": agentInfo?.telephone || "",
-          "address": agentInfo?.address || "",
-          "nationality": agentInfo?.address || "",
-        },
-        "total_taxes": rates?.total_tax_amount,
-        "total_rooms_charge": rates?.total_rooms_amount,
-        "total_meal_plan_amount": rates?.total_meal_plan_amount,
-        "total_activities_charge": rates?.total_activities_amount,
-        "total_discount_amount": rates?.total_discount_amount,
-        "booking_note": notes,
-        "total_additional_services_amount": rates?.total_additional_services_amount
-      }
-      const accessToken = Cookies.get("access_token");
-      const response = await axios.post(`${process.env.BE_URL}/bookings/internal`, requestBody, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-          "x-api-key": process.env.X_API_KEY,
-        },
-      });
-      if (response?.status === 200) {
-        toast.success(`Successfully Added!`);
-        setAgentInfo({
-          firstName: '',
-          lastName: '',
-          email: '',
-          nationality: '',
-          telephone: '',
-          address: ''
-        })
-        setGuestInfo({
-          firstName: '',
-          lastName: '',
-          email: '',
-          nationality: '',
-          telephone: '',
-          address: '',
-          identificationType: '',
-          dob: '',
-          identificationNo: '',
-          gender: '',
-          issueDate: ''
-        })
-        window.location.href = "https://manage.sueennature.com/calendar";
-        setIsLoading(false)
-      } else {
-        toast.error("Something went wrong");
+      if (validate()) {
+        setIsLoading(true)
+        let rooms: Room[] = [];
+        await requestRoom.map((room: any) => (
+          rooms.push({ ...room, additional_services: additionalServicesByRoom?.[room?.room_id] || [] })
+        ))
+        const requestBody = {
+          "check_in": checkIN,
+          "check_out": checkOut,
+          "booking_type": "internal",
+          "payment_method": "walk-in guest",
+          "total_amount": parseFloat(rates?.total_amount || 0),
+          "is_partial_payment": isChecked || false,
+          "paid_amount": partialAmount || 0,
+          "balance_amount": parseFloat(rates?.total_amount || 0) - partialAmount,
+          "discount_code": discountCode || "",
+          "guest_info": {
+            "first_name": guestInfo?.firstName,
+            "last_name": guestInfo?.lastName,
+            "email": guestInfo?.email,
+            "telephone": guestInfo?.telephone,
+            "address": guestInfo?.address,
+            "nationality": guestInfo?.nationality,
+            "profile_image": [],
+            "identification_type": guestInfo?.identificationType,
+            "identification_no": guestInfo?.identificationNo,
+            "identification_issue_date" : issueDate?.dateStr,
+            "dob": dob?.dateStr,
+            "gender": guestInfo?.gender,
+          },
+          "rooms": rooms || [],
+          "activities": convertActivities(activities || []) || [],
+          "agent_info": {
+            "first_name": agentInfo?.firstName || "",
+            "last_name": agentInfo?.lastName || "",
+            "email": agentInfo?.email || "",
+            "telephone": agentInfo?.telephone || "",
+            "address": agentInfo?.address || "",
+            "nationality": agentInfo?.address || "",
+          },
+          "total_taxes": rates?.total_tax_amount,
+          "total_rooms_charge": rates?.total_rooms_amount,
+          "total_meal_plan_amount": rates?.total_meal_plan_amount,
+          "total_activities_charge": rates?.total_activities_amount,
+          "total_discount_amount": rates?.total_discount_amount,
+          "booking_note": notes,
+          "total_additional_services_amount": rates?.total_additional_services_amount
+        }
+
+        console.log("requestBodyrequestBodyrequestBody",requestBody)
+        const accessToken = Cookies.get("access_token");
+        const response = await axios.post(`${process.env.BE_URL}/bookings/internal`, requestBody, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+            "x-api-key": process.env.X_API_KEY,
+          },
+        });
+        if (response?.status === 200) {
+          toast.success(`Successfully Added!`);
+          setAgentInfo({
+            firstName: '',
+            lastName: '',
+            email: '',
+            nationality: '',
+            telephone: '',
+            address: ''
+          })
+          setGuestInfo({
+            firstName: '',
+            lastName: '',
+            email: '',
+            nationality: '',
+            telephone: '',
+            address: '',
+            identificationType: '',
+            identificationNo: '',
+            gender: ''
+          })
+          router.push(`/calendar`);
+          setIsLoading(false)
+        } else {
+          toast.error("Something went wrong");
+        }
       }
     } catch (err) {
-
+      console.log(errors)
     }
   }
 
   useEffect(() => {
-    flatpickr("#dob", {
-      mode: "single",
-      static: true,
-      monthSelectorType: "static",
-      dateFormat: "Y-m-d",
-      prevArrow:
-        '<svg className="fill-current" width="7" height="11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
-      nextArrow:
-        '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
-      onChange: (selectedDates) => {
-        const date = selectedDates[0];
-        setDob(timestampToDate(date))
-      },
-    });
-
-    flatpickr("#issueDate", {
-      mode: "single",
-      static: true,
-      monthSelectorType: "static",
-      dateFormat: "Y-m-d",
-      prevArrow:
-        '<svg className="fill-current" width="7" height="11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
-      nextArrow:
-        '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
-      onChange: (selectedDates) => {
-        const date = selectedDates[0];
-        setIssueDate(timestampToDate(date))
-      },
-    });
-
-    // Cleanup flatpickr instances on unmount
-    return () => {
-      if (dobRef.current) {
-        dobRef.current.destroy();
-      }
-      if (issueDateRef.current) {
-        issueDateRef.current.destroy();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
     getrates()
-  }, [additionalServicesByRoom, partialAmount, activities, checkIN, checkOut, requestRoom, selectedDiscounts, selectedTaxes]);
+  }, [
+    additionalServicesByRoom, 
+    partialAmount, 
+    activities, 
+    checkIN, 
+    checkOut, 
+    requestRoom, 
+    selectedDiscounts, 
+    selectedTaxes
+  ]);
 
 
 
   return (
     <div className="mx-auto w-full px-4">
       <div className="pb-6">
-        <div className="mb-2 text-xl font-bold text-black">
-          Selected Room Category : {room_type}
-        </div>
+       
         <div className="mb-6 text-xl font-bold text-black">
           {room_type_view}
         </div>
@@ -963,7 +989,16 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                 <label className="mb-3 block text-xl font-medium text-black">
                   Dob
                 </label>
-                <input
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={['DatePicker']}>
+                    <DatePicker
+                      label="Date of Birth"
+                      value={dob?.date}
+                      onChange={handleDobChange}
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
+                {/* <input
                   type="text"
                   id="dob"
                   name="dob"
@@ -973,7 +1008,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   placeholder="DD-MM-YYYY"
                   required
                   data-class="flatpickr-right"
-                />
+                /> */}
               </div>
 
 
@@ -998,7 +1033,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                 <label className="mb-3 block text-xl font-medium text-black">
                   Issue Date
                 </label>
-                <input
+                {/* <input
                   type="text"
                   id="issueDate"
                   name="issueDate"
@@ -1007,7 +1042,16 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
                   placeholder="DD-MM-YYYY"
                   data-class="flatpickr-right"
-                />
+                /> */}
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={['DatePicker']}>
+                    <DatePicker
+                      label="Date of Birth"
+                      value={issueDate?.date}
+                      onChange={handleIssueChange}
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
               </div>
               <div className="w-full xl:w-1/5">
                 <label className="mb-3 block text-xl font-medium text-black">
@@ -1296,7 +1340,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           </div>
         </div>
       </div>
-
+   {renderErrorMessages()}
       <div className="flex items-center justify-between">
         <button
           onClick={() => isShow(false)}
@@ -1318,6 +1362,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           }}
           className="mt-4 h-12 w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 xl:w-1/5"
         >
+       
+    
           Submit booking {isLoading && <CircularProgress style={{color:"white", height:20, width:20, marginLeft:10}}/>}
         </button>
       </div>
