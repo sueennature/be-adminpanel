@@ -11,8 +11,41 @@ import dayjs, { Dayjs } from 'dayjs';
 import { toast } from "react-toastify";
 import RoomList from "./RoomList";
 import CircularProgress from '@mui/material/CircularProgress';
+import { Theme, useTheme } from '@mui/material/styles';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import SearchIcon from '@mui/icons-material/Search';
+
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
+const names = [
+  "Single","Deluxe","Double","Family","Triple"
+];
+
+function getStyles(name: string, personName: string[], theme: Theme) {
+  return {
+    fontWeight:
+      personName.indexOf(name) === -1
+        ? theme.typography.fontWeightRegular
+        : theme.typography.fontWeightMedium,
+  };
+}
 
 const CheckAvailability = () => {
+  const theme = useTheme();
   const today = dayjs();
   const tomorrow = dayjs().add(1, 'day');
   const [showBooking, setShowBooking] = useState(false);
@@ -27,21 +60,29 @@ const CheckAvailability = () => {
   const [categories, setCategories] = React.useState("");
   const [views, setViews] = React.useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [personName, setPersonName] = React.useState<string[]>([]);
+console.log("personNamepersonName",personName)
+  const handleChange = (event: SelectChangeEvent<typeof personName>) => {
+    const {
+      target: { value },
+    } = event;
+    setPersonName(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
 
 
  const handleBooking = async () => {
     try {
       setIsLoading(true)
       const accessToken = Cookies.get("access_token");
-      const queryParams = new URLSearchParams({
-        ...(chekIn ? { check_in: chekIn.toISOString() } : {}),
-        ...(chekOut ? { check_out: chekOut.toISOString() } : {}),
-        categories: categories,
-        views: views,
-        discount_code: discountCode,
-      }).toString();
-      
-      const url = `${process.env.BE_URL}/rooms/availability/?${queryParams}`;
+      const queryParams = new URLSearchParams();
+      personName?.forEach((category:any) => {
+        queryParams.append('categories', category);
+      });
+      const queryString = queryParams.toString();
+      const url = `${process.env.BE_URL}/rooms/availability/?check_in=${chekIn ? chekIn.toISOString() : ""}&check_out=${chekOut ? chekOut.toISOString() : ""}&views=${views}&discount_code=${discountCode}&${queryString}`;
       const response = await axios.get(url, {
         headers: {
           'Authorization': `Bearer ${accessToken}`, 
@@ -175,7 +216,7 @@ const CheckAvailability = () => {
                 <label className="mb-3 block text-sm font-medium text-black">
                   Room Type
                 </label>
-                <select
+                {/* <select
                   name="categories"
                   value={categories}
                   onChange={(e)=>setCategories(e.target.value)}
@@ -188,7 +229,27 @@ const CheckAvailability = () => {
                   <option value="Double">Double</option>
                   <option value="Family">Family</option>
                   <option value="Triple">Triple</option>
-                </select>
+                </select> */}
+                        <Select
+                          labelId="demo-multiple-name-label"
+                          id="demo-multiple-name"
+                          multiple
+                          value={personName}
+                          onChange={handleChange}
+                          input={<OutlinedInput label="Name" />}
+                          MenuProps={MenuProps}
+                          style={{width:150, height:40}}
+                        >
+                          {names.map((name:any) => (
+                            <MenuItem
+                              key={name}
+                              value={name}
+                              style={getStyles(name, personName, theme)}
+                            >
+                              {name}
+                            </MenuItem>
+                          ))}
+                        </Select>
               </div>
 
               <div className="w-full xl:w-1/6">
@@ -229,7 +290,7 @@ const CheckAvailability = () => {
                   onClick={handleBooking}
                   className="flex w-full relative text-nowrap top-8 justify-center rounded bg-primary p-3 text-xs font-medium text-gray"
                 >
-                  Check Availability {isLoading && <CircularProgress style={{color:"white", height:16, width:16, marginLeft:10}}/>}
+                   {isLoading ? <CircularProgress style={{color:"white", height:20, width:20}}/> : <svg className="h-5 w-5 text-red-500"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="4"  stroke-linecap="round"  stroke-linejoin="round">  <circle cx="11" cy="11" r="8" />  <line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>}
                 </button>
               </div>
             </div>

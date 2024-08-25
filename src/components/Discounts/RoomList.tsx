@@ -20,13 +20,21 @@ const RoomList: React.FC<RoomListProps> = ({ rooms }) => {
                 <div className="mb-4 text-xl font-bold text-black">
                     Available Rooms
                 </div>
-                <Stack direction="row" spacing={1} style={{ marginBottom: 20 }}>
+                <Stack  direction="row" spacing={1} style={{ marginBottom: 20 , overflowX: 'auto', }}>
                     {data?.map((room: any, key: any) => (
-                        <Chip
-                            key={key}
-                            label={room?.room_number || ""}
-
-                        />
+                        <div style={{
+                            backgroundColor: '#346e41', 
+                            color: 'white', 
+                            margin: 10, 
+                            borderRadius: 10,
+                        }}>
+                            <div style={{ padding: 10, textAlign:"center" }}>
+                                <span style={{fontSize:20, fontWeight:"bold"}}>{room?.room_number || ""} </span><br />
+                                <span>{room?.category || ""} </span><br />
+                                <span>{room?.secondary_category || ""} </span><br />
+                                <span>{room?.views || ""} </span>
+                            </div>
+                        </div>
                     ))}
                 </Stack>
             </div>

@@ -15,6 +15,7 @@ import Chip from '@mui/material/Chip';
 import dayjs from 'dayjs';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import moment from 'moment';
 
 interface BookingShowProps {
   handleClose: () => void;
@@ -38,6 +39,13 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     },
   },
 }));
+
+const mealPlans : any = {
+  full_board : "Full Board",
+  half_board : "Half Board",
+  room_only : "Room Only",
+  bread_breakfast : "Rread & breakfast"
+}
 
 export default function BookingShow({ handleClose, open, data }: BookingShowProps) {
   const [viewData, setViewData] = useState<any>({});
@@ -137,10 +145,12 @@ export default function BookingShow({ handleClose, open, data }: BookingShowProp
         <Typography variant="h6" sx={{ mt: 2 }}>Booking Details</Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
-            <Typography>Check in: {dayjs(viewData.check_in).format('YYYY-MM-DD HH:mm:ss')}</Typography>
+          
+            <Typography>Check in: {moment(viewData.check_in).format('YYYY-MM-DD HH:mm')}</Typography>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography>Check out: {dayjs(viewData.check_out).format('YYYY-MM-DD HH:mm:ss')}</Typography>
+          
+            <Typography>Check out: {moment(viewData.check_out).format('YYYY-MM-DD HH:mm')}</Typography>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Typography>Total Amount: {viewData.total_amount}</Typography>
@@ -195,14 +205,14 @@ export default function BookingShow({ handleClose, open, data }: BookingShowProp
                   {room?.starting_meals_with && <Typography sx={{ mb: 1.5 }} color="text.secondary">
                     Starting Meals With - {room?.starting_meals_with}
                   </Typography>}
-                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                  {/* <Typography sx={{ mb: 1.5 }} color="text.secondary">
                     Room Amount - {room?.room_amount}
-                  </Typography>
+                  </Typography> */}
                   <Typography sx={{ mb: 1.5 }} color="text.secondary">
                     Category - {room?.category}
                   </Typography>
                   <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    Meal Plan - {room?.meal_plan}
+                    Meal Plan - {mealPlans[room?.meal_plan] }
                   </Typography>
                   <Typography sx={{ mb: 1.5 }} color="text.secondary">
                     No.Adults - {room?.adults}
