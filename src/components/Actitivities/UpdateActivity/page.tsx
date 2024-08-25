@@ -28,6 +28,7 @@ const UpdateActivity = () => {
   let activityId = searchParams.get("activityID");
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<any>({});
   useAuthRedirect()
 
   const handleDeleteImage = async (index: number) => {
@@ -112,8 +113,11 @@ const UpdateActivity = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
+   
+
     if (files) {
       const fileArray = Array.from(files);
+      
       const fileReaders = fileArray.map((file) => {
         return new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -145,6 +149,28 @@ const UpdateActivity = () => {
     return base64String;
   };
 
+  const validateForm = () => {
+    let errors: any = {};
+
+    if (!formData.name.trim()) {
+      errors.name = "Activity name is required";
+    }
+
+    if (!formData.price) {
+      errors.price = "Price is required";
+    } else if (isNaN(Number(formData.price))) {
+      errors.price = "Price must be a number";
+    }
+
+    if (!formData.description.trim()) {
+      errors.description = "Description is required";
+    }
+
+    
+
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
   const handleDateChange = (date: Date | null, field: string) => {
     setFormData((prev) => ({ ...prev, [field]: date }));
   };
@@ -178,6 +204,10 @@ const UpdateActivity = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    if (!validateForm()) {
+      toast.error("Please fill all the fields correctly");
+      return;
+    }
     setLoading(true);
     const processedFormData = {
       media: formData.media.map(removeBase64Prefix) // Process each base64 image
@@ -231,6 +261,9 @@ const UpdateActivity = () => {
                   placeholder="Enter the Activity Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.name && (
+                  <span className="text-red">{errors.name}</span>
+                )}
               </div>
               <div className="w-full xl:w-1/2">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -245,6 +278,9 @@ const UpdateActivity = () => {
                   placeholder="Enter the Amount"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.price && (
+                  <span className="text-red">{errors.price}</span>
+                )}
               </div>
             </div>
             <div className="mb-6">
@@ -258,6 +294,7 @@ const UpdateActivity = () => {
                   onChange={handleFileChange}
                   className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                
               </div>
             </div>
             <div className="mb-6.5">
@@ -298,6 +335,9 @@ const UpdateActivity = () => {
                 placeholder="Type description"
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               ></textarea>
+              {errors.description && (
+                  <span className="text-red">{errors.description}</span>
+                )}
             </div>
             <button
               type="submit"

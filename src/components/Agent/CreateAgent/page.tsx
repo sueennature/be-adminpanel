@@ -1,38 +1,35 @@
 "use client";
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useAuthRedirect } from "@/utils/checkToken";
 import Cookies from "js-cookie";
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as Yup from "yup";
 
 const CreateAgent = () => {
   useAuthRedirect();
-  const [formData, setFormData] = useState<any>({
-    first_name: "",
-    last_name: "",
-    email: "",
-    telephone: "",
-    address: "",
-    nationality: ""
-  });
   
-  const [isChecked, setIsChecked] = useState<boolean>(false);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-  
+  const validationSchema = Yup.object().shape({
+    first_name: Yup.string().required("First name is required"),
+    last_name: Yup.string().required("Last name is required"),
+    email: Yup.string()
+      .email("Invalid email format")
+      .required("Email is required"),
+    telephone: Yup.string()
+      .required("Telephone is required")
+      .matches(/^[0-9]+$/, "Telephone must be a number")
+      .min(10, "Telephone must be exactly 10 digits")
+      .max(10, "Telephone must be exactly 10 digits"),
+    address: Yup.string().required("Address is required"),
+    nationality: Yup.string().required("Nationality is required"),
+  });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (values: any) => {
     setLoading(true);
-
 
     try {
       const response = await fetch("/api/agent", {
@@ -40,24 +37,22 @@ const CreateAgent = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(values),
       });
 
-     
       if (!response.ok) {
         throw new Error("Failed to create agent");
       }
 
-      if (isChecked) {
+      if (values.isChecked) {
         const registerResponse = await fetch("/api/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-
           body: JSON.stringify({
-            username: formData.first_name + " " + formData.last_name,
-            email: formData.email,
+            username: `${values.first_name} ${values.last_name}`,
+            email: values.email,
             role: "guest",
           }),
         });
@@ -70,21 +65,20 @@ const CreateAgent = () => {
           }, 1500);
           return;
         }
+
         if (!registerResponse.ok) {
           throw new Error("Failed to register user");
         }
+
         toast.success("Agent is created and user is registered successfully");
-        setLoading(false);
-        setTimeout(() => {
-          router.push("/agent");
-        }, 1500);
       } else {
-        setLoading(false);
         toast.success("Agent created successfully");
-        setTimeout(() => {
-          router.push("/agent");
-        }, 1500);
       }
+
+      setLoading(false);
+      setTimeout(() => {
+        router.push("/agent");
+      }, 1500);
     } catch (error) {
       console.error("Error submitting form:", error);
       setLoading(false);
@@ -95,117 +89,146 @@ const CreateAgent = () => {
   return (
     <div className="flex flex-col gap-9">
       <div className="rounded-sm border border-stroke bg-white shadow-default">
-        <form onSubmit={handleSubmit}>
-          <div className="p-6.5">
-            <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-              <div className="w-full xl:w-1/2">
-                <label className="mb-3 block text-sm font-medium text-black">
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter the First Name"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-                />
-              </div>
-              <div className="w-full xl:w-1/2">
-                <label className="mb-3 block text-sm font-medium text-black">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  name="last_name"
-                  value={formData.last_name}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter the Last Name"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-                />
-              </div>
-            </div>
+        <Formik
+          initialValues={{
+            first_name: "",
+            last_name: "",
+            email: "",
+            telephone: "",
+            address: "",
+            nationality: "",
+            isChecked: false,
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              <div className="p-6.5">
+                <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+                  <div className="w-full xl:w-1/2">
+                    <label className="mb-3 block text-sm font-medium text-black">
+                      First Name
+                    </label>
+                    <Field
+                      type="text"
+                      name="first_name"
+                      placeholder="Enter the First Name"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                    />
+                    <ErrorMessage
+                      name="first_name"
+                      component="div"
+                      className="text-red text-sm mt-1"
+                    />
+                  </div>
+                  <div className="w-full xl:w-1/2">
+                    <label className="mb-3 block text-sm font-medium text-black">
+                      Last Name
+                    </label>
+                    <Field
+                      type="text"
+                      name="last_name"
+                      placeholder="Enter the Last Name"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                    />
+                    <ErrorMessage
+                      name="last_name"
+                      component="div"
+                      className="text-red text-sm mt-1"
+                    />
+                  </div>
+                </div>
 
-            <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-              <div className="w-full xl:w-1/3">
-                <label className="mb-3 block text-sm font-medium text-black">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter the email"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-                />
-              </div>
+                <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+                  <div className="w-full xl:w-1/3">
+                    <label className="mb-3 block text-sm font-medium text-black">
+                      Email
+                    </label>
+                    <Field
+                      type="email"
+                      name="email"
+                      placeholder="Enter the email"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                    />
+                    <ErrorMessage
+                      name="email"
+                      component="div"
+                      className="text-red text-sm mt-1"
+                    />
+                  </div>
 
-              <div className="w-full xl:w-1/3">
-                <label className="mb-3 block text-sm font-medium text-black">
-                  Nationality
-                </label>
-                <select
-                  name="nationality"
-                  value={formData.nationality}
-                  onChange={handleChange}
-                  required
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                >
-                  <option value="">Select a nationality</option>
-                  <option value="foreign">Foreign</option>
-                  <option value="local">Local</option>
-                </select>
+                  <div className="w-full xl:w-1/3">
+                    <label className="mb-3 block text-sm font-medium text-black">
+                      Nationality
+                    </label>
+                    <Field
+                      as="select"
+                      name="nationality"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                    >
+                      <option value="">Select a nationality</option>
+                      <option value="foreign">Foreign</option>
+                      <option value="local">Local</option>
+                    </Field>
+                    <ErrorMessage
+                      name="nationality"
+                      component="div"
+                      className="text-red text-sm mt-1"
+                    />
+                  </div>
+                  <div className="w-full xl:w-1/3">
+                    <label className="mb-3 block text-sm font-medium text-black">
+                      Telephone
+                    </label>
+                    <Field
+                      type="text"
+                      name="telephone"
+                      placeholder="Enter the Telephone"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                    />
+                    <ErrorMessage
+                      name="telephone"
+                      component="div"
+                      className="text-red text-sm mt-1"
+                    />
+                  </div>
+                </div>
+                <div className="mb-6.5">
+                  <label className="mb-3 block text-sm font-medium text-black">
+                    Address
+                  </label>
+                  <Field
+                    type="text"
+                    name="address"
+                    placeholder="Enter the Address"
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                  />
+                  <ErrorMessage
+                    name="address"
+                    component="div"
+                    className="text-red text-sm mt-1"
+                  />
+                </div>
+                <div className="flex justify-end gap-4.5">
+                  <button
+                    type="button"
+                    className="rounded bg-gray-2 px-6 py-2 text-sm font-medium text-black shadow transition hover:bg-opacity-90"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading || isSubmitting}
+                    className="rounded bg-primary px-6 py-2 text-sm font-medium text-gray shadow transition hover:bg-opacity-90"
+                  >
+                    {loading ? "Creating..." : "Create"}
+                  </button>
+                </div>
               </div>
-              <div className="w-full xl:w-1/3">
-                <label className="mb-3 block text-sm font-medium text-black">
-                  Telephone
-                </label>
-                <input
-                  type="number"
-                  name="telephone"
-                  value={formData.telephone}
-                  onChange={handleChange}
-                  required
-                  placeholder="Enter the Telephone"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-                />
-              </div>
-            </div>
-            <div className="mb-6.5">
-              <label className="mb-3 block text-sm font-medium text-black">
-                Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                required
-                placeholder="Enter the Address"
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-              />
-            </div>
-            <div className="flex justify-end gap-4.5">
-              <button
-                type="button"
-                className="rounded bg-gray-2 px-6 py-2 text-sm font-medium text-black shadow transition hover:bg-opacity-90"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="rounded bg-primary px-6 py-2 text-sm font-medium text-gray shadow transition hover:bg-opacity-90"
-              >
-                {loading ? "Creating..." : "Create"}
-              </button>
-            </div>
-          </div>
-        </form>
+            </Form>
+          )}
+        </Formik>
       </div>
     </div>
   );

@@ -24,6 +24,24 @@ const CreateGuest = () => {
     password: "",
     profile_image: [],
   });
+
+  const [errors, setErrors] = useState<any>({
+    first_name: "",
+    last_name: "",
+    email: "",
+    telephone: "",
+    address: "",
+    nationality: "",
+    identification_type: "",
+    identification_no: "",
+    identification_issue_date: "",
+    dob: "",
+    gender: "",
+    password: "",
+    profile_image: "",
+  });
+
+
   const dobPickerRef = useRef<flatpickr.Instance | null>(null);
   const idIssueDatePickerRef = useRef<flatpickr.Instance | null>(null);
   const [isChecked, setIsChecked] = useState<boolean>(false);
@@ -77,13 +95,122 @@ const CreateGuest = () => {
       }
     };
   }, []);
+
+  // const validate = () => {
+  //   const newErrors: any = {};
+
+  //   if (!formData.first_name) newErrors.first_name = "First name is required";
+  //   if (!formData.last_name) newErrors.last_name = "Last name is required";
+  //   // Email validation
+  //   if (!formData.email.trim()) {
+  //     newErrors.email = "Email is required"; 
+  //   } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+  //     newErrors.email = "Email is invalid";
+  //   }
+
+  //   if (!formData.telephone.trim()) {
+  //     newErrors.telephone = "Telephone is required";
+  //   } else if (!/^\d+$/.test(formData.telephone)) {
+  //     newErrors.telephone = "Telephone must contain only numbers";
+  //   } else if (formData.telephone.length !== 10) {
+  //     newErrors.telephone = "Telephone must be exactly 10 digits";
+  //   }
+  //   if (!formData.address) newErrors.address = "Address is required";
+  //   if (!formData.nationality) newErrors.nationality = "Nationality is required";
+  //   if (!formData.identification_type) newErrors.identification_type = "Identification type is required";
+  //   // Identification No validation (Sri Lanka: 9 digits followed by optional single alphabet character)
+  //   const identificationNoPattern = /^\d{9}[A-Za-z]?$/;
+  //   if (formData.identification_no && !identificationNoPattern.test(formData.identification_no)) {
+  //     errors.identification_no = 'Invalid identification number. Must be 9 digits followed by an optional single letter';
+  //   }
+  //   if (!formData.identification_issue_date) newErrors.identification_issue_date = "Identification issue date is required";
+  //   if (!formData.dob) newErrors.dob = "Date of birth is required";
+  //   if (!formData.gender) newErrors.gender = "Gender is required";
+  //    // Password validation (minimum 8 characters, 1 uppercase, 1 lowercase, 1 number)
+  //    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+  //    if (formData.password && !passwordPattern.test(formData.password)) {
+  //      errors.password = 'Password must be at least 8 characters long and include 1 uppercase letter, 1 lowercase letter, and 1 number';
+  //    }
+    
+
+  //   setErrors(newErrors);
+  //   return Object.keys(newErrors).length === 0;
+  // };
+
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
     });
+     // Validate the input as it's being changed
+     validateField(name, value);
   };
+
+  const validateField = (name: string, value: string) => {
+    let error = '';
+
+    switch (name) {
+        case 'first_name':
+            if (!value.trim()) {
+                error = 'First name is required';
+            }
+            break;
+
+        case 'last_name':
+            if (!value.trim()) {
+                error = 'Last name is required';
+            }
+            break;
+        case 'nationality':
+              if (!value.trim()) {
+                  error = 'Nationality is required';
+              }
+              break;    
+
+        case 'email':
+            if (!value.trim()) {
+                error = 'Email is required';
+            } else if (!/\S+@\S+\.\S+/.test(value)) {
+                error = 'Email is invalid';
+            }
+            break;
+
+        case 'telephone':
+            if (!value.trim()) {
+                error = 'Telephone is required';
+            } else if (!/^\d+$/.test(value)) {
+                error = 'Telephone must contain only numbers';
+            } else if (value.length !== 10) {
+                error = 'Telephone must be exactly 10 digits';
+            }
+            break;
+
+        case 'identification_no':
+            const identificationNoPattern = /^\d{9}[A-Za-z]?$/;
+            if (value && !identificationNoPattern.test(value)) {
+                error = 'Invalid identification number. Must be 9 digits followed by an optional single letter';
+            }
+            break;
+
+        case 'password':
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+            if (value && !passwordPattern.test(value)) {
+                error = 'Password must be at least 8 characters long and include 1 uppercase letter, 1 lowercase letter, and 1 number';
+            }
+            break;
+
+        // Add additional validation cases as needed
+
+        default:
+            break;
+    }
+
+    setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [name]: error,
+    }));
+};
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
@@ -120,6 +247,7 @@ const CreateGuest = () => {
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     setLoading(true)
 
     const processedFormData = {
@@ -210,6 +338,7 @@ const CreateGuest = () => {
                   placeholder="Enter the First Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.first_name && <p className="text-red text-sm">{errors.first_name}</p>}
               </div>
               <div className="w-full xl:w-1/2">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -224,6 +353,7 @@ const CreateGuest = () => {
                   placeholder="Enter the Last Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.last_name && <p className="text-red text-sm">{errors.last_name}</p>}
               </div>
             </div>
 
@@ -241,6 +371,7 @@ const CreateGuest = () => {
                   placeholder="Enter the email"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.email && <p className="text-red text-sm">{errors.email}</p>}
               </div>
 
               <div className="w-full xl:w-1/3">
@@ -258,6 +389,7 @@ const CreateGuest = () => {
                   <option value="foreign">Foreign</option>
                   <option value="local">Local</option>
                 </select>
+                {errors.nationality && <p className="text-red text-sm">{errors.nationality}</p>}
               </div>
               <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -272,6 +404,7 @@ const CreateGuest = () => {
                   placeholder="Enter the Telephone"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                 {errors.telephone && <p className="text-red text-sm">{errors.telephone}</p>}
               </div>
             </div>
 
@@ -292,6 +425,7 @@ const CreateGuest = () => {
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
+                {errors.gender && <p className="text-red text-sm">{errors.gender}</p>}
               </div>
 
               <div className="w-full xl:w-1/5">
@@ -310,6 +444,7 @@ const CreateGuest = () => {
                   <option value="government">Government</option>
                   <option value="other">Other</option>
                 </select>
+                {errors.identification_type && <p className="text-red text-sm">{errors.identification_type}</p>}
               </div>
               <div className="w-full xl:w-1/5">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -324,6 +459,7 @@ const CreateGuest = () => {
                   placeholder="Enter the Identification No"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.identification_no && <p className="text-red text-sm">{errors.identification_no}</p>}
               </div>
 
               <div className="w-full xl:w-1/5">
@@ -338,6 +474,7 @@ const CreateGuest = () => {
                   placeholder="Enter the Identification Issue Date"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.identification_issue_date && <p className="text-red text-sm">{errors.identification_issue_date}</p>}
               </div>
               <div className="w-full xl:w-1/5">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -351,6 +488,7 @@ const CreateGuest = () => {
                   placeholder="Enter the Date of Birth"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.dob && <p className="text-red text-sm">{errors.dob}</p>}
               </div>
             </div>
 
@@ -367,6 +505,7 @@ const CreateGuest = () => {
                 placeholder="Enter the Address"
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               />
+              {errors.address && <p className="text-red text-sm">{errors.address}</p>}
             </div>
 
             <div className="mb-6.5">
@@ -382,6 +521,7 @@ const CreateGuest = () => {
                 placeholder="Enter the Password"
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               />
+               {errors.password && <p className="text-red text-sm">{errors.password}</p>}
             </div>
 
             <div className="mb-6.5">
@@ -394,7 +534,7 @@ const CreateGuest = () => {
               onChange={handleFileChange} 
               className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
             />
-
+            
             </div>
             <div>
       <label

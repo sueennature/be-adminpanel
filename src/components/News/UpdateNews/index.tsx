@@ -28,6 +28,7 @@ const UpdateNews = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [videoPreviews, setVideoPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false); 
+  const [errors, setErrors] = useState<any>({});
 
 //   const handleDeleteImage = async (index: number) => {
 //     const imageUrl = formData.images[index];
@@ -211,9 +212,29 @@ const handleDeleteMedia = async (index: number, mediaType: 'image' | 'video') =>
     return base64String;
   };
 
+  const validateForm = () => {
+    let errors: any = {};
+
+    if (!formData.title.trim()) {
+      errors.name = "News title is required";
+    }
+
+    if (!formData.content.trim()) {
+      errors.content = "Content is required";
+    }
+
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
   
+  };
+
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    if (!validateForm()) {
+      toast.error("Please fill all the fields correctly");
+      return;
+    }
     setLoading(true);
     const processedFormData = {
       ...formData,
@@ -279,6 +300,7 @@ const handleDeleteMedia = async (index: number, mediaType: 'image' | 'video') =>
                   onChange={handleInputChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                 {errors.name && <p className="text-red">{errors.name}</p>}
               </div>
             </div>
             
@@ -368,6 +390,7 @@ const handleDeleteMedia = async (index: number, mediaType: 'image' | 'video') =>
                 onChange={handleInputChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               ></textarea>
+               {errors.content && <p className="text-red">{errors.content}</p>}
             </div>
           
             <button

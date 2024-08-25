@@ -21,6 +21,7 @@ const CreateNews = () => {
   });
   const router = useRouter()
   const [loading, setLoading] = React.useState(false)
+  const [errors, setErrors] = useState<any>({});
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -37,7 +38,16 @@ const CreateNews = () => {
   ) => {
     const files = e.target.files;
     if (files) {
+      if (files.length > 0) {
+        setErrors((prevErrors: any) => ({
+            ...prevErrors,
+            media: '' // Clear the media error
+        }));
+      }
       const filePromises = Array.from(files).map(file => {
+         // Clear media error immediately after file selection
+         
+      
         return new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.readAsDataURL(file);
@@ -52,6 +62,7 @@ const CreateNews = () => {
             ...prevState,
             [type]: base64Files,
           }));
+          
         })
         .catch(error => console.error("Error converting files:", error));
     }
@@ -66,8 +77,32 @@ const CreateNews = () => {
     return base64String.replace(videoPrefixPattern, '');
   };
 
+  const validateForm = () => {
+    let errors: any = {};
+
+    if (!formData.title.trim()) {
+      errors.name = "News title is required";
+    }
+
+    if (!formData.content.trim()) {
+      errors.content = "Content is required";
+    }
+
+    if (formData.images.length === 0) {
+      errors.media = "At least one file is required";
+    }
+
+    
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!validateForm()) {
+      toast.error("Please fill these input fields correctly");
+      return;
+    }
     setLoading(true)
     const processedFormData = {
       ...formData,
@@ -82,7 +117,10 @@ const CreateNews = () => {
       console.error("Title and Content are required");
       return;
     }
-
+    if (!formData.title || !formData.content || formData.images.length === 0) {
+      toast.error("Please fill all fields");
+      return;
+    }
    
 
     try {
@@ -134,6 +172,7 @@ const CreateNews = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.name && <p className="text-red">{errors.name}</p>}
             </div>
           </div>
 
@@ -161,6 +200,7 @@ const CreateNews = () => {
               onChange={(e) => handleFileChange(e, "images")}
               className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-white file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
             />
+            {errors.media && <p className="text-red">{errors.media}</p>}
           </div>
 
           <div className="mb-6">
@@ -189,6 +229,7 @@ const CreateNews = () => {
               onChange={handleChange}
               className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
             ></textarea>
+            {errors.content && <p className="text-red">{errors.content}</p>}
           </div>
 
           <button
