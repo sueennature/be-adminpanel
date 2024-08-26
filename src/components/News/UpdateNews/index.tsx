@@ -29,6 +29,8 @@ const UpdateNews = () => {
   const [videoPreviews, setVideoPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false); 
   const [errors, setErrors] = useState<any>({});
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);  //set tooltip
+  const [tooltipType, setTooltipType] = useState<"images" | "videos" | null>(null);
 
 //   const handleDeleteImage = async (index: number) => {
 //     const imageUrl = formData.images[index];
@@ -136,6 +138,24 @@ const handleDeleteMedia = async (index: number, mediaType: 'image' | 'video') =>
     const files = event.target.files;
     if (files) {
       const fileArray = Array.from(files);
+      // Set file size limits: 1 MB for images, 2 MB for videos
+      const maxSize = type === "image" ? 1024 * 1024 : 2 * 1024 * 1024;
+      const oversizedFiles = fileArray.filter(file => file.size > maxSize);
+
+     if (oversizedFiles.length > 0) {
+       
+       setErrors((prevErrors :any) => ({
+           ...prevErrors,
+           [type]: `File size must be less than ${type === "image" ? "1 MB" : "2 MB"} for ${type}`,
+       }));
+   } else {
+     setTooltipMessage(null);
+     setErrors((prevErrors: any) => ({
+       ...prevErrors,
+       [type]: '',
+     }));
+     }
+    
       const fileReaders = fileArray.map((file) => {
         return new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -167,7 +187,15 @@ const handleDeleteMedia = async (index: number, mediaType: 'image' | 'video') =>
     }
   };
 
-
+  const handleFocus = (type: "images" | "videos") => {
+    if (type === "images") {
+      setTooltipMessage('Please upload images smaller than 1 MB');
+      setTooltipType("images");
+    } else if (type === "videos") {
+      setTooltipMessage('Please upload videos smaller than 2 MB');
+      setTooltipType("videos");
+    }
+  };
   useEffect(() => {
     const fetchNews = async () => {
       if (newsId) {
@@ -308,12 +336,21 @@ const handleDeleteMedia = async (index: number, mediaType: 'image' | 'video') =>
               <label className="mb-3 block text-sm font-medium text-black">
                 Attach Image
               </label>
+              {tooltipMessage && tooltipType === "images" && (
+    <div className="mt-2 text-sm text-red">
+      {tooltipMessage}
+    </div>
+  )}
               <input
                 type="file"
                 multiple
                 onChange={handleImageFileChange}
+                onFocus={() => handleFocus("images")} 
                 className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-white file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.images && (
+    <p className="text-red text-sm mt-1">{errors.images}</p>
+  )}
             </div>
             <div className="mb-6.5">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -344,13 +381,22 @@ const handleDeleteMedia = async (index: number, mediaType: 'image' | 'video') =>
               <label className="mb-3 block text-sm font-medium text-black">
                 Attach Video
               </label>
+              {tooltipMessage && tooltipType === "videos" && (
+    <div className="mt-2 text-sm text-red">
+      {tooltipMessage}
+    </div>
+  )}
               <input
                 type="file"
                 multiple
                 accept="video/*"
                 onChange={handleVideoFileChange}
+                onFocus={() => handleFocus("videos")}
                 className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-white file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+                {errors.videos && (
+    <p className="text-red text-sm mt-1">{errors.videos}</p>
+  )}
             </div>
             <div className="mb-6.5">
               <label className="mb-3 block text-sm font-medium text-black">

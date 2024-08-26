@@ -44,6 +44,27 @@ const UpdateGuest = () => {
     password: "",
     profile_image: [],
 });
+
+type ErrorsType = {
+  [key: string]: string;
+};
+const [errors, setErrors] = useState<any>({
+  first_name: "",
+  last_name: "",
+  email: "",
+  telephone: "",
+  address: "",
+  nationality: "",
+  identification_type: "",
+  identification_no: "",
+  identification_issue_date: "",
+  dob: "",
+  gender: "",
+  password: "",
+  profile_image: "",
+});
+  
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);  //set tooltip
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   useAuthRedirect()
@@ -94,28 +115,7 @@ const UpdateGuest = () => {
           }
       }
   }
-    // if (imageUrl) {
-    //   console.log("IMAGEURL", imageUrl);
-    //   try {
-    //     await axios.delete(`${process.env.BE_URL}/guests/${guestId}/images`, {
-    //       data: [imageUrl] , // Wrap imageUrl in an array
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //         Authorization: `Bearer ${Cookies.get('access_token')}`,
-    //         'x-api-key': process.env.X_API_KEY,
-    //       },
-    //     });
-  
-    //     setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
-    //     setFormData(prevData => ({
-    //       ...prevData,
-    //       profile_image: prevData.profile_image.filter((_, i) => i !== index),
-    //     }));
-    //   } catch (err) {
-    //     console.error('Error deleting image:', err);
-    //     toast.error('Error deleting image');
-    //   }
-    // }
+    
   };
 
   useEffect(() => {
@@ -163,10 +163,27 @@ const UpdateGuest = () => {
       ...formData,
       [name]: value
     });
+    // Validate the input as it's being changed
+    validateField(name, value);
   };
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
+      const oversizedFiles = filesArray.filter(file => file.size > 1024 * 1024); // 1 MB in bytes
+
+      if (oversizedFiles.length > 0) {
+        
+        setErrors((prevErrors :any) => ({
+            ...prevErrors,
+            profile_image: 'File size must be less than 1 MB',
+        }));
+    } else {
+      setTooltipMessage(null);
+        setErrors((prevErrors :any) => ({
+            ...prevErrors,
+            profile_image: '',
+        }));
+
       const base64Promises = filesArray.map(file => {
         return new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -189,8 +206,77 @@ const UpdateGuest = () => {
       });
     }
   };
-  
-  
+};
+  const validateField = (name: string, value: string) => {
+    let error = '';
+
+    switch (name) {
+        case 'first_name':
+            if (!value.trim()) {
+                error = 'First name is required';
+            }
+            break;
+
+        case 'last_name':
+            if (!value.trim()) {
+                error = 'Last name is required';
+            }
+            break;
+        case 'nationality':
+              if (!value.trim()) {
+                  error = 'Nationality is required';
+              }
+              break;    
+
+        case 'email':
+            if (!value.trim()) {
+                error = 'Email is required';
+            } else if (!/\S+@\S+\.\S+/.test(value)) {
+                error = 'Email is invalid';
+            }
+            break;
+
+        case 'telephone':
+            if (!value.trim()) {
+                error = 'Telephone is required';
+            } else if (!/^\d+$/.test(value)) {
+                error = 'Telephone must contain only numbers';
+            } else if (value.length !== 10) {
+                error = 'Telephone must be exactly 10 digits';
+            }
+            break;
+
+        case 'identification_no':
+            const identificationNoPattern = /^\d{9}[A-Za-z]?$/;
+            if (value && !identificationNoPattern.test(value)) {
+                error = 'Invalid identification number. Must be 9 digits followed by an optional single letter';
+            }
+            break;
+
+        case 'password':
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+            if (value && !passwordPattern.test(value)) {
+                error = 'Password must be at least 8 characters long and include 1 uppercase letter, 1 lowercase letter, and 1 number';
+            }
+            break;
+
+        // Add additional validation cases as needed
+
+        default:
+            break;
+    }
+
+    setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [name]: error,
+    }));
+};
+
+const handleFocus = () => {
+  if (!tooltipMessage) {
+    setTooltipMessage('Please upload an image smaller than 1 MB');
+  }
+};
   const removeBase64Prefix = (base64String: string) => {
     // Find the comma that separates the metadata from the base64 data
     const base64Prefix = 'data:image/png;base64,';
@@ -205,6 +291,23 @@ const UpdateGuest = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Validate all fields including password
+    if (!formData.password.trim()) {
+      setErrors((prevErrors:any) => ({
+          ...prevErrors,
+          password: 'Password is required',
+      }));
+      return; // Prevent form submission if password is empty
+  }
+
+  // Submit the form if all fields are valid
+  if (Object.values(errors).every(error => error === '')) {
+      setLoading(true);
+
+      // Proceed with form submission logic here
+
+      setLoading(false);
+  }
     setLoading(true);
 
     const formattedStartDate = format(
@@ -280,6 +383,7 @@ const UpdateGuest = () => {
                   placeholder="Enter the First Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.first_name && <p className="text-red text-sm">{errors.first_name}</p>}
               </div>
               <div className="w-full xl:w-1/2">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -294,6 +398,7 @@ const UpdateGuest = () => {
                   placeholder="Enter the Last Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.last_name && <p className="text-red text-sm">{errors.last_name}</p>}
               </div>
             </div>
 
@@ -309,6 +414,7 @@ const UpdateGuest = () => {
                     className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
                     placeholderText="mm/dd/yyyy"
                   />
+                  {errors.dob && <p className="text-red text-sm">{errors.dob}</p>}
                 </div>
               </div>
               <div className="w-full">
@@ -341,6 +447,7 @@ const UpdateGuest = () => {
                   placeholder="Enter the email"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.email && <p className="text-red text-sm">{errors.email}</p>}
               </div>
 
               <div className="w-full xl:w-1/3">
@@ -358,6 +465,7 @@ const UpdateGuest = () => {
                   <option value="foreign">Foreign</option>
                   <option value="local">Local</option>
                 </select>
+                {errors.nationality && <p className="text-red text-sm">{errors.nationality}</p>}
               </div>
               <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -372,6 +480,7 @@ const UpdateGuest = () => {
                   placeholder="Enter the Telephone"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.telephone && <p className="text-red text-sm">{errors.telephone}</p>}
               </div>
             </div>
 
@@ -392,6 +501,7 @@ const UpdateGuest = () => {
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
                 </select>
+                {errors.gender && <p className="text-red text-sm">{errors.gender}</p>}
               </div>
 
               <div className="w-full xl:w-1/3">
@@ -410,6 +520,7 @@ const UpdateGuest = () => {
                   <option value="government">Government</option>
                   <option value="other">Other</option>
                 </select>
+                {errors.identification_type && <p className="text-red text-sm">{errors.identification_type}</p>}
               </div>
               <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -424,6 +535,7 @@ const UpdateGuest = () => {
                   placeholder="Enter the Identification No"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.identification_no && <p className="text-red text-sm">{errors.identification_no}</p>}
               </div>
             </div>
 
@@ -454,6 +566,7 @@ const UpdateGuest = () => {
                   placeholder="Enter the password"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.password && <p className="text-red text-sm">{errors.password}</p>}
               </div>
             </div>
 
@@ -462,12 +575,21 @@ const UpdateGuest = () => {
                 <label className="mb-3 block text-sm font-medium text-black">
                   Profile Image
                 </label>
+                {tooltipMessage && (
+        <div className="mt-2 text-sm text-red">
+            {tooltipMessage}
+        </div>
+    )}
                 <input
                   type="file"
                   name="profile_image"
                   onChange={handleFileChange}
+                  onFocus={handleFocus}
                   className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                 {errors.profile_image && (
+            <p className="text-red text-sm mt-1">{errors.profile_image}</p>
+        )}
               </div>
             </div>
             <div className="mb-6.5">

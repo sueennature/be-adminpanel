@@ -23,7 +23,7 @@ export async function POST(request: any) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            return NextResponse.json({ error: 'Failed to create guest', details: errorData }, { status: response.status });
+            return NextResponse.json({ error: 'Failed to create Discount', details: errorData }, { status: response.status });
         }
 
         const data = await response.json();

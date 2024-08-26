@@ -16,6 +16,14 @@ const CreateDiscount = () => {
     end_date: "",
     description: "",
   });
+  const [errors, setErrors] = useState<any>({
+    name: "",
+    percentage: "",
+    start_date: "",
+    discount_code:"",
+    end_date: "",
+    
+  });
   const [loading, setLoading] = useState(false); // Add a loading state
   const startDate = useRef<flatpickr.Instance | null>(null);
   const endDate = useRef<flatpickr.Instance | null>(null);
@@ -30,12 +38,15 @@ const CreateDiscount = () => {
         '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
       nextArrow:
         '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
+      // onChange: (selectedDates) => {
+      //   const dateStr = selectedDates[0].toISOString();
+      //   setFormData((prevData) => ({
+      //     ...prevData,
+      //     start_date: dateStr,
+      //   }));
+      // },
       onChange: (selectedDates) => {
-        const dateStr = selectedDates[0].toISOString();
-        setFormData((prevData) => ({
-          ...prevData,
-          start_date: dateStr,
-        }));
+        handleDateChange(selectedDates[0], "start_date");
       },
     });
 
@@ -48,12 +59,15 @@ const CreateDiscount = () => {
         '<svg className="fill-current" width="7" height="11" viewBox="0 0 7 11"><path d="M5.4 10.8l1.4-1.4-4-4 4-4L5.4 0 0 5.4z" /></svg>',
       nextArrow:
         '<svg className="fill-current" width="7" height="11"><path d="M1.4 10.8L0 9.4l4-4-4-4L1.4 0l5.4 5.4z" /></svg>',
+      // onChange: (selectedDates) => {
+      //   const dateStr = selectedDates[0].toISOString();
+      //   setFormData((prevData) => ({
+      //     ...prevData,
+      //     end_date: dateStr,
+      //   }));
+      // },
       onChange: (selectedDates) => {
-        const dateStr = selectedDates[0].toISOString();
-        setFormData((prevData) => ({
-          ...prevData,
-          end_date: dateStr,
-        }));
+        handleDateChange(selectedDates[0], "end_date");
       },
     });
 
@@ -68,15 +82,90 @@ const CreateDiscount = () => {
     };
   }, []);
 
+ 
+
+// form validation fields
+  const validateField = (name: string, value: string | Date | null) => {
+    let error = '';
+
+    switch (name) {
+        case 'name':
+            if (typeof value === 'string' && !value.trim()) {
+                error = 'Discount name is required';
+            }
+            break;
+
+        case 'percentage':
+            if (typeof value === 'string' && !value.trim()) {
+                error = 'Discount percentage is required';
+            }
+            break;
+
+        case 'start_date':
+            if (!value || (value instanceof Date && isNaN(value.getTime()))) {
+                error = 'Start Date is required';
+            }
+            break;
+
+        case 'end_date':
+            if (!value || (value instanceof Date && isNaN(value.getTime()))) {
+                error = 'End Date is required';
+            }
+            break;
+
+        case 'discount_code':
+            if (typeof value === 'string' && !value.trim()) {
+                error = 'Discount code is required';
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [name]: error,
+    }));
+};
+
+const handleDateChange = (date: Date | null, field: string) => {
+  if (date) {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: date.toISOString(),
+    }));
+    validateField(field, date.toISOString());
+  } else {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: "",
+    }));
+    validateField(field, null);
+  }
+};
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Validate the input as it's being changed
+    validateField(name, value);
+    
   };
+
 
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    
+    
+    // Check for any errors
+    if (Object.values(errors).some((error) => error)) {
+      return; // Prevent form submission if there are validation errors
+    }
+    
     setLoading(true); // Set loading to true when API call starts
     console.log("Form Data:", formData);
     try {
@@ -141,6 +230,7 @@ const CreateDiscount = () => {
                   placeholder="Enter the Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.name && <p className="text-red text-sm">{errors.name}</p>}
               </div>
               <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -155,6 +245,7 @@ const CreateDiscount = () => {
                   placeholder="Enter the Percentage"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.percentage && <p className="text-red text-sm">{errors.percentage}</p>}
               </div>
               <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -169,6 +260,7 @@ const CreateDiscount = () => {
                   placeholder="Enter the Discount Code"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.discount_code && <p className="text-red text-sm">{errors.discount_code}</p>}
               </div>
             </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
@@ -185,6 +277,7 @@ const CreateDiscount = () => {
                     onChange={handleChange}
                     data-class="flatpickr-right"
                   />
+                  {errors.start_date && <p className="text-red text-sm">{errors.start_date}</p>}
                   <div className="pointer-events-none absolute inset-0 left-auto right-5 flex items-center">
                     <svg
                       width="18"
@@ -214,6 +307,7 @@ const CreateDiscount = () => {
                     onChange={handleChange}
                     data-class="flatpickr-right"
                   />
+                  {errors.end_date && <p className="text-red text-sm">{errors.end_date}</p>}
                   <div className="pointer-events-none absolute inset-0 left-auto right-5 flex items-center">
                     <svg
                       width="18"
@@ -239,7 +333,6 @@ const CreateDiscount = () => {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                required
                 placeholder="Enter the Description"
                 rows={3}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"

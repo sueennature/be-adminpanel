@@ -16,6 +16,7 @@ const CreateActivity = () => {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false)
   const [errors, setErrors] = useState<any>({});
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);  //set tooltip
 useAuthRedirect()
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -29,6 +30,21 @@ useAuthRedirect()
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
       // Clear media error immediately after file selection
+
+      const oversizedFiles = filesArray.filter(file => file.size > 1024 * 1024); // 1 MB in bytes
+      if (oversizedFiles.length > 0) {
+        
+        setErrors((prevErrors :any) => ({
+            ...prevErrors,
+            profile_image: 'File size must be less than 1 MB',
+        }));
+    } else {
+      setTooltipMessage(null);
+        setErrors((prevErrors :any) => ({
+            ...prevErrors,
+            profile_image: '',
+        }));
+
       if (filesArray.length > 0) {
         setErrors((prevErrors: any) => ({
             ...prevErrors,
@@ -55,6 +71,12 @@ useAuthRedirect()
           console.error("Error converting images to base64:", error);
           toast.error("Error uploading images");
         });
+    }
+  };
+};
+  const handleFocus = () => {
+    if (!tooltipMessage) {
+      setTooltipMessage('Please upload an image smaller than 1 MB');
     }
   };
  // Log the original base64 images
@@ -189,14 +211,22 @@ useAuthRedirect()
                 <label className="mb-3 block text-sm font-medium text-black">
                   Attach file
                 </label>
+                {tooltipMessage && (
+        <div className="mt-2 text-sm text-red">
+            {tooltipMessage}
+        </div>
+    )}
                 <input
                   type="file"
                   multiple
                   name="media"
                   onChange={handleFileChange}
+                  onFocus={handleFocus}
                   className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
-                {errors.media && <p className="text-red">{errors.media}</p>}
+                {errors.profile_image && (
+            <p className="text-red text-sm mt-1">{errors.profile_image}</p>
+        )}
               </div>
             </div>
             <div className="mb-6">
