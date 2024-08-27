@@ -23,6 +23,31 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useRouter } from "next/navigation";
 import dayjs from 'dayjs';
 import { BE_URL, X_API_KEY, FRONT_URL } from '@/config/config'
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+
+function createData(
+  name: string,
+  calories: number,
+  fat: number,
+  carbs: number,
+  protein: number,
+) {
+  return { name, calories, fat, carbs, protein };
+}
+
+const rows = [
+  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
+  createData('Eclair', 262, 16.0, 24, 6.0),
+  createData('Cupcake', 305, 3.7, 67, 4.3),
+  createData('Gingerbread', 356, 16.0, 49, 3.9),
+];
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 interface AgentInfo {
@@ -42,10 +67,10 @@ interface GestInfo {
   telephone: string;
   address: string;
   identificationType: string;
-  
+
   identificationNo: string;
   gender: string;
-  
+
 }
 
 interface BookingRoomData {
@@ -95,11 +120,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     if (!discounts || discounts.length === 0) {
       return undefined; // Return undefined if discounts array is empty or undefined
     }
-  
+
     const minDiscount = discounts.reduce((min, discount) => {
       return discount.percentage < min.percentage ? discount : min;
     });
-  
+
     return minDiscount.id;
   }
   // const leastDiscountId : any = getLeastPercentageDiscountId(responseDatas?.discounts?.length === 0 ? [] :responseDatas?.discounts);
@@ -123,10 +148,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     date: null,
     dateStr: ''
   });
-  const [issueDate, setIssueDate] =useState<any>({
+  const [issueDate, setIssueDate] = useState<any>({
     date: null,
     dateStr: ''
-   });
+  });
   const [additionalServicesByRoom, setAdditionalServicesByRoom] = useState<{ [key: string]: any[] }>({});
   // const [mofifyDiscount, setMofifyDiscount] = useState<boolean>(false);
   // const [mofifyTaxes, setMofifyTaxes] = useState<boolean>(false);
@@ -150,10 +175,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     telephone: '',
     address: '',
     identificationType: '',
-    
+
     identificationNo: '',
     gender: '',
-    
+
   });
 
 
@@ -193,11 +218,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
 
   const validate = () => {
-    let tempErrors:any = {};
+    let tempErrors: any = {};
 
     if (!guestInfo.firstName) tempErrors.firstName = "Guest First Name is required!";
     if (!guestInfo.lastName) tempErrors.lastName = "Guest Last Name is required!";
-    
+
     // Simple email validation
     if (!guestInfo.email) {
       tempErrors.email = "Guest Email is required!";
@@ -223,8 +248,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   };
 
   const renderErrorMessages = () => {
-    return Object.values(errors).map((error : any, index: any) => (
-      <p key={index} style={{ color: 'red', fontWeight:800,textAlign:"right" }}>{error}</p>
+    return Object.values(errors).map((error: any, index: any) => (
+      <p key={index} style={{ color: 'red', fontWeight: 800, textAlign: "right" }}>{error}</p>
     ));
   };
 
@@ -410,7 +435,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         telephone: '',
         address: '',
         identificationType: '',
-       
+
         identificationNo: '',
         gender: '',
       })
@@ -442,11 +467,12 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         "room_id": val?.id,
         "room_number": val?.room_number,
         "category": val?.category,
+        "secondary_category": val?.secondary_category,
         "view": val?.view,
-        "adults": 0,
+        "adults": 1,
         "children": [],
         "infants": [],
-        "meal_plan": "",
+        "meal_plan": "room_only",
         "max_adults": val?.max_adults,
         "max_childs": val?.max_childs,
         "additional_services": additionalServicesByRoom?.[val?.id] || []
@@ -493,7 +519,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     }
   }
 
-  
+
 
   const handelProceedToPay = async () => {
     try {
@@ -523,7 +549,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             "profile_image": [],
             "identification_type": guestInfo?.identificationType,
             "identification_no": guestInfo?.identificationNo,
-            "identification_issue_date" : issueDate?.dateStr,
+            "identification_issue_date": issueDate?.dateStr,
             "dob": dob?.dateStr,
             "gender": guestInfo?.gender,
           },
@@ -546,7 +572,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           "total_additional_services_amount": rates?.total_additional_services_amount
         }
 
-        console.log("requestBodyrequestBodyrequestBody",requestBody)
+        console.log("requestBodyrequestBodyrequestBody", requestBody)
         const accessToken = Cookies.get("access_token");
         const response = await axios.post(`${process.env.BE_URL}/bookings/internal`, requestBody, {
           headers: {
@@ -590,13 +616,13 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   useEffect(() => {
     getrates()
   }, [
-    additionalServicesByRoom, 
-    partialAmount, 
-    activities, 
-    checkIN, 
-    checkOut, 
-    requestRoom, 
-    selectedDiscounts, 
+    additionalServicesByRoom,
+    partialAmount,
+    activities,
+    checkIN,
+    checkOut,
+    requestRoom,
+    selectedDiscounts,
     selectedTaxes
   ]);
 
@@ -605,17 +631,320 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   return (
     <div className="mx-auto w-full px-4">
       <div className="pb-6">
-       
+
         <div className="mb-6 text-xl font-bold text-black">
           {room_type_view}
         </div>
+        <div className="mb-4 mt-4 flex flex-col gap-4">
+          <div className="flex gap-4">
+            <div className="w-full xl:w-1/5">
+              <label
+                htmlFor="roomNumber"
+                className="mb-2 block text-xl font-medium text-black"
+              >
+                Rooms
+              </label>
+              <Stack spacing={3} sx={{ width: 500 }}>
+                <Autocomplete
+                  multiple
+                  id="tags-outlined"
+                  options={responseDatas?.rooms || []}
+                  getOptionLabel={(option: any) => option?.room_number}
+                  onChange={handleAddRoom}
+                  filterSelectedOptions
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select Rooms"
+                      placeholder="Select Rooms"
+                    />
+                  )}
+                />
+              </Stack>
+            </div>
+          </div>
+
+          {/* <div className=" flex flex-col gap-6 lg:flex-row">
+            {requestRoom?.map((room: any, index: any) => (
+              <div key={room?.room_id} className="w-full">
+                <div className="mb-2 flex items-center">
+                  <div className="bg-gray-100 mr-2 flex h-[40px] w-12 items-center justify-center rounded border p-2">
+                    {room?.room_number}
+                  </div>
+
+                </div>
+                <div>
+                  <label className="mb-2 block text-xl font-medium text-black">
+                    Room category
+                  </label>
+                  <select
+                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                    onChange={(e) => {
+                      handleUpdateCatogory(e, room?.room_id);
+                    }}
+                  >
+                    <option value={""}>Select Category</option>
+                    {Object.entries(responseDatas?.category_counts || {}).map(([roomType, count], key) => (
+                      <option key={key} value={`${roomType}`}>{roomType}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-2 block text-xl font-medium text-black">
+                    Meal Plan per Room
+                  </label>
+                  <select
+                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                    onChange={(e) => {
+                      handleUpdateMealPlan(e, room?.room_id);
+                    }}
+                  >
+                    <option value={""}>Select Meal Plan</option>
+                    <option value={`room_only`}>Room Only</option>
+                    <option value={`bread_breakfast`}>Bread & Breakfast</option>
+                    <option value={`half_board`}>Half Board</option>
+                    <option value={`full_board`}>Full Board</option>
+                  </select>
+                </div>
+
+                {(requestRoom?.find((r: any) => r.room_id == room?.room_id)?.meal_plan == "half_board" || requestRoom?.find((r: any) => r.room_id == room?.room_id)?.meal_plan == "full_board") &&
+                  <div>
+                    <label className="mb-2 block text-xl font-medium text-black">
+                      Start With
+                    </label>
+                    <select
+                      className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                      onChange={(e) => {
+                        handleUpdateStartWithMeal(e, room?.room_id);
+                      }}
+                    >
+                      <option value={""}>Select the meal</option>
+                      <option value={`breakfast`}>breakfast</option>
+                      <option value={`lunch`}>lunch</option>
+                      <option value={`dinner`}>dinner</option>
+                    </select>
+
+                  </div>
+                }
+
+                <div>
+                  <label className="mb-2 block text-xl font-medium text-black">
+                    Additional services
+                  </label>
+                  <Autocomplete
+                    style={{ width: 200 }}
+                    multiple
+                    id="tags-outlined"
+                    options={responseDatas?.additional_services || []}
+                    getOptionLabel={(option: any) => option?.name}
+                    filterSelectedOptions
+                    onChange={(event, value) => handleAddAdditionalServise(room?.room_id, event, value)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Additional services"
+                        placeholder="Additional services "
+                      />
+                    )}
+                  />
+
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-xl  font-medium text-black"> Adults per Room  </label>
+                  <select
+                    onChange={(e) => handleUpdateAdults(e, room?.room_id)}
+                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                  >
+                    <option>0</option>
+                    {room?.category !== "Single"
+                      ? Array.from({ length: room?.max_adults || 0 }, (_, i) => i + 1).map((num) => (
+                        <option key={num}>{num}</option>
+                      ))
+                      : <option>1</option>}
+                  </select>
+                </div>
+                {room?.category != "Single" && <div>
+                  <label className="mb-2 block text-xl  font-medium text-black"> Children per Room  </label>
+                  <select
+                    onChange={(e) =>
+                      handleUpdateChildren(e, room?.room_id)
+                    }
+                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                  >
+                    <option>0</option>
+                    {Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
+                      return <option>{num}</option>
+                    })}
+
+                  </select>
+                </div>}
+                {room?.category != "Single" && <div>
+                  <label className="mb-2 block text-xl  font-medium text-black"> Infants per Room  </label>
+                  <select
+                    onChange={(e) =>
+                      handleUpdateInfants(e, room?.room_id)
+                    }
+                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                  >
+                    <option>0</option>
+                    {Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
+                      return <option>{num}</option>
+                    })}
+
+                  </select>
+                </div>}
+              </div>
+            ))}
+          </div> */}
+        </div>
+        <TableContainer component={Paper} sx={{marginBottom:5}}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Room Number</TableCell>
+                <TableCell>Room category</TableCell>
+                <TableCell>Meal Plan per Room</TableCell>
+                <TableCell>Start With</TableCell>
+                <TableCell>Additional services</TableCell>
+                <TableCell>Adults per Room</TableCell>
+                <TableCell>Children per Room</TableCell>
+                <TableCell>Infants per Room</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {requestRoom?.map((room: any, index: any) => (
+                <TableRow
+                  key={index}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell >
+                    {room?.room_number}
+                  </TableCell>
+                  <TableCell >
+                    <select
+                      className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                      onChange={(e) => {
+                        handleUpdateCatogory(e, room?.room_id);
+                      }}
+                    >
+                      <option value={""}>Select Category</option>
+                      {/* {Object.entries(responseDatas?.category_counts || {}).map(([roomType, count], key) => (
+                        <option key={key} value={`${roomType}`}>{roomType}</option>
+                      ))} */}
+                      {room?.category && <option value={`${room?.category}`}>{room?.category}</option>} 
+                      {room?.secondary_category && <option value={`${room?.secondary_category}`}>{room?.secondary_category}</option>}
+                    </select>
+                  </TableCell>
+                  <TableCell >
+                    <select
+                      className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                      onChange={(e) => {
+                        handleUpdateMealPlan(e, room?.room_id);
+                      }}
+                    >
+                 
+                      <option value={`room_only`}>Room Only</option>
+                      <option value={`bread_breakfast`}>Bread & Breakfast</option>
+                      <option value={`half_board`}>Half Board</option>
+                      <option value={`full_board`}>Full Board</option>
+                    </select>
+                  </TableCell>
+                  <TableCell >
+                    {(requestRoom?.find((r: any) => r.room_id == room?.room_id)?.meal_plan == "half_board" || requestRoom?.find((r: any) => r.room_id == room?.room_id)?.meal_plan == "full_board") &&
+                      <div>
+
+                        <select
+                          className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                          onChange={(e) => {
+                            handleUpdateStartWithMeal(e, room?.room_id);
+                          }}
+                        >
+                          <option value={""}>Select the meal</option>
+                          <option value={`breakfast`}>breakfast</option>
+                          <option value={`lunch`}>lunch</option>
+                          <option value={`dinner`}>dinner</option>
+                        </select>
+
+                      </div>
+                    }</TableCell>
+                  <TableCell >
+                    <Autocomplete
+                      style={{ width: 200 }}
+                      multiple
+                      id="tags-outlined"
+                      options={responseDatas?.additional_services || []}
+                      getOptionLabel={(option: any) => option?.name}
+                      filterSelectedOptions
+                      onChange={(event, value) => handleAddAdditionalServise(room?.room_id, event, value)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Additional services"
+                          placeholder="Additional services "
+
+                        />
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <select
+                      onChange={(e) => handleUpdateAdults(e, room?.room_id)}
+                      className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                    >
+                      {/* {room?.category !== "Single" && <option>0</option>} */}
+                      {/* <option>0</option> */}
+                      {room?.category !== "Single"
+                        ? Array.from({ length: room?.max_adults || 0 }, (_, i) => i + 1).map((num) => (
+                          <option key={num}>{num}</option>
+                        ))
+                        : <option>1</option>}
+                    </select>
+                  </TableCell>
+                  <TableCell>
+                    {room?.category != "Single" && <div>
+                      <select
+                        onChange={(e) =>
+                          handleUpdateChildren(e, room?.room_id)
+                        }
+                        className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                      >
+                        <option>0</option>
+                        {Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
+                          return <option>{num}</option>
+                        })}
+
+                      </select>
+                    </div>}
+                  </TableCell>
+                  <TableCell>
+                    {room?.category != "Single" && <div>
+                      <select
+                        onChange={(e) =>
+                          handleUpdateInfants(e, room?.room_id)
+                        }
+                        className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                      >
+                        <option>0</option>
+                        {Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
+                          return <option>{num}</option>
+                        })}
+
+                      </select>
+                    </div>}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
         {/* Meal Plan Info and Discount */}
         <div className="flex flex-col items-start justify-center gap-4 lg:flex-row">
           <div className=" mb-12 w-full rounded-md bg-slate-300 p-3 shadow-md shadow-black/50 lg:w-[50%]">
-            <h4 className="ml-3 text-xl font-bold text-black">Discounts 
+            <h4 className="ml-3 text-xl font-bold text-black">Discounts
               {/* <Checkbox checked={mofifyDiscount} onChange={() => handleCheckDiscount()} {...label} /> */}
-                
-              </h4>
+
+            </h4>
             {responseDatas?.discounts?.map((discount: any, index: any) => (
               <div
                 key={index}
@@ -708,10 +1037,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
 
           <div className="mb-12 mt-1 w-full rounded-md p-3 shadow-md shadow-black/50 lg:w-[48%]">
-            <h4 className="ml-3 text-xl font-bold text-black">Taxes  
+            <h4 className="ml-3 text-xl font-bold text-black">Taxes
               {/* <Checkbox checked={mofifyTaxes} onChange={() => handleCheckTaxes()}  {...label} /> */}
 
-              </h4>
+            </h4>
             <div className="flex w-full items-center justify-between p-3 lg:flex-row">
               <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
                 {responseDatas?.taxes?.map((data: any, key: any) => {
@@ -736,171 +1065,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
 
 
-        <div className="mb-4 mt-4 flex flex-col gap-4">
-          <div className="flex gap-4">
-            <div className="w-full xl:w-1/5">
-              <label
-                htmlFor="roomNumber"
-                className="mb-2 block text-xl font-medium text-black"
-              >
-                Rooms
-              </label>
-              <Stack spacing={3} sx={{ width: 500 }}>
-                <Autocomplete
-                  multiple
-                  id="tags-outlined"
-                  options={responseDatas?.rooms || []}
-                  getOptionLabel={(option: any) => option?.room_number}
-                  onChange={handleAddRoom}
-                  filterSelectedOptions
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Select Rooms"
-                      placeholder="Select Rooms"
-                    />
-                  )}
-                />
-              </Stack>
-            </div>
-          </div>
 
-          <div className=" flex flex-col gap-6 lg:flex-row">
-            {requestRoom?.map((room: any, index: any) => (
-              <div key={room?.room_id} className="w-full">
-                <div className="mb-2 flex items-center">
-                  <div className="bg-gray-100 mr-2 flex h-[40px] w-12 items-center justify-center rounded border p-2">
-                    {room?.room_number}
-                  </div>
-
-                  {/* Other components here */}
-                </div>
-                <div>
-                  <label className="mb-2 block text-xl font-medium text-black">
-                    Room category
-                  </label>
-                  <select
-                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                    onChange={(e) => {
-                      handleUpdateCatogory(e, room?.room_id);
-                    }}
-                  >
-                    <option value={""}>Select Category</option>
-                    {Object.entries(responseDatas?.category_counts || {}).map(([roomType, count], key) => (
-                      <option key={key} value={`${roomType}`}>{roomType}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-2 block text-xl font-medium text-black">
-                    Meal Plan per Room
-                  </label>
-                  <select
-                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                    onChange={(e) => {
-                      handleUpdateMealPlan(e, room?.room_id);
-                    }}
-                  >
-                    <option value={""}>Select Meal Plan</option>
-                    <option value={`room_only`}>Room Only</option>
-                    <option value={`bread_breakfast`}>Bread & Breakfast</option>
-                    <option value={`half_board`}>Half Board</option>
-                    <option value={`full_board`}>Full Board</option>
-                  </select>
-                </div>
-
-                {(requestRoom?.find((r: any) => r.room_id == room?.room_id)?.meal_plan == "half_board" || requestRoom?.find((r: any) => r.room_id == room?.room_id)?.meal_plan == "full_board") &&
-                  <div>
-                    <label className="mb-2 block text-xl font-medium text-black">
-                      Start With
-                    </label>
-                    <select
-                      className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                      onChange={(e) => {
-                        handleUpdateStartWithMeal(e, room?.room_id);
-                      }}
-                    >
-                      <option value={""}>Select the meal</option>
-                      <option value={`breakfast`}>breakfast</option>
-                      <option value={`lunch`}>lunch</option>
-                      <option value={`dinner`}>dinner</option>
-                    </select>
-
-                  </div>
-                }
-
-                <div>
-                  <label className="mb-2 block text-xl font-medium text-black">
-                    Additional services
-                  </label>
-                  <Autocomplete
-                    style={{ width: 200 }}
-                    multiple
-                    id="tags-outlined"
-                    options={responseDatas?.additional_services || []}
-                    getOptionLabel={(option: any) => option?.name}
-                    filterSelectedOptions
-                    onChange={(event, value) => handleAddAdditionalServise(room?.room_id, event, value)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Additional services"
-                        placeholder="Additional services "
-                      />
-                    )}
-                  />
-
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-xl  font-medium text-black"> Adults per Room  </label>
-                  <select
-                    onChange={(e) => handleUpdateAdults(e, room?.room_id)}
-                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                  >
-                    {/* {room?.category !== "Single" && <option>0</option>} */}
-                    <option>0</option>
-                    {room?.category !== "Single"
-                      ? Array.from({ length: room?.max_adults || 0 }, (_, i) => i + 1).map((num) => (
-                        <option key={num}>{num}</option>
-                      ))
-                      : <option>1</option>}
-                  </select>
-                </div>
-                {room?.category != "Single" && <div>
-                  <label className="mb-2 block text-xl  font-medium text-black"> Children per Room  </label>
-                  <select
-                    onChange={(e) =>
-                      handleUpdateChildren(e, room?.room_id)
-                    }
-                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                  >
-                    <option>0</option>
-                    {Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
-                      return <option>{num}</option>
-                    })}
-
-                  </select>
-                </div>}
-                {room?.category != "Single" && <div>
-                  <label className="mb-2 block text-xl  font-medium text-black"> Infants per Room  </label>
-                  <select
-                    onChange={(e) =>
-                      handleUpdateInfants(e, room?.room_id)
-                    }
-                    className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                  >
-                    <option>0</option>
-                    {Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
-                      return <option>{num}</option>
-                    })}
-
-                  </select>
-                </div>}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
       <div className="w-full"></div>
       <div className="w-full">
@@ -1332,7 +1497,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             Rs {partialAmount?.toFixed(2)?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
           </div>
         </div>
-        
+
         <div className="flex  w-full items-center justify-between p-3 lg:flex-row">
           <div className="text-[20px] text-black ">Blance Amount</div>
           <div className="font-bold text-black">
@@ -1340,7 +1505,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           </div>
         </div>
       </div>
-   {renderErrorMessages()}
+      {renderErrorMessages()}
       <div className="flex items-center justify-between">
         <button
           onClick={() => isShow(false)}
@@ -1362,9 +1527,9 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           }}
           className="mt-4 h-12 w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 xl:w-1/5"
         >
-       
-    
-          Submit booking {isLoading && <CircularProgress style={{color:"white", height:20, width:20, marginLeft:10}}/>}
+
+
+          Submit booking {isLoading && <CircularProgress style={{ color: "white", height: 20, width: 20, marginLeft: 10 }} />}
         </button>
       </div>
     </div>
