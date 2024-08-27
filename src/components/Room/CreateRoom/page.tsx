@@ -62,24 +62,207 @@ const CreateRoom = () => {
     secondary_full_board:'',
     
   });
-
+  const [errors, setErrors] = useState<any>({
+    room_number:"",
+    name:"",
+    category: '',
+    max_adults: '',
+    max_childs: '',
+    view:"",
+    max_people: '',
+    room_only: '',
+    bread_breakfast: '',
+    half_board: '',
+    full_board: '',
+    features: '',
+    views: '',
+    size: '',
+    beds: '',
+    bathroom: '',
+    secondary_category: '',
+    description: '',
+    short_description: '',
+    images: '',
+    secondary_room_only:'',
+    secondary_bread_breakfast:'',
+    secondary_half_board:'',
+    secondary_full_board:'',
+  });
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);  //set tooltip
   const router = useRouter();
   
-    const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false); 
    
     
-    const handleChange = (e: any) => {
+  const handleChange = (e: any) => {
       const { name, value } = e.target;
       
         setFormData({
           ...formData,
           [name]: value
         });
+
+        // Conditional validation logic
+  if (name === "secondary_category") {
+    if (value !== "") {
+      // If a secondary category is selected, set required validation for secondary prices
+      setErrors((prevErrors:any) => ({
+        ...prevErrors,
+        secondary_room_only: formData.secondary_room_only ? "" : "Room Only price is required",
+        secondary_bread_breakfast: formData.secondary_bread_breakfast ? "" : "Bread and Breakfast price is required",
+        secondary_half_board: formData.secondary_half_board ? "" : "Half Board price is required",
+        secondary_full_board: formData.secondary_full_board ? "" : "Full Board price is required",
+      }));
+    } else {
+      // If secondary category is deselected, clear errors
+      setErrors((prevErrors :any) => ({
+        ...prevErrors,
+        secondary_room_only: "",
+        secondary_bread_breakfast: "",
+        secondary_half_board: "",
+        secondary_full_board: "",
+      }));
+    }
+  }
+        // Validate the input as it's being changed
+        validateField(name, value);
       }
+   const validateField = (name: string, value: string) => {
+        let error = '';
+    
+        switch (name) {
+            case 'room_number':
+                if (!value.trim()) {
+                    error = 'Room Name is required';
+                }
+                break;
+    
+            case 'category':
+                if (!value.trim()) {
+                    error = 'Room Primary category is required';
+                }
+                break;
+            case 'view':
+                  if (!value.trim()) {
+                      error = 'Room view is required';
+                  }
+                  break;  
+            case 'max_adults':
+                    if (!value.trim()) {
+                        error = 'Amount of Maximum Adult is required';
+                    }
+                    break;  
+            case 'max_childs':
+                      if (!value.trim()) {
+                          error = 'Amount of Maximum Children is required';
+                      }
+                      break; 
+            case 'max_people':
+                        if (!value.trim()) {
+                            error = 'Amount of Maximum People is required';
+                        }
+                        break; 
+            case 'views':
+                          if (!value.trim()) {
+                              error = 'Room view is required';
+                          }
+                          break; 
+            case 'room_only':
+                            if (!value.trim()) {
+                                error = 'Price for Room only is required';
+                            }
+                            break;  
+            case 'bread_breakfast':
+                            if (!value.trim()) {
+                                  error = 'Price for bread and breakfast room is required';
+                              }
+                              break; 
+            case 'half_board':
+                          if (!value.trim()) {
+                                    error = 'Price for half board room is required';
+                                }
+                                break; 
+            case 'full_board':
+                          if (!value.trim()) {
+                                      error = 'Price for full board room is required';
+                                  }
+                                  break; 
+            case 'secondary_room_only':
+                                    if (!value.trim()) {
+                                        error = 'Price for Room only is required';
+                                    }
+                                    break;  
+            case 'secondary_bread_breakfast':
+                                    if (!value.trim()) {
+                                          error = 'Price for bread and breakfast room is required';
+                                      }
+                                      break; 
+            case 'secondary_half_board':
+                                  if (!value.trim()) {
+                                            error = 'Price for half board room is required';
+                                        }
+                                        break; 
+           case 'secondary_full_board':
+                                  if (!value.trim()) {
+                                              error = 'Price for full board room is required';
+                                          }
+                                          break; 
+          case 'features':
+                                            if (!value.trim()) {
+                                                error = 'Features required';
+                                            }
+                                            break;  
+          case 'size':
+                                            if (!value.trim()) {
+                                                  error = 'Room size is required';
+                                              }
+                                              break; 
+                            case 'beds':
+                                          if (!value.trim()) {
+                                                    error = 'Beds is required';
+                                                }
+                                                break; 
+                            case 'bathroom':
+                                          if (!value.trim()) {
+                                                      error = 'bathroom is required';
+                                                  }
+                                                  break;                                                                                          
+
+    
+            
+    
+            
+    
+            
+    
+            // Add additional validation cases as needed
+    
+            default:
+                break;
+        }
+    
+        setErrors((prevErrors: any) => ({
+            ...prevErrors,
+            [name]: error,
+        }));
+    };  
       
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
         const filesArray = Array.from(e.target.files);
+        const oversizedFiles = filesArray.filter(file => file.size > 1024 * 1024); // 1 MB in bytes
+        if (oversizedFiles.length > 0) {
+        
+          setErrors((prevErrors :any) => ({
+              ...prevErrors,
+              profile_image: 'File size must be less than 1 MB',
+          }));
+      } else {
+        setTooltipMessage(null);
+          setErrors((prevErrors :any) => ({
+              ...prevErrors,
+              profile_image: '',
+          }));
         const base64Promises = filesArray.map(file => {
           return new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
@@ -102,6 +285,14 @@ const CreateRoom = () => {
           });
       }
     };
+  };
+
+  const handleFocus = () => {
+    if (!tooltipMessage) {
+      setTooltipMessage('Please upload an image smaller than 1 MB');
+    }
+  };
+
     const removeBase64Prefix = (base64String: string) => {
       // Define the prefixes for PNG and JPEG
       const pngPrefix = 'data:image/png;base64,';
@@ -214,6 +405,7 @@ const CreateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.room_number && <p className="text-red text-sm">{errors.room_number}</p>}
             </div>
 
             <div className="w-full xl:w-1/4">
@@ -234,6 +426,7 @@ const CreateRoom = () => {
                   <option value="Family">Family</option>
                   <option value="Triple">Triple</option>
                 </select>
+                {errors.category && <p className="text-red text-sm">{errors.category}</p>}
               </div>
               
             <div className="w-full xl:w-1/4">
@@ -268,6 +461,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.views && <p className="text-red text-sm">{errors.views}</p>}
               </div>
           </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
@@ -284,6 +478,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.view && <p className="text-red text-sm">{errors.view}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -298,6 +493,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.max_adults && <p className="text-red text-sm">{errors.max_adults}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -312,6 +508,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.max_childs && <p className="text-red text-sm">{errors.max_childs}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -326,6 +523,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.max_people && <p className="text-red text-sm">{errors.max_people}</p>}
               </div>
             </div>
             {/* Title Label for First Category */}
@@ -346,6 +544,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.room_only && <p className="text-red text-sm">{errors.room_only}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -360,6 +559,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.bread_breakfast && <p className="text-red text-sm">{errors.bread_breakfast}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -374,6 +574,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.half_board && <p className="text-red text-sm">{errors.half_board}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -388,6 +589,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.full_board && <p className="text-red text-sm">{errors.full_board}</p>}
               </div>
             </div>
             {/* Title Label for First Category */}
@@ -401,13 +603,15 @@ const CreateRoom = () => {
                 </label>
                 <input
                   type="number"
-                  name="room_only"
-                  required
+                  name="secondary_room_only"
                   placeholder="Enter the price"
                   value={formData.secondary_room_only}
                   onChange={handleChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                  className={`w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white ${
+                    errors.secondary_room_only ? 'border-red' : ''
+                  }`}
                 />
+                {errors.secondary_room_only && <p className="text-red text-sm">{errors.secondary_room_only}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -415,13 +619,15 @@ const CreateRoom = () => {
                 </label>
                 <input
                   type="number"
-                  name="bread_breakfast"
-                  required
+                  name="secondary_bread_breakfast"
                   placeholder="Enter the price"
                   value={formData.secondary_bread_breakfast}
                   onChange={handleChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                  className={`w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white ${
+                    errors.secondary_bread_breakfast ? 'border-red' : ''
+                  }`}
                 />
+                {errors.secondary_bread_breakfast && <p className="text-red text-sm">{errors.secondary_bread_breakfast}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -429,13 +635,15 @@ const CreateRoom = () => {
                 </label>
                 <input
                   type="number"
-                  name="half_board"
-                  required
+                  name="secondary_half_board"
                   placeholder="Enter the price"
                   value={formData.secondary_half_board}
                   onChange={handleChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                  className={`w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white ${
+                    errors.secondary_half_board ? 'border-red' : ''
+                  }`}
                 />
+                {errors.secondary_half_board && <p className="text-red text-sm">{errors.secondary_half_board}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -443,13 +651,15 @@ const CreateRoom = () => {
                 </label>
                 <input
                   type="number"
-                  name="full_board"
-                  required
+                  name="secondary_full_board"
                   placeholder="Enter the price"
                   value={formData.secondary_full_board}
                   onChange={handleChange}
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                  className={`w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white ${
+                    errors.secondary_full_board ? 'border-red' : ''
+                  }`}
                 />
+                {errors.secondary_full_board && <p className="text-red text-sm">{errors.secondary_full_board}</p>}
               </div>
             </div>
 
@@ -470,6 +680,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.features && <p className="text-red text-sm">{errors.features}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -484,6 +695,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.size && <p className="text-red text-sm">{errors.size}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -498,6 +710,7 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.beds && <p className="text-red text-sm">{errors.beds}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -512,19 +725,30 @@ const CreateRoom = () => {
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
+                {errors.bathroom && <p className="text-red text-sm">{errors.bathroom}</p>}
               </div>
             </div>
             <div className="mb-6">
               <label className="mb-3 block text-sm font-medium text-black">
                 Attach file
               </label>
+              {tooltipMessage && (
+        <div className="mt-2 text-sm text-red">
+            {tooltipMessage}
+        </div>
+    )}
               <input
                 type="file"
                 multiple
                 name='images'
+                required
                 onChange={handleFileChange}
+                onFocus={handleFocus}
                 className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-white file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.profile_image && (
+            <p className="text-red text-sm mt-1">{errors.profile_image}</p>
+        )}
             </div>
             <div className="mb-6">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -533,7 +757,6 @@ const CreateRoom = () => {
               <textarea
                 rows={6}
                 name="description"
-                required
                 placeholder="Type description"
                 value={formData.description}
                 onChange={handleChange}
@@ -547,7 +770,6 @@ const CreateRoom = () => {
               <textarea
                 rows={6}
                 name="short_description"
-                required
                 placeholder="Type short description"
                 value={formData.short_description}
                 onChange={handleChange}

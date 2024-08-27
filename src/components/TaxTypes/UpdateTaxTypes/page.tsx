@@ -12,6 +12,45 @@ const UpdateTaxTypes = () => {
     tax_type: "",
     description: ""
   });
+  const [errors, setErrors] = useState<any>({
+    name: "",
+    percentage: "",
+    tax_type: "",
+    
+  });
+
+  // form validation fields
+  const validateField = (name: string, value: string ) => {
+    let error = '';
+
+    switch (name) {
+        case 'name':
+            if (typeof value === 'string' && !value.trim()) {
+                error = 'Tax name is required';
+            }
+            break;
+
+        case 'percentage':
+            if (typeof value === 'string' && !value.trim()) {
+                error = 'Tax percentage is required';
+            }
+            break;
+
+        case 'tax_type':
+            if (typeof value === 'string' && !value.trim()) {
+                error = 'Tax type is required';
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [name]: error,
+    }));
+};
 
   const handleChange = (e:any) => {
     const { name, value } = e.target;
@@ -19,6 +58,8 @@ const UpdateTaxTypes = () => {
       ...prevData,
       [name]: value
     }));
+    // Validate the input as it's being changed
+    validateField(name, value);
   };
   const searchParams = useSearchParams();
   let taxId = searchParams.get("taxID");
@@ -107,6 +148,7 @@ const UpdateTaxTypes = () => {
                   placeholder="Enter the Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
                 />
+                {errors.name && <p className="text-red text-sm">{errors.name}</p>}
               </div>
               <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black ">
@@ -121,6 +163,7 @@ const UpdateTaxTypes = () => {
                   placeholder="Enter the Rate"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
                 />
+                {errors.percentage && <p className="text-red text-sm">{errors.percentage}</p>}
               </div>
               <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -137,6 +180,7 @@ const UpdateTaxTypes = () => {
                   <option value="private">Private</option>
                   <option value="government">Government</option>
                 </select>
+                {errors.tax_type && <p className="text-red text-sm">{errors.tax_type}</p>}
               </div>
             </div>
 
@@ -149,7 +193,6 @@ const UpdateTaxTypes = () => {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                required
                 placeholder="Type description"
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
               ></textarea>

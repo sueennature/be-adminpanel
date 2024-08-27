@@ -21,6 +21,11 @@ const UpdateAdditionalService = () => {
     price: '',
     description: ''
   });
+  const [errors, setErrors] = useState<any>({
+    name: '',
+    price: '',
+    description: '',
+  });
 
   const searchParams = useSearchParams();
   let additionalServiceId = searchParams.get("additionalServiceID");
@@ -37,7 +42,35 @@ const UpdateAdditionalService = () => {
       ...formData,
       [name]: value
     });
+    // Validate the input as it's being changed
+    validateField(name, value);
   };
+
+  const validateField = (name: string, value: string) => {
+    let error = '';
+
+    switch (name) {
+        case 'name':
+            if (!value.trim()) {
+                error = 'Additional Service name is required';
+            }
+            break;
+          case 'price':
+              if (!value.trim()) {
+                  error = 'Additional Service amount is required';
+              }
+              break;    
+
+
+        default:
+            break;
+    }
+
+    setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [name]: error,
+    }));
+};
 
 
   const handleDateChange = (date: Date | null, field: string) => {
@@ -122,6 +155,7 @@ const UpdateAdditionalService = () => {
                   placeholder="Enter the Additional Service Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.name && <p className="text-red text-sm">{errors.name}</p>}
               </div>
               <div className="w-full xl:w-1/2">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -136,6 +170,7 @@ const UpdateAdditionalService = () => {
                   placeholder="Enter the Amount"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.price && <p className="text-red text-sm">{errors.price}</p>}
               </div>
             </div>
             <div className="mb-6">
@@ -145,7 +180,6 @@ const UpdateAdditionalService = () => {
               <textarea
                 rows={6}
                 name="description"
-                required
                 value={formData.description}
                 onChange={handleInputChange}
                 placeholder="Type description"

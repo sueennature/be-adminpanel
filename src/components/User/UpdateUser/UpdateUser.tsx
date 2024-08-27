@@ -15,7 +15,12 @@ const UpdateUser = () => {
     password:"",
     role:'',
   })
-
+  const [errors, setErrors] = useState<any>({
+    username: "",
+    email: "",
+    password: "",
+    role: "",
+  });
   const searchParams = useSearchParams();
   let userId = searchParams.get("userID");
 
@@ -24,8 +29,54 @@ const UpdateUser = () => {
 
   const handleInputChange =(e: any)=>{
     const {name, value} = e.target;
-    setFormData({...formData, [name]:value})
+    setFormData({...formData, [name]:value});
+    // Validate the input as it's being changed
+    validateField(name, value);
   }
+
+  const validateField = (name: string, value: string) => {
+    let error = '';
+
+    switch (name) {
+        case 'username':
+            if (!value.trim()) {
+                error = 'Username is required';
+            }
+            break;  
+
+        case 'email':
+              if (!value.trim()) {
+                  error = 'Email is required';
+              } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(value)) {
+                  error = 'Email is invalid';
+              }
+              break;
+          
+          
+        case 'role':
+              if (!value.trim()) {
+                  error = 'User Role is required';
+              }
+              break;     
+
+        case 'password':
+                const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&#]{8,}$/;
+                if (value && !passwordPattern.test(value)) {
+                    error = 'Password must be at least 8 characters long and include 1 uppercase letter, 1 lowercase letter, and 1 number.';
+                }
+                break;
+
+        // Add additional validation cases as needed
+
+        default:
+            break;
+    }
+
+    setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [name]: error,
+    }));
+};
   useEffect(() => {
     const fetchUser = async () => {
       if (userId) {
@@ -104,6 +155,7 @@ const UpdateUser = () => {
                   placeholder="Enter the username"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
                 />
+                {errors.username && <p className="text-red text-sm">{errors.username}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black ">
@@ -118,6 +170,7 @@ const UpdateUser = () => {
                   placeholder="Enter the email"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
                 />
+                {errors.email && <p className="text-red text-sm">{errors.email}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black ">
@@ -132,6 +185,7 @@ const UpdateUser = () => {
                   placeholder="Enter the password"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
                 />
+                {errors.password && <p className="text-red text-sm">{errors.password}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -149,6 +203,7 @@ const UpdateUser = () => {
                   <option value="guest">Guest</option>
                   <option value="channelManager">Channel Manager</option>
                 </select>
+                {errors.role && <p className="text-red text-sm">{errors.role}</p>}
               </div>
           
             </div>

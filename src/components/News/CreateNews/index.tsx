@@ -22,6 +22,10 @@ const CreateNews = () => {
   const router = useRouter()
   const [loading, setLoading] = React.useState(false)
   const [errors, setErrors] = useState<any>({});
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);  //set tooltip
+  const [tooltipType, setTooltipType] = useState<"images" | "videos" | null>(null);
+
+
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -38,6 +42,25 @@ const CreateNews = () => {
   ) => {
     const files = e.target.files;
     if (files) {
+      const fileArray = Array.from(files);
+      // Set file size limits: 1 MB for images, 2 MB for videos
+       const maxSize = type === "images" ? 1024 * 1024 : 2 * 1024 * 1024;
+       const oversizedFiles = fileArray.filter(file => file.size > maxSize);
+
+      if (oversizedFiles.length > 0) {
+        
+        setErrors((prevErrors :any) => ({
+            ...prevErrors,
+            [type]: `File size must be less than ${type === "images" ? "1 MB" : "2 MB"} for ${type}`,
+        }));
+    } else {
+      setTooltipMessage(null);
+      setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [type]: '',
+      }));
+      }
+
       if (files.length > 0) {
         setErrors((prevErrors: any) => ({
             ...prevErrors,
@@ -67,6 +90,17 @@ const CreateNews = () => {
         .catch(error => console.error("Error converting files:", error));
     }
   };
+
+  const handleFocus = (type: "images" | "videos") => {
+    if (type === "images") {
+      setTooltipMessage('Please upload images smaller than 1 MB');
+      setTooltipType("images");
+    } else if (type === "videos") {
+      setTooltipMessage('Please upload videos smaller than 2 MB');
+      setTooltipType("videos");
+    }
+  };
+
   const removeImageBase64Prefix = (base64String: string) => {
     const imagePrefixPattern = /^data:image\/(png|jpeg|jpg);base64,/;
     return base64String.replace(imagePrefixPattern, '');
@@ -188,32 +222,50 @@ const CreateNews = () => {
               onChange={handleChange}
               className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
             />
+            
           </div>
 
           <div className="mb-6">
             <label className="mb-3 block text-sm font-medium text-black">
               Attach Images
             </label>
+            {tooltipMessage && tooltipType === "images" && (
+    <div className="mt-2 text-sm text-red">
+      {tooltipMessage}
+    </div>
+  )}
             <input
               type="file"
               multiple
               onChange={(e) => handleFileChange(e, "images")}
+              onFocus={() => handleFocus("images")} 
               className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-white file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
             />
-            {errors.media && <p className="text-red">{errors.media}</p>}
+            {errors.images && (
+    <p className="text-red text-sm mt-1">{errors.images}</p>
+  )}
           </div>
 
           <div className="mb-6">
             <label className="mb-3 block text-sm font-medium text-black">
               Attach Videos
             </label>
+            {tooltipMessage && tooltipType === "videos" && (
+    <div className="mt-2 text-sm text-red">
+      {tooltipMessage}
+    </div>
+  )}
             <input
               type="file"
               multiple
               accept="video/*"
               onChange={(e) => handleFileChange(e, "videos")}
+              onFocus={() => handleFocus("videos")}
               className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-white file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
             />
+            {errors.videos && (
+    <p className="text-red text-sm mt-1">{errors.videos}</p>
+  )}
           </div>
 
           <div className="mb-6">

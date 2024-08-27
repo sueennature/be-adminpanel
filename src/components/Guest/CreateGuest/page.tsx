@@ -1,5 +1,4 @@
 "use client";
-
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import flatpickr from "flatpickr";
 import { toast } from "react-toastify";
@@ -40,8 +39,10 @@ const CreateGuest = () => {
     password: "",
     profile_image: "",
   });
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);  //set tooltip
 
 
+  
   const dobPickerRef = useRef<flatpickr.Instance | null>(null);
   const idIssueDatePickerRef = useRef<flatpickr.Instance | null>(null);
   const [isChecked, setIsChecked] = useState<boolean>(false);
@@ -96,47 +97,7 @@ const CreateGuest = () => {
     };
   }, []);
 
-  // const validate = () => {
-  //   const newErrors: any = {};
-
-  //   if (!formData.first_name) newErrors.first_name = "First name is required";
-  //   if (!formData.last_name) newErrors.last_name = "Last name is required";
-  //   // Email validation
-  //   if (!formData.email.trim()) {
-  //     newErrors.email = "Email is required"; 
-  //   } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-  //     newErrors.email = "Email is invalid";
-  //   }
-
-  //   if (!formData.telephone.trim()) {
-  //     newErrors.telephone = "Telephone is required";
-  //   } else if (!/^\d+$/.test(formData.telephone)) {
-  //     newErrors.telephone = "Telephone must contain only numbers";
-  //   } else if (formData.telephone.length !== 10) {
-  //     newErrors.telephone = "Telephone must be exactly 10 digits";
-  //   }
-  //   if (!formData.address) newErrors.address = "Address is required";
-  //   if (!formData.nationality) newErrors.nationality = "Nationality is required";
-  //   if (!formData.identification_type) newErrors.identification_type = "Identification type is required";
-  //   // Identification No validation (Sri Lanka: 9 digits followed by optional single alphabet character)
-  //   const identificationNoPattern = /^\d{9}[A-Za-z]?$/;
-  //   if (formData.identification_no && !identificationNoPattern.test(formData.identification_no)) {
-  //     errors.identification_no = 'Invalid identification number. Must be 9 digits followed by an optional single letter';
-  //   }
-  //   if (!formData.identification_issue_date) newErrors.identification_issue_date = "Identification issue date is required";
-  //   if (!formData.dob) newErrors.dob = "Date of birth is required";
-  //   if (!formData.gender) newErrors.gender = "Gender is required";
-  //    // Password validation (minimum 8 characters, 1 uppercase, 1 lowercase, 1 number)
-  //    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-  //    if (formData.password && !passwordPattern.test(formData.password)) {
-  //      errors.password = 'Password must be at least 8 characters long and include 1 uppercase letter, 1 lowercase letter, and 1 number';
-  //    }
-    
-
-  //   setErrors(newErrors);
-  //   return Object.keys(newErrors).length === 0;
-  // };
-
+  
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({
@@ -213,7 +174,22 @@ const CreateGuest = () => {
 };
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
+      
       const filesArray = Array.from(e.target.files);
+      const oversizedFiles = filesArray.filter(file => file.size > 1024 * 1024); // 1 MB in bytes
+      
+      if (oversizedFiles.length > 0) {
+        
+        setErrors((prevErrors :any) => ({
+            ...prevErrors,
+            profile_image: 'File size must be less than 1 MB',
+        }));
+    } else {
+      setTooltipMessage(null);
+        setErrors((prevErrors :any) => ({
+            ...prevErrors,
+            profile_image: '',
+        }));
       const base64Promises = filesArray.map(file => {
         return new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -236,7 +212,12 @@ const CreateGuest = () => {
         });
     }
   };
-  
+};
+const handleFocus = () => {
+  if (!tooltipMessage) {
+    setTooltipMessage('Please upload an image smaller than 1 MB');
+  }
+};
   const removeBase64Prefix = (base64String: string) => {
     const base64Prefix = 'data:image/png;base64,';
     if (base64String.startsWith(base64Prefix)) {
@@ -528,12 +509,22 @@ const CreateGuest = () => {
               <label className="mb-3 block text-sm font-medium text-black">
                 Profile Image
               </label>
+              {tooltipMessage && (
+        <div className="mt-2 text-sm text-red">
+            {tooltipMessage}
+        </div>
+    )}
               <input
               type="file"
               name="profile_image"
               onChange={handleFileChange} 
+              onFocus={handleFocus}
               className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
             />
+            {errors.profile_image && (
+            <p className="text-red text-sm mt-1">{errors.profile_image}</p>
+        )}
+       
             
             </div>
             <div>

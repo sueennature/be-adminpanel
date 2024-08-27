@@ -19,14 +19,68 @@ const CreateUser: React.FC = () => {
     password: "",
     role: "",
   });
-  const router = useRouter()
+  const [errors, setErrors] = useState<any>({
+    username: "",
+    email: "",
+    password: "",
+    role: "",
+  });
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+     // Validate the input as it's being changed
+     validateField(name, value);
   };
+
+  const validateField = (name: string, value: string) => {
+    let error = '';
+
+    switch (name) {
+        case 'username':
+            if (!value.trim()) {
+                error = 'Username is required';
+            }
+            break;  
+
+        case 'email':
+              if (!value.trim()) {
+                  error = 'Email is required';
+              } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(value)) {
+                  error = 'Email is invalid';
+              }
+              break;
+          
+          
+        case 'role':
+              if (!value.trim()) {
+                  error = 'User Role is required';
+              }
+              break;     
+
+        case 'password':
+                const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&#]{8,}$/;
+                if (value && !passwordPattern.test(value)) {
+                    error = 'Password must be at least 8 characters long and include 1 uppercase letter, 1 lowercase letter, and 1 number.';
+                }
+                break;
+
+        // Add additional validation cases as needed
+
+        default:
+            break;
+    }
+
+    setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [name]: error,
+    }));
+};
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); 
+    setLoading(true)
 
     if (
       !formData.username ||
@@ -54,6 +108,7 @@ const CreateUser: React.FC = () => {
       }
 
       const data = await response.json();
+      setLoading(false)
       toast.success("User created successfully");
       setFormData({
         username: "",
@@ -66,6 +121,7 @@ const CreateUser: React.FC = () => {
       },1500)
     } catch (error) {
       console.error('Error:', error);
+      setLoading(false)
       toast.error("An error occurred while creating the user");
     }
   };
@@ -91,6 +147,7 @@ const CreateUser: React.FC = () => {
                   placeholder="Enter the username"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.username && <p className="text-red text-sm">{errors.username}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black ">
@@ -105,6 +162,7 @@ const CreateUser: React.FC = () => {
                   placeholder="Enter the email"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.email && <p className="text-red text-sm">{errors.email}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black ">
@@ -119,6 +177,7 @@ const CreateUser: React.FC = () => {
                   placeholder="Enter the password"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.password && <p className="text-red text-sm">{errors.password}</p>}
               </div>
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -136,14 +195,16 @@ const CreateUser: React.FC = () => {
                   <option value="guest">Guest</option>
                   <option value="channelManager">Channel Manager</option>
                 </select>
+                {errors.role && <p className="text-red text-sm">{errors.role}</p>}
               </div>
             </div>
 
             <button
               type="submit"
+              disabled={loading}
               className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
             >
-              Submit
+              {loading ? "Creating..." : 'Create'}
             </button>
           </form>
         </div>

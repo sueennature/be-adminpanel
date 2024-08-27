@@ -12,6 +12,11 @@ const CreateAdditionalServices = () => {
     price: '',
     description: '',
   });
+  const [errors, setErrors] = useState<any>({
+    name: '',
+    price: '',
+    description: '',
+  });
   const router = useRouter();
   const [loading, setLoading] = React.useState(false)
 useAuthRedirect()
@@ -21,39 +26,35 @@ useAuthRedirect()
       ...formData,
       [name]: value
     });
+    // Validate the input as it's being changed
+    validateField(name, value);
   };
+  const validateField = (name: string, value: string) => {
+    let error = '';
 
-  // const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files) {
-  //     const filesArray = Array.from(e.target.files);
-  //     const base64Promises = filesArray.map(file => {
-  //       return new Promise<string>((resolve, reject) => {
-  //         const reader = new FileReader();
-  //         reader.readAsDataURL(file);
-  //         reader.onload = () => resolve(reader.result as string);
-  //         reader.onerror = error => reject(error);
-  //       });
-  //     });
+    switch (name) {
+        case 'name':
+            if (!value.trim()) {
+                error = 'Additional Service name is required';
+            }
+            break;
+          case 'price':
+              if (!value.trim()) {
+                  error = 'Additional Service amount is required';
+              }
+              break;    
 
-  //     Promise.all(base64Promises)
-  //       .then(base64Images => {
-  //         setFormData({
-  //           ...formData,
-  //           media: base64Images
-  //         });
-  //       })
-  //       .catch(error => {
-  //         console.error("Error converting images to base64:", error);
-  //         toast.error("Error uploading images");
-  //       });
-  //   }
-  // };
- // Log the original base64 images
-  // const removeBase64Prefix = (base64String: string) => {
-  //   // Find the comma that separates the metadata from the base64 data
-  //   const base64PrefixPattern = /^data:image\/(png|jpeg|jpg);base64,/;
-  //   return base64String.replace(base64PrefixPattern, '');
-  // };
+
+        default:
+            break;
+    }
+
+    setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [name]: error,
+    }));
+};
+
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -66,8 +67,8 @@ useAuthRedirect()
   
     console.log(processedFormData);
 
-    if (!formData.name || !formData.price || !formData.description) {
-      toast.error("Please fill all fields");
+    if (!formData.name || !formData.price ) {
+      toast.error("Please fill At least name and amount fields");
       return;
     }
 
@@ -127,6 +128,7 @@ useAuthRedirect()
                   placeholder="Enter the Additional Service Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.name && <p className="text-red text-sm">{errors.name}</p>}
               </div>
               <div className="w-full xl:w-1/2">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -141,6 +143,7 @@ useAuthRedirect()
                   placeholder="Enter the Amount"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.price && <p className="text-red text-sm">{errors.price}</p>}
               </div>
             </div>
             <div className="mb-6">
@@ -150,7 +153,6 @@ useAuthRedirect()
               <textarea
                 rows={6}
                 name="description"
-                required
                 value={formData.description}
                 onChange={handleInputChange}
                 placeholder="Type description"

@@ -20,6 +20,14 @@ const UpdateDiscount = () => {
     description: "",
     discount_code:'',
   });
+  const [errors, setErrors] = useState<any>({
+    name: "",
+    percentage: "",
+    start_date: "",
+    discount_code:"",
+    end_date: "",
+    
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -61,20 +69,74 @@ const UpdateDiscount = () => {
 
     fetchDiscount();
   }, [discountId]);
+ 
+  const validateField = (name: string, value: string | Date | null) => {
+    let error = '';
+
+    switch (name) {
+        case 'name':
+            if (typeof value === 'string' && !value.trim()) {
+                error = 'Discount name is required';
+            }
+            break;
+
+        case 'percentage':
+            if (typeof value === 'string' && !value.trim()) {
+                error = 'Discount percentage is required';
+            }
+            break;
+
+        case 'start_date':
+            if (!value || (value instanceof Date && isNaN(value.getTime()))) {
+                error = 'Start Date is required';
+            }
+            break;
+
+        case 'end_date':
+            if (!value || (value instanceof Date && isNaN(value.getTime()))) {
+                error = 'End Date is required';
+            }
+            break;
+
+        case 'discount_code':
+            if (typeof value === 'string' && !value.trim()) {
+                error = 'Discount code is required';
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [name]: error,
+    }));
+};
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+     // Validate the input as it's being changed
+     validateField(name, value);
   };
 
   const handleDateChange = (date: Date | null, field: string) => {
     setFormData((prev) => ({ ...prev, [field]: date }));
+    validateField(field, date); // Validate date fields when changed
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    //Validate all fields before submission
+    validateField('start_date', formData.start_date ? formData.start_date.toISOString() : null);
+    validateField('end_date', formData.end_date ? formData.end_date.toISOString() : null);
+    // Check for any errors
+    if (Object.values(errors).some((error) => error)) {
+      return; // Prevent form submission if there are validation errors
+  }
     setLoading(true);
     
     const formattedStartDate = format(formData.start_date, "yyyy-MM-dd'T'HH:mm:ss");
@@ -138,6 +200,7 @@ const UpdateDiscount = () => {
                   placeholder="Enter the Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.name && <p className="text-red text-sm">{errors.name}</p>}
               </div>
               <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">Percentage</label>
@@ -150,6 +213,7 @@ const UpdateDiscount = () => {
                   placeholder="Enter the Percentage"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                 {errors.percentage && <p className="text-red text-sm">{errors.percentage}</p>}
               </div>
               <div className="w-full xl:w-1/3">
                 <label className="mb-3 block text-sm font-medium text-black">Discount Code</label>
@@ -162,6 +226,7 @@ const UpdateDiscount = () => {
                   placeholder="Enter the Percentage"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.discount_code && <p className="text-red text-sm">{errors.discount_code}</p>}
               </div>
             </div>
 
@@ -175,7 +240,9 @@ const UpdateDiscount = () => {
                     className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
                     placeholderText="mm/dd/yyyy"
                   />
+                  
                 </div>
+                {errors.start_date && <p className="text-red text-sm">{errors.start_date}</p>}
               </div>
               <div className="w-full">
                 <label className="mb-3 block text-sm font-medium text-black">Select End Date</label>
@@ -186,7 +253,9 @@ const UpdateDiscount = () => {
                     className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal text-black outline-none transition focus:border-primary active:border-primary"
                     placeholderText="mm/dd/yyyy"
                   />
+                   
                 </div>
+                {errors.end_date && <p className="text-red text-sm">{errors.end_date}</p>}
               </div>
             </div>
             <div className="mb-6.5">

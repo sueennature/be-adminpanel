@@ -29,7 +29,9 @@ const UpdateActivity = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>({});
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);  //set tooltip
   useAuthRedirect()
+
 
   const handleDeleteImage = async (index: number) => {
     const imageUrl = formData.media[index];
@@ -75,30 +77,7 @@ const UpdateActivity = () => {
           }
       }
   }
-    // if (imageUrl) {
-    //     console.log("IMAGEURL", imageUrl);
-    //     const payload = [imageUrl] ;
-    //     console.log("Payload:", JSON.stringify(payload));
-    //     try {
-    //         await axios.delete(`${process.env.BE_URL}/activities/${activityId}/media`, {
-    //             data: payload,
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 Authorization: `Bearer ${Cookies.get('access_token')}`,
-    //                 'x-api-key': process.env.X_API_KEY,
-    //             },
-    //         });
-
-    //         setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
-    //         setFormData(prevData => ({
-    //             ...prevData,
-    //             media: prevData.media.filter((_, i) => i !== index),
-    //         }));
-    //     } catch (err) {
-    //         console.error('Error deleting image:', err);
-    //         toast.error('Error deleting image');
-    //     }
-    // }
+   
   };
 
   const router = useRouter();
@@ -113,11 +92,25 @@ const UpdateActivity = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-   
+    
 
     if (files) {
       const fileArray = Array.from(files);
+      const oversizedFiles = fileArray.filter(file => file.size > 1024 * 1024); // 1 MB in bytes
       
+      if (oversizedFiles.length > 0) {
+        
+        setErrors((prevErrors :any) => ({
+            ...prevErrors,
+            profile_image: 'File size must be less than 1 MB',
+        }));
+    } else {
+      setTooltipMessage(null);
+        setErrors((prevErrors :any) => ({
+            ...prevErrors,
+            profile_image: '',
+        }));
+      }
       const fileReaders = fileArray.map((file) => {
         return new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -138,6 +131,11 @@ const UpdateActivity = () => {
       }).catch((error) => {
         console.error("Error converting files to base64:", error);
       });
+    }
+  };
+  const handleFocus = () => {
+    if (!tooltipMessage) {
+      setTooltipMessage('Please upload an image smaller than 1 MB');
     }
   };
 
@@ -288,12 +286,21 @@ const UpdateActivity = () => {
                 <label className="mb-3 block text-sm font-medium text-black">
                   Attach file
                 </label>
+                {tooltipMessage && (
+        <div className="mt-2 text-sm text-red">
+            {tooltipMessage}
+        </div>
+    )}
                 <input
                   type="file"
                   multiple
                   onChange={handleFileChange}
+                  onFocus={handleFocus}
                   className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                 {errors.profile_image && (
+            <p className="text-red text-sm mt-1">{errors.profile_image}</p>
+        )}
                 
               </div>
             </div>
