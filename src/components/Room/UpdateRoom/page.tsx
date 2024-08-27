@@ -81,6 +81,30 @@ const UpdateRoom = () => {
     out_of_service_start: "",
     out_of_service_end: "",
   });
+  const [errors, setErrors] = useState<any>({
+    category: "",
+    max_adults: "",
+    max_childs: "",
+    max_people: "",
+    room_only: "",
+    bread_breakfast: "",
+    half_board: "",
+    full_board: "",
+    features: "",
+    views: "",
+    size: "",
+    beds: "",
+    bathroom: "",
+    secondary_category: "",
+    description: "",
+    short_description: "",
+    images: "",
+    secondary_room_only: "",
+    secondary_bread_breakfast: "",
+    secondary_half_board: "",
+    secondary_full_board: "",
+  });
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null); //set tooltip
   const searchParams = useSearchParams();
   let roomId = searchParams.get("roomID");
   const router = useRouter();
@@ -122,6 +146,12 @@ const UpdateRoom = () => {
     }));
   }
 };
+const [oldSecondaryPrices, setOldSecondaryPrices] = useState({
+  secondary_room_only: "",
+  secondary_bread_breakfast: "",
+  secondary_half_board: "",
+  secondary_full_board: ""
+});    //make sate for previous category prices
 
   const fileInputRef = useRef<any>(null);
   const handleDeleteImage = async (index: number) => {
@@ -201,14 +231,83 @@ const UpdateRoom = () => {
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
+    //Update form data
+    setFormData((prevData) => {
+        const updatedData = {
+            ...prevData,
+            [name]: value,
+        };
+
+        // Clear secondary prices if secondary_category is deselected
+        if (name === "secondary_category" && value === "") {
+            updatedData.secondary_room_only = "";
+            updatedData.secondary_bread_breakfast = "";
+            updatedData.secondary_half_board = "";
+            updatedData.secondary_full_board = "";
+        }
+
+        return updatedData;
     });
+
+    // If secondary_category changes, validate the related fields
+    if (name === "secondary_category" && value !== "") {
+        // Reset errors for secondary prices
+        setErrors((prevErrors: any) => ({
+            ...prevErrors,
+            secondary_room_only: "",
+            secondary_bread_breakfast: "",
+            secondary_half_board: "",
+            secondary_full_board: "",
+        }));
+    }
+
+    // Validate the input as it's being changed
+    validateField(name, value);
+};
+
+
+  const validateField = (name: string, value: string) => {
+    const validationMessages: Record<string, string> = {
+      category: "Room Primary category is required",
+      view: "Room view is required",
+      max_adults: "Amount of Maximum Adult is required",
+      max_childs: "Amount of Maximum Children is required",
+      max_people: "Amount of Maximum People is required",
+      room_only: "Price for Room only is required",
+      bread_breakfast: "Price for bread and breakfast room is required",
+      half_board: "Price for half board room is required",
+      full_board: "Price for full board room is required",
+      features: "Features are required",
+      size: "Room size is required",
+      beds: "Beds are required",
+      bathroom: "Bathroom is required",
+    };
+  
+    const error = !value.trim() ? validationMessages[name] || "" : "";
+  
+    setErrors((prevErrors: any) => ({
+      ...prevErrors,
+      [name]: error,
+    }));
   };
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
+
+      const oversizedFiles = filesArray.filter(
+        (file) => file.size > 1024 * 1024,
+      ); // 1 MB in bytes
+      if (oversizedFiles.length > 0) {
+        setErrors((prevErrors: any) => ({
+          ...prevErrors,
+          profile_image: "File size must be less than 1 MB",
+        }));
+      } else {
+        setTooltipMessage(null);
+        setErrors((prevErrors: any) => ({
+          ...prevErrors,
+          profile_image: "",
+        }));
       const base64Promises = filesArray.map((file) => {
         return new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -233,8 +332,41 @@ const UpdateRoom = () => {
     }
   };
 
+};
+
+
+const handleFocus = () => {
+  if (!tooltipMessage) {
+    setTooltipMessage("Please upload an image smaller than 1 MB");
+  }
+};
+
+type ErrorType = {
+  secondary_room_only?: string;
+  secondary_bread_breakfast?: string;
+  secondary_half_board?: string;
+  secondary_full_board?: string;
+};
+
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    // Perform final validation
+    const newErrors: ErrorType = {};
+    if (formData.secondary_category) {
+      if (!formData.secondary_room_only) newErrors.secondary_room_only = "Room Only price for the secondary category is required.";
+      if (!formData.secondary_bread_breakfast) newErrors.secondary_bread_breakfast = "Bread and Breakfast price for the secondary category is required.";
+      if (!formData.secondary_half_board) newErrors.secondary_half_board = "Half board price for the secondary category is required.";
+      if (!formData.secondary_full_board) newErrors.secondary_full_board = "Full board price for the secondary category is required.";
+    }
+    
+    // Set errors if any and prevent form submission
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
     setLoading(true);
     const urlToBase64 = async (url: string): Promise<string> => {
       const response = await fetch(url);
@@ -306,9 +438,7 @@ const UpdateRoom = () => {
   return (
     <div className="flex flex-col gap-9">
       <div className="rounded-sm border border-stroke bg-white shadow-default">
-        <div className="p-6.5">
-
-           
+        <div className="p-6.5">        
           <div className="mb-6.5">
             <h2 className="text-lg font-semibold text-black">Room Status</h2>
           </div>
@@ -351,16 +481,6 @@ const UpdateRoom = () => {
                   </LocalizationProvider>
                 </div>
               )}
-              {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={['DatePicker']}>
-                <DatePicker value={startTime} onChange={(newValue) => setStartTime(newValue)} />
-              </DemoContainer>
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={['DatePicker']}>
-                <DatePicker value={endTime} onChange={(newValue) => setEndTime(newValue)} />
-              </DemoContainer>
-            </LocalizationProvider> */}
             </div>
           </div>
           {/* Horizontal separator */}
@@ -384,6 +504,9 @@ const UpdateRoom = () => {
                 <option value="Family">Family</option>
                 <option value="Triple">Triple</option>
               </select>
+              {errors.category && (
+                  <p className="text-sm text-red">{errors.category}</p>
+                )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -416,6 +539,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.views && (
+                  <p className="text-sm text-red">{errors.views}</p>
+                )}
             </div>
           </div>
           <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
@@ -432,6 +558,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.max_adults && (
+                  <p className="text-sm text-red">{errors.max_adults}</p>
+                )}
             </div>
             <div className="w-full xl:w-1/3">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -446,6 +575,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.max_childs && (
+                  <p className="text-sm text-red">{errors.max_childs}</p>
+                )}
             </div>
             <div className="w-full xl:w-1/3">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -460,6 +592,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.max_people && (
+                  <p className="text-sm text-red">{errors.max_people}</p>
+                )}
             </div>
           </div>
 
@@ -484,6 +619,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.room_only && (
+                  <p className="text-sm text-red">{errors.room_only}</p>
+                )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -498,6 +636,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.bread_breakfast && (
+                  <p className="text-sm text-red">{errors.bread_breakfast}</p>
+                )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -512,6 +653,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.half_board && (
+                  <p className="text-sm text-red">{errors.half_board}</p>
+                )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -526,6 +670,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+               {errors.full_board && (
+                  <p className="text-sm text-red">{errors.full_board}</p>
+                )}
             </div>
           </div>
            {/* Horizontal separator */}
@@ -543,13 +690,18 @@ const UpdateRoom = () => {
               </label>
               <input
                 type="number"
-                name="room_only"
+                name="secondary_room_only"
                 required
                 placeholder="Room Only"
                 value={formData.secondary_room_only}
-                //onChange={handleChange}
+                onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.secondary_room_only && (
+                  <p className="text-sm text-red">
+                    {errors.secondary_room_only}
+                  </p>
+                )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -557,13 +709,20 @@ const UpdateRoom = () => {
               </label>
               <input
                 type="number"
-                name="bread_breakfast"
+                name="secondary_bread_breakfast"
                 required
                 placeholder="Bread & Breakfast"
                 value={formData.secondary_bread_breakfast}
-                //onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                onChange={handleChange}
+                className={`w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white ${
+                  errors.secondary_room_only ? "border-red" : ""
+                }`}
               />
+              {errors.secondary_bread_breakfast && (
+                  <p className="text-sm text-red">
+                    {errors.secondary_bread_breakfast}
+                  </p>
+                )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -571,13 +730,18 @@ const UpdateRoom = () => {
               </label>
               <input
                 type="number"
-                name="half_board"
+                name="secondary_half_board"
                 required
                 placeholder="Half Board"
                 value={formData.secondary_half_board}
-                //onChange={handleChange}
+                onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.secondary_half_board && (
+                  <p className="text-sm text-red">
+                    {errors.secondary_half_board}
+                  </p>
+                )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -585,13 +749,18 @@ const UpdateRoom = () => {
               </label>
               <input
                 type="number"
-                name="full_board"
+                name="secondary_full_board"
                 required
                 placeholder="Full Board"
                 value={formData.secondary_full_board}
-                //onChange={handleChange}
+                onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.secondary_full_board && (
+                  <p className="text-sm text-red">
+                    {errors.secondary_full_board}
+                  </p>
+                )}
             </div>
           </div>
 
@@ -612,6 +781,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.size && (
+                  <p className="text-sm text-red">{errors.size}</p>
+                )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -626,6 +798,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.beds && (
+                  <p className="text-sm text-red">{errors.beds}</p>
+                )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -640,6 +815,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.bathroom && (
+                  <p className="text-sm text-red">{errors.bathroom}</p>
+                )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -654,6 +832,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
+              {errors.features && (
+                  <p className="text-sm text-red">{errors.features}</p>
+                )}
             </div>
           </div>
           <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
@@ -664,7 +845,6 @@ const UpdateRoom = () => {
               <textarea
                 rows={5}
                 name="description"
-                required
                 placeholder="Enter Room Description"
                 value={formData.description}
                 onChange={handleChange}
@@ -678,7 +858,6 @@ const UpdateRoom = () => {
               <textarea
                 rows={5}
                 name="short_description"
-                required
                 placeholder="Enter Short Description"
                 value={formData.short_description}
                 onChange={handleChange}
@@ -692,14 +871,21 @@ const UpdateRoom = () => {
             <label className="mb-3 block text-sm font-medium text-black">
               Upload Room Images
             </label>
+            {tooltipMessage && (
+                <div className="mt-2 text-sm text-red">{tooltipMessage}</div>
+              )}
             <input
               type="file"
               accept="image/*"
               multiple
               ref={fileInputRef} // Assign the ref to the input
               onChange={handleFileChange}
+              onFocus={handleFocus}
               className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-white file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
             />
+            {errors.profile_image && (
+                <p className="mt-1 text-sm text-red">{errors.profile_image}</p>
+              )}
           </div>
           <div className="mb-6.5">
             <label className="mb-3 block text-sm font-medium text-black">

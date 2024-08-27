@@ -21,6 +21,12 @@ const UpdateCarousel: React.FC = () => {
     media_type: "",
     media_urls: [],
   });
+  const [errors, setErrors] = useState<any>({
+    title: '',
+    media_type: '',
+    media_urls: '',
+  });
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);  //set tooltip
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
@@ -105,8 +111,35 @@ const UpdateCarousel: React.FC = () => {
       ...formData,
       [name]: value,
     });
+    // Validate the input as it's being changed
+    validateField(name, value);
   };
 
+  const validateField = (name: string, value: string) => {
+    let error = '';
+
+    switch (name) {
+        case 'title':
+            if (!value.trim()) {
+                error = 'Title for carousel is required';
+            }
+            break;
+
+        case 'media_type':
+            if (!value.trim()) {
+                error = 'Media type is required';
+            }
+            break;
+           
+        default:
+            break;
+    }
+
+    setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [name]: error,
+    }));
+};
   useEffect(() => {
     const fetchActivity = async () => {
       if (carouselId) {
@@ -163,11 +196,47 @@ const UpdateCarousel: React.FC = () => {
       ...prevFormData,
       [name]: value,
     }));
+
+    // Validate the input as it's being changed
+    validateField(name, value);
+    setFormData((prevFormData: any)  => ({
+      ...prevFormData,
+      [name]: value,
+      media_urls: [], // Clear media_urls when media_type changes
+    }));
+
+    // Declare maxSize and fileType based on the selected media type
+    let maxSize = 0;
+    let fileType = '';
+    
+    // Set the max size and file type based on the selected media type
+    if (value === 'image') {
+      maxSize = 1024 * 1024; // 1 MB in bytes
+      fileType = 'Image';
+      setTooltipMessage('Please upload an image smaller than 1 MB');
+    } else if (value === 'video') {
+      maxSize = 2 * 1024 * 1024; // 2 MB in bytes
+      fileType = 'Video';
+      setTooltipMessage('Please upload a video smaller than 2 MB');
+    }
+
+    // Store maxSize and fileType in state or handle validations directly in other places
+    // setMaxSize(maxSize); // If you are storing maxSize in state
+
+    // Optionally, you can trigger validation or a reset of error states here if needed
+    setErrors((prevErrors: any) => ({
+      ...prevErrors,
+      media_urls: '', // Clear previous errors when media_type changes
+    }));
+
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
+
+      
+
       const base64Promises = filesArray.map((file) => {
         return new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -282,6 +351,7 @@ const UpdateCarousel: React.FC = () => {
                   placeholder="Enter the Title"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.title && <p className="text-red text-sm">{errors.title}</p>}
               </div>
             </div>
             <div className="mb-6">
@@ -289,6 +359,11 @@ const UpdateCarousel: React.FC = () => {
                 <label className="mb-3 block text-sm font-medium text-black">
                   Media
                 </label>
+                {tooltipMessage && (
+        <div className="mt-2 text-sm text-red">
+          {tooltipMessage}
+        </div>
+      )}
                 <input
                   type="file"
                   multiple
@@ -296,6 +371,7 @@ const UpdateCarousel: React.FC = () => {
                   onChange={handleFileChange}
                   className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
+                {errors.media_urls && <p className="text-red text-sm mt-1">{errors.media_urls}</p>}
               </div>
             </div>
             <div className="mb-6">
