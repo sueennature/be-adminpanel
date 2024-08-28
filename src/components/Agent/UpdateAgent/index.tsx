@@ -27,7 +27,14 @@ const UpdateAgent = () => {
     nationality: ""
   });
 
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [errors, setErrors] = useState<any>({
+    first_name: "",
+    last_name: "",
+    email: "",
+    telephone: "",
+    address: "",
+    nationality: ""
+  });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -59,42 +66,58 @@ const UpdateAgent = () => {
     fetchAgent();
   }, [agentId]);
 
-  const validateFields = () => {
-    let errors: { [key: string]: string } = {};
-    
-    if (!formData.first_name.trim()) {
-      errors.first_name = "First name is required";
+  const validateField = (name: string, value: string) => {
+    let error = '';
+
+    switch (name) {
+        case 'first_name':
+            if (!value.trim()) {
+                error = 'First name is required';
+            }
+            break;
+
+        case 'last_name':
+            if (!value.trim()) {
+                error = 'Last name is required';
+            }
+            break;
+        case 'email':
+              if (!value.trim()) {
+                  error = 'Email is required';
+              } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(value)) {
+                  error = 'Email is invalid';
+              }
+              break;   
+        case 'telephone':
+                if (!value.trim()) {
+                    error = 'Telephone is required';
+                } else if (!/^0\d{9}$/.test(value)) {
+                    error = 'Telephone must be a valid Sri Lankan number (10 digits, starting with 0)';
+                }
+                break;
+        case 'address':
+              if (!value.trim()) {
+                  error = 'Address is required';
+              }
+              break; 
+        case 'nationality':
+                if (!value.trim()) {
+                    error = 'Nationality is required';
+                }
+                break;         
+
+
+        // Add additional validation cases as needed
+
+        default:
+            break;
     }
 
-    if (!formData.last_name.trim()) {
-      errors.last_name = "Last name is required";
-    }
-
-    if (!formData.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Email is invalid";
-    }
-
-    if (!formData.telephone.trim()) {
-      errors.telephone = "Telephone is required";
-    } else if (!/^\d+$/.test(formData.telephone)) {
-      errors.telephone = "Telephone must contain only numbers";
-    } else if (formData.telephone.length !== 10) {
-      errors.telephone = "Telephone must be exactly 10 digits";
-    }
-
-    if (!formData.address.trim()) {
-      errors.address = "Address is required";
-    }
-
-    if (!formData.nationality.trim()) {
-      errors.nationality = "Nationality is required";
-    }
-
-    setErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
+    setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        [name]: error,
+    }));
+};
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -106,11 +129,13 @@ const UpdateAgent = () => {
       ...errors,
       [name]: ""
     });
+    // Validate the input as it's being changed
+    validateField(name, value);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!validateFields()) return;
+   
 
     setLoading(true);
     try {

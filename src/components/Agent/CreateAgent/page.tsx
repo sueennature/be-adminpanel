@@ -17,8 +17,11 @@ const CreateAgent = () => {
     first_name: Yup.string().required("First name is required"),
     last_name: Yup.string().required("Last name is required"),
     email: Yup.string()
-      .email("Invalid email format")
-      .required("Email is required"),
+    .required("Email is required")
+    .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{3,}$/,
+      "Invalid email format"
+    ),
     telephone: Yup.string()
       .required("Telephone is required")
       .matches(/^[0-9]+$/, "Telephone must be a number")
