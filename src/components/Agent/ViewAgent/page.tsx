@@ -39,7 +39,7 @@ const ViewAgent = () => {
     const fetchAgents = async () => {
       try {
         const accessToken = Cookies.get("access_token");
-        const limit = 50; // Number of items per page
+        const limit = 100; // Number of items per page
         let skip = 0; // Initial offset
         let allAgents: AgentData[] = []; // Specify type here
         let hasMore = true;
