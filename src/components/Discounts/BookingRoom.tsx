@@ -27,6 +27,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { banks } from "../../utils/banks"
 
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
@@ -92,6 +93,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const [selectedDiscounts, setSelectedDiscounts] = useState<number[]>([]);
   const [selectedTaxes, setSelectedTaxes] = useState<number[]>([]);
   const [rates, setRates] = useState<any>({});
+  const [bank, setBank] = useState<string>("");
+  const [cardType, setCardType] = useState<string>("");
+  const [cardNumber, setCardNumber] = useState<string>("");
+  const [refNumber, setRefNumber] = useState<string>("");
+
   const [dob, setDob] = React.useState<any>({
     date: null,
     dateStr: ''
@@ -132,14 +138,14 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     setDob({
       date: newValue,
       dateStr: formattedDate
-    }); 
+    });
   };
   const handleIssueChange = (newValue: any) => {
     const formattedDate = newValue ? newValue.toISOString() : '';
     setIssueDate({
       date: newValue,
       dateStr: formattedDate
-    }); 
+    });
   };
 
 
@@ -217,6 +223,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
   const handlePaymentMethodChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPaymentMethod(event.target.value);
+    setBank("")
+    setCardType("")
+    setCardNumber("")
+    setRefNumber("")
   };
 
   function convertActivities(activities: any) {
@@ -310,9 +320,9 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     }
   }
 
-  const handleUpdateChildrenAges = (event: any, id: any, index:any) => {
+  const handleUpdateChildrenAges = (event: any, id: any, index: any) => {
     try {
-      let ageArr =  requestRoom?.find((r: any) => r.room_id == id)?.children
+      let ageArr = requestRoom?.find((r: any) => r.room_id == id)?.children
       ageArr[index] = parseInt(event.target.value);
       setRequestRoom((prev: any) =>
         prev?.map((item: any) =>
@@ -337,9 +347,9 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     }
   }
 
-  const handleUpdateInfantsAges = (event: any, id: any, index:any) => {
+  const handleUpdateInfantsAges = (event: any, id: any, index: any) => {
     try {
-      let ageArr =  requestRoom?.find((r: any) => r.room_id == id)?.infants
+      let ageArr = requestRoom?.find((r: any) => r.room_id == id)?.infants
       ageArr[index] = parseInt(event.target.value);
       setRequestRoom((prev: any) =>
         prev?.map((item: any) =>
@@ -407,7 +417,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
 
     setAdditionalServicesByRoom(prev => ({
       ...prev,
-      [room_id]: arr, 
+      [room_id]: arr,
     }));
   };
 
@@ -492,7 +502,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           "paid_amount": partialAmount || 0,
           "balance_amount": parseFloat(rates?.total_amount || 0) - partialAmount,
           "discount_code": discountCode || "",
-          "payment_note":paymentNotes,
+          "payment_note": paymentNotes,
           "guest_info": {
             "first_name": guestInfo?.firstName,
             "last_name": guestInfo?.lastName,
@@ -618,7 +628,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
           </div>
 
         </div>
-        <TableContainer component={Paper} sx={{marginBottom:5}}>
+        <TableContainer component={Paper} sx={{ marginBottom: 5 }}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
               <TableRow>
@@ -651,7 +661,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                       }}
                     >
                       <option value={""}>Select Category</option>
-                      {room?.category && <option value={`${room?.category}`}>{room?.category}</option>} 
+                      {room?.category && <option value={`${room?.category}`}>{room?.category}</option>}
                       {room?.secondary_category && <option value={`${room?.secondary_category}`}>{room?.secondary_category}</option>}
                     </select>
                   </TableCell>
@@ -662,7 +672,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                         handleUpdateMealPlan(e, room?.room_id);
                       }}
                     >
-                 
+
                       <option value={`room_only`}>Room Only</option>
                       <option value={`bread_breakfast`}>Bread & Breakfast</option>
                       <option value={`half_board`}>Half Board</option>
@@ -711,7 +721,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                       onChange={(e) => handleUpdateAdults(e, room?.room_id)}
                       className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                     >
-                     
+
                       {room?.category !== "Single"
                         ? Array.from({ length: room?.max_adults || 0 }, (_, i) => i + 1).map((num) => (
                           <option key={num}>{num}</option>
@@ -735,25 +745,25 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                       </select>
                     </div>}
 
-                   
+
 
                   </TableCell>
                   <TableCell>
-                  {requestRoom?.find((r: any) => r.room_id == room?.room_id)?.children?.map((val:any, key:any)=>{
+                    {requestRoom?.find((r: any) => r.room_id == room?.room_id)?.children?.map((val: any, key: any) => {
                       return <select key={key}
-                      onChange={(e) =>
-                        handleUpdateChildrenAges(e, room?.room_id, key)
-                      }
-                      className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                    >
-                      {Array.from({ length: 8 }, (_, i) => i + 3)?.map((option , key)=>{
-                        return  <option key={key} value={option}>
-                                  {option}
-                                </option>
-                      })}
-                      
+                        onChange={(e) =>
+                          handleUpdateChildrenAges(e, room?.room_id, key)
+                        }
+                        className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                      >
+                        {Array.from({ length: 8 }, (_, i) => i + 3)?.map((option, key) => {
+                          return <option key={key} value={option}>
+                            {option}
+                          </option>
+                        })}
 
-                    </select>
+
+                      </select>
                     })}
                   </TableCell>
                   <TableCell>
@@ -773,19 +783,19 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                     </div>}
                   </TableCell>
                   <TableCell>
-                  {requestRoom?.find((r: any) => r.room_id == room?.room_id)?.infants?.map((val:any, key:any)=>{
+                    {requestRoom?.find((r: any) => r.room_id == room?.room_id)?.infants?.map((val: any, key: any) => {
                       return <select key={key}
-                      onChange={(e) =>
-                        handleUpdateInfantsAges(e, room?.room_id, key)
-                      }
-                      className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-                    >
-                      {Array.from({ length: 2 }, (_, i) => i+1 )?.map((option , key)=>{
-                        return  <option key={key} value={option}>
-                                  {option}
-                                </option>
-                      })}
-                    </select>
+                        onChange={(e) =>
+                          handleUpdateInfantsAges(e, room?.room_id, key)
+                        }
+                        className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                      >
+                        {Array.from({ length: 2 }, (_, i) => i + 1)?.map((option, key) => {
+                          return <option key={key} value={option}>
+                            {option}
+                          </option>
+                        })}
+                      </select>
                     })}
                   </TableCell>
                 </TableRow>
@@ -1190,7 +1200,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               ></textarea>
             </div>
-           
+
           </form>
         </div>
       </div>
@@ -1216,14 +1226,75 @@ const BookingRoom: React.FC<BookingRoomData> = ({
             </select>
           </div>
         </div>
-        <button
+
+
+        {paymentMethod === "card_payment" && (
+          <div className="mb-6.5 flex flex-wrap gap-6">
+            <div className="w-full xl:w-auto">
+              <select
+                style={{ width: 220 }}
+                name="bank"
+                value={bank}
+                onChange={(e) => setBank(e.target.value)}
+                required
+                className="rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              >
+                <option value="">Select your bank</option>
+                {banks?.map((val, key) => (
+                  <option key={key} value={val?.values}>
+                    {val?.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full xl:w-auto">
+              <select
+                style={{ width: 220 }}
+                name="card"
+                value={cardType}
+                onChange={(e) => setCardType(e.target.value)}
+                required
+                className="rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              >
+                <option value="">Select your card type</option>
+                <option value={"visa"}>{"Visa"}</option>
+                <option value={"master "}>{"Master"}</option>
+              </select>
+            </div>
+            <div className="w-full xl:w-auto">
+              <input
+                type="text"
+                name="card_number"
+                maxLength={4}
+                required
+                placeholder="Last 4 digits of the card number"
+                value={cardNumber}
+                onChange={(e) => setCardNumber(e.target.value)}
+                className="rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+            </div>
+            <div className="w-full xl:w-auto">
+              <input
+                type="text"
+                name="reference_number"
+                required
+                placeholder="Reference Number"
+                value={refNumber}
+                onChange={(e) => setRefNumber(e.target.value)}
+                className="rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* <button
           onClick={() => {
             getrates();
           }}
           className="mt-4 h-12 w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90 xl:w-1/5"
         >
           Get Rates
-        </button>
+        </button> */}
         <div className="w-full xl:w-1/2 mt-5 ml-4">
           <div>
             <label
@@ -1237,6 +1308,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   className="sr-only"
                   onChange={() => {
                     setIsChecked(!isChecked);
+                    setPartialAmount(0)
                   }}
                 />
                 <div
@@ -1248,7 +1320,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                   ></span>
                 </div>
               </div>
-              Partial Amount
+              Partial / Paid Amount
             </label>
             {isChecked && (
               <input
@@ -1329,17 +1401,17 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       </div>
       {renderErrorMessages()}
       <div className="mb-6">
-             
-              <textarea
-                name="note"
-                rows={6}
-                required
-                placeholder="Notes"
-                value={paymentNotes}
-                onChange={(e) => { setPaymentNotes(e.target.value) }}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-              ></textarea>
-            </div>
+
+        <textarea
+          name="note"
+          rows={6}
+          required
+          placeholder="Notes"
+          value={paymentNotes}
+          onChange={(e) => { setPaymentNotes(e.target.value) }}
+          className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+        ></textarea>
+      </div>
       <div className="flex items-center justify-between">
         <button
           onClick={() => isShow(false)}
