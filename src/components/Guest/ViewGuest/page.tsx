@@ -47,12 +47,18 @@ const ViewGuest = () => {
     const fetchUsers = async () => {
       try {
         const accessToken = Cookies.get("access_token");
+        const limit = 100; // Number of items per page
+        let skip = 0; // Initial offset
 
         const response = await axios.get(`${process.env.BE_URL}/guests`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
             "x-api-key": process.env.X_API_KEY,
+          },
+          params: {
+            skip,
+            limit,
           },
         });
         console.log(response.data);
@@ -201,9 +207,11 @@ const ViewGuest = () => {
 
   return (
     <div>
+    <div>
       <div className="mb-4 flex items-center justify-between">
+      {guests.length > 0 && (
         <div className="flex items-center gap-4">
-          <input
+            <input
             type="text"
             placeholder="Search by Name"
             value={nameFilter}
@@ -218,12 +226,17 @@ const ViewGuest = () => {
                 className='px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
             /> */}
         </div>
+      )}
         <div className="cursor-pointer text-blue-400">
           <Link href="/guest/create">
             <Plus />
           </Link>
         </div>
       </div>
+      {!loading ? (
+        <div>
+        {currentItems.length > 0 ? (
+          <div>
       <div className="bg-white ">
         <div className="overflow-x-auto shadow-md sm:rounded-lg">
           <table className="text-gray-500 dark:text-gray-400 w-full text-left text-sm rtl:text-right">
@@ -417,6 +430,15 @@ const ViewGuest = () => {
           Export as CSV
         </CSVLink>
       </div>
+    </div>
+    ) : (
+      <NoData />
+    )}
+    </div>
+        ) : (
+          <Loader />
+        )}
+         </div>
     </div>
   );
 };
