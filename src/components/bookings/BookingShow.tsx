@@ -44,7 +44,7 @@ const mealPlans : any = {
   full_board : "Full Board",
   half_board : "Half Board",
   room_only : "Room Only",
-  bread_breakfast : "Rread & breakfast"
+  bread_breakfast : "Bread & breakfast"
 }
 
 export default function BookingShow({ handleClose, open, data }: BookingShowProps) {
@@ -215,13 +215,13 @@ export default function BookingShow({ handleClose, open, data }: BookingShowProp
                     Meal Plan - {mealPlans[room?.meal_plan] }
                   </Typography>
                   <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    No.Adults - {room?.adults}
+                    Adults - {room?.adults}
                   </Typography>
                   <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    No.Children - {room?.children?.length}
+                    Children - {room?.children?.length}
                   </Typography>
                   <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    No.Infants - {room?.infants?.length}
+                    Infants - {room?.infants?.length}
                   </Typography>
                   {room?.additional_services?.length > 0 && (
                     <div>

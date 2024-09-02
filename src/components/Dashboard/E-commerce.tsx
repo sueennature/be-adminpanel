@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import CardDataStats from "../CardDataStats";
+import Card from "../dashboardCards/Card";
 import { Calendar} from 'react-feather';
 import CheckAvailability from '@/components/Discounts/CheckAvailability'
 import Cookies from "js-cookie";
@@ -49,6 +50,36 @@ const ECommerce: React.FC = () => {
     const intervalId = setInterval(fetchDashBoardData, 3600000);
     return () => clearInterval(intervalId);
   }, [])
+
+  const dd ={
+    "Total_Bookings": 3,
+    "Booking Status": {
+        "completed": 1,
+        "pending": 2,
+        "failed": 0
+    },
+    "Total Guests": 5,
+    "Guest Count": {
+        "adults": 4,
+        "children": 1,
+        "infants": 0
+    },
+    "Room Availability": {
+        "Single": 8,
+        "Double": 6,
+        "Triple": 18,
+        "Deluxe": 2,
+        "Family": 17
+    },
+    "Total Available Rooms": 26,
+    "Meal Plan Count": {
+        "breakfast": 0,
+        "lunch": 2,
+        "dinner": 2
+    }
+}
+
+
   return (
     <>
       <CheckAvailability />
@@ -57,6 +88,19 @@ const ECommerce: React.FC = () => {
         Day Counts
       </h3>
       <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-4 2xl:gap-7.5 mt-6">
+      {Object.entries(dashboardDataDaly).map(([status, value] :any, key) => (
+          <Card title={status}data={value || {}} > <Calendar /></Card>      
+
+      ))}
+       
+       
+        {/* <Card title={"Booking Status"}data={dashboardDataDaly?.Room_Availability || {}} > <Calendar /></Card>      
+        <Card title={"Booking Status"}data={dashboardDataDaly?.Meal_Plan_Count || {}} > <Calendar /></Card>      
+        <Card title={"Booking Status"}data={dashboardDataDaly?.Guest_Count || {}} > <Calendar /></Card> */}
+      </div>
+      
+     
+      {/* <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-4 2xl:gap-7.5 mt-6">
         <CardDataStats title={"Total Available Rooms"} total={String(dashboardDataDaly?.Total_Available_Rooms || 0)} rate={""}  >
           <Calendar />
         </CardDataStats>
@@ -67,7 +111,6 @@ const ECommerce: React.FC = () => {
           <Calendar />
         </CardDataStats>
 
-        {/* Booking_Status_Count */}
         <CardDataStats title={"Completed Bookings"} total={String(dashboardDataDaly?.Booking_Status_Count?.completed || 0)} rate={""}  >
           <Calendar />
         </CardDataStats>
@@ -78,7 +121,6 @@ const ECommerce: React.FC = () => {
           <Calendar />
         </CardDataStats>
 
-        {/* Guest_Count */}
         <CardDataStats title={"adults"} total={String(dashboardDataDaly?.Guest_Count?.adults || 0)} rate={""}  >
           <Calendar />
         </CardDataStats>
@@ -89,7 +131,6 @@ const ECommerce: React.FC = () => {
           <Calendar />
         </CardDataStats>
 
-        {/* Meal_Plan_Count */}
         <CardDataStats title={"breakfast"} total={String(dashboardDataDaly?.Meal_Plan_Count?.breakfast || 0)} rate={""}  >
           <Calendar />
         </CardDataStats>
@@ -100,7 +141,6 @@ const ECommerce: React.FC = () => {
           <Calendar />
         </CardDataStats>
 
-        {/* Room_Availability */}
         <CardDataStats title={"Deluxe"} total={String(dashboardDataDaly?.Room_Availability?.Deluxe || 0)} rate={""}  >
           <Calendar />
         </CardDataStats>
@@ -117,7 +157,7 @@ const ECommerce: React.FC = () => {
           <Calendar />
         </CardDataStats>
 
-      </div>
+      </div> */}
       <h3 className="m-2 text-2xl font-bold text-black">
         Monthly Counts
       </h3>
