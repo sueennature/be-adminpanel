@@ -25,8 +25,23 @@ interface RoomData {
   half_board: number;
   full_board: number;
   description: string;
+  short_description:string;
   view:string;
   secondary_category: string;
+  views:string;
+  secondary_max_adults: number;
+  secondary_max_childs: number;
+  secondary_max_people: number;
+  secondary_short_description: string;
+  secondary_description: string;
+  secondary_room_only: number;
+  secondary_bread_breakfast: number;
+  secondary_half_board: number;
+  secondary_full_board: number;
+  secondary_bathroom: string;
+  secondary_size: string;
+  secondary_beds: string;
+  secondary_features: string;
   features: string[];
   beds: string;
   size: string;
@@ -182,17 +197,34 @@ const RoomTable = () => {
       max_childs,
       max_people,
       description,
+      short_description,
       features,
       beds,
       size,
       bathroom,
       category,
-      secondary_category,
       room_only,
       bread_breakfast,
       half_board,
       view,
       full_board,
+      views,
+      secondary_category,
+  secondary_max_adults,
+  secondary_max_childs,
+  secondary_max_people,
+  secondary_short_description,
+  secondary_description,
+  secondary_room_only,
+  secondary_bread_breakfast,
+  secondary_half_board,
+  secondary_full_board,
+  secondary_bathroom,
+  secondary_size,
+  secondary_beds,
+  secondary_features,
+      
+
     }) => ({
       id,
       room_number,
@@ -200,8 +232,8 @@ const RoomTable = () => {
       max_childs,
       max_people,
       description,
+      short_description,
       category,
-      secondary_category,
       room_only,
       bread_breakfast,
       half_board,
@@ -211,6 +243,22 @@ const RoomTable = () => {
       view,
       size,
       bathroom,
+      views,
+      secondary_category,
+  secondary_max_adults,
+  secondary_max_childs,
+  secondary_max_people,
+  secondary_short_description,
+  secondary_description,
+  secondary_room_only,
+  secondary_bread_breakfast,
+  secondary_half_board,
+  secondary_full_board,
+  secondary_bathroom,
+  secondary_size,
+  secondary_beds,
+  secondary_features,
+      
     }),
   );
   return (
@@ -284,6 +332,9 @@ const RoomTable = () => {
                           Description
                         </th>
                         <th scope="col" className="px-6 py-3">
+                          Short Description
+                        </th>
+                        <th scope="col" className="px-6 py-3">
                           Features
                         </th>
                         <th scope="col" className="px-6 py-3">
@@ -308,10 +359,52 @@ const RoomTable = () => {
                           Full Board
                         </th>
                         <th scope="col" className="px-6 py-3">
+                          Bathrooms
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                          Views
+                        </th>
+                        <th scope="col" className="px-6 py-3">
                           Second Category
                         </th>
                         <th scope="col" className="px-6 py-3">
-                          Bathrooms
+                          Secondary Max Adults
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                        Secondary Max Childs
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                        Secondary Max People
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                        Secondary Description
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                          Secondary Short Description
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                        Secondary Features
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                        Secondary Beds
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                        Secondary Size
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                          Secondary Bathrooms
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                        Secondary Room Only
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                        Secondary Bread and Breakfast
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                        Secondary Half Board
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                        Secondary Full Board
                         </th>
                         <th scope="col" className="px-6 py-3">
                           Images
@@ -354,6 +447,7 @@ const RoomTable = () => {
                           <td className="px-6 py-4">{room?.max_childs}</td>
                           <td className="px-6 py-4">{room?.max_people}</td>
                           <td className="px-6 py-4">{room?.description}</td>
+                          <td className="px-6 py-4">{room?.short_description}</td>
                           <td className="px-6 py-4">{room?.features}</td>
                           <td className="px-6 py-4">{room?.beds}</td>
                           <td className="px-6 py-4">{room?.size}</td>
@@ -370,10 +464,33 @@ const RoomTable = () => {
                           <td className="px-6 py-4">
                             {room?.full_board.toLocaleString()}
                           </td>
+                          <td className="px-6 py-4">{room?.bathroom}</td>
+                          <td className="px-6 py-4">{room?.views}</td>
                           <td className="px-6 py-4">
                             {room?.secondary_category}
                           </td>
-                          <td className="px-6 py-4">{room?.bathroom}</td>
+                          <td className="px-6 py-4">{room?.secondary_max_adults}</td>
+                          <td className="px-6 py-4">{room?.secondary_max_childs}</td>
+                          <td className="px-6 py-4">{room?.secondary_max_people}</td>
+                          <td className="px-6 py-4">{room?.secondary_description ? room.secondary_description : 'N/A'}</td>
+                          <td className="px-6 py-4">{room?.secondary_short_description? room.secondary_short_description : ' N/A'}</td>
+                          <td className="px-6 py-4">{room?.secondary_features? room.secondary_features : 'N/A'}</td>
+                          <td className="px-6 py-4">{room?.secondary_beds? room.secondary_beds : 'N/A'}</td>
+                          <td className="px-6 py-4">{room?.secondary_size? room.secondary_size : 'N/A'}</td>
+                          <td className="px-6 py-4">{room?.secondary_bathroom? room.secondary_bathroom :'N/A'}</td>
+                          <td className="px-6 py-4">
+                          {room?.secondary_room_only ? room.secondary_room_only.toLocaleString() : 'N/A'}
+                          </td>
+                          <td className="px-6 py-4">
+                          {room?.secondary_bread_breakfast ? room.secondary_bread_breakfast.toLocaleString() : 'N/A'}
+                          </td>
+                          <td className="px-6 py-4">
+                          {room?.secondary_half_board ? room.secondary_half_board.toLocaleString() : 'N/A'}
+                          </td>
+                          <td className="px-6 py-4">
+                          {room?.secondary_full_board ? room.secondary_full_board.toLocaleString() : 'N/A'}
+                          </td>
+                          
                           <td className="min-w-[200px] overflow-x-auto px-6 py-4">
                             <div className="flex items-center gap-2">
                               {room?.images?.map((image, index) => (

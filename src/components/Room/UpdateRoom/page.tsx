@@ -36,18 +36,28 @@ interface RoomFormData {
   half_board: string;
   full_board: string;
   features: string;
-  views: string[];
+  view: string[];
   size: string;
   beds: string;
   bathroom: string;
   secondary_category: string;
-  description: string;
-  short_description: string;
-  images: string[];
+  views: string[];
+  secondary_max_adults: string;
+  secondary_max_childs: string;
+  secondary_max_people: string;
+  secondary_short_description: string;
+  secondary_description: string;
   secondary_room_only: string;
   secondary_bread_breakfast: string;
   secondary_half_board: string;
   secondary_full_board: string;
+  secondary_bathroom: string;
+  secondary_size: string;
+  secondary_beds: string;
+  secondary_features: string;
+  description: string;
+  short_description: string;
+  images: string[];
   status: Boolean;
   out_of_service_start: string;
   out_of_service_end: string;
@@ -65,7 +75,7 @@ const UpdateRoom = () => {
     half_board: "",
     full_board: "",
     features: "",
-    views: [],
+    view: [],
     size: "",
     beds: "",
     bathroom: "",
@@ -73,10 +83,20 @@ const UpdateRoom = () => {
     description: "",
     short_description: "",
     images: [],
+    views: [],
+    secondary_max_adults: "",
+    secondary_max_childs: "",
+    secondary_max_people: "",
+    secondary_short_description: "",
+    secondary_description: "",
     secondary_room_only: "",
     secondary_bread_breakfast: "",
     secondary_half_board: "",
     secondary_full_board: "",
+    secondary_bathroom: "",
+    secondary_size: "",
+    secondary_beds: "",
+    secondary_features: "",
     status: false,
     out_of_service_start: "",
     out_of_service_end: "",
@@ -91,7 +111,7 @@ const UpdateRoom = () => {
     half_board: "",
     full_board: "",
     features: "",
-    views: "",
+    view: "",
     size: "",
     beds: "",
     bathroom: "",
@@ -99,10 +119,20 @@ const UpdateRoom = () => {
     description: "",
     short_description: "",
     images: "",
+    views: "",
+    secondary_max_adults: "",
+    secondary_max_childs: "",
+    secondary_max_people: "",
+    secondary_short_description: "",
+    secondary_description: "",
     secondary_room_only: "",
     secondary_bread_breakfast: "",
     secondary_half_board: "",
     secondary_full_board: "",
+    secondary_bathroom: "",
+    secondary_size: "",
+    secondary_beds: "",
+    secondary_features: "",
   });
   const [tooltipMessage, setTooltipMessage] = useState<string | null>(null); //set tooltip
   const searchParams = useSearchParams();
@@ -113,7 +143,7 @@ const UpdateRoom = () => {
   const [startTime, setStartTime] = React.useState<Dayjs | null>(null);
   const [endTime, setEndTime] = React.useState<Dayjs | null>(null);
 
-  const handleStatusChange = async(
+  const handleStatusChange = async (
     event: ChangeEvent<{}> | null,
     status: boolean,
   ) => {
@@ -140,18 +170,18 @@ const UpdateRoom = () => {
         return;
       }
     } else {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      status: status,
-    }));
-  }
-};
-const [oldSecondaryPrices, setOldSecondaryPrices] = useState({
-  secondary_room_only: "",
-  secondary_bread_breakfast: "",
-  secondary_half_board: "",
-  secondary_full_board: ""
-});    //make sate for previous category prices
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        status: status,
+      }));
+    }
+  };
+  const [oldSecondaryPrices, setOldSecondaryPrices] = useState({
+    secondary_room_only: "",
+    secondary_bread_breakfast: "",
+    secondary_half_board: "",
+    secondary_full_board: "",
+  }); //make sate for previous category prices
 
   const fileInputRef = useRef<any>(null);
   const handleDeleteImage = async (index: number) => {
@@ -233,38 +263,37 @@ const [oldSecondaryPrices, setOldSecondaryPrices] = useState({
     const { name, value } = e.target;
     //Update form data
     setFormData((prevData) => {
-        const updatedData = {
-            ...prevData,
-            [name]: value,
-        };
+      const updatedData = {
+        ...prevData,
+        [name]: value,
+      };
 
-        // Clear secondary prices if secondary_category is deselected
-        if (name === "secondary_category" && value === "") {
-            updatedData.secondary_room_only = "";
-            updatedData.secondary_bread_breakfast = "";
-            updatedData.secondary_half_board = "";
-            updatedData.secondary_full_board = "";
-        }
+      // Clear secondary prices if secondary_category is deselected
+      if (name === "secondary_category" && value === "") {
+        updatedData.secondary_room_only = "";
+        updatedData.secondary_bread_breakfast = "";
+        updatedData.secondary_half_board = "";
+        updatedData.secondary_full_board = "";
+      }
 
-        return updatedData;
+      return updatedData;
     });
 
     // If secondary_category changes, validate the related fields
     if (name === "secondary_category" && value !== "") {
-        // Reset errors for secondary prices
-        setErrors((prevErrors: any) => ({
-            ...prevErrors,
-            secondary_room_only: "",
-            secondary_bread_breakfast: "",
-            secondary_half_board: "",
-            secondary_full_board: "",
-        }));
+      // Reset errors for secondary prices
+      setErrors((prevErrors: any) => ({
+        ...prevErrors,
+        secondary_room_only: "",
+        secondary_bread_breakfast: "",
+        secondary_half_board: "",
+        secondary_full_board: "",
+      }));
     }
 
     // Validate the input as it's being changed
     validateField(name, value);
-};
-
+  };
 
   const validateField = (name: string, value: string) => {
     const validationMessages: Record<string, string> = {
@@ -282,9 +311,9 @@ const [oldSecondaryPrices, setOldSecondaryPrices] = useState({
       beds: "Beds are required",
       bathroom: "Bathroom is required",
     };
-  
+
     const error = !value.trim() ? validationMessages[name] || "" : "";
-  
+
     setErrors((prevErrors: any) => ({
       ...prevErrors,
       [name]: error,
@@ -308,46 +337,43 @@ const [oldSecondaryPrices, setOldSecondaryPrices] = useState({
           ...prevErrors,
           profile_image: "",
         }));
-      const base64Promises = filesArray.map((file) => {
-        return new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
+        const base64Promises = filesArray.map((file) => {
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+          });
         });
-      });
 
-      Promise.all(base64Promises)
-        .then((base64Images) => {
-          setFormData((prevData) => ({
-            ...prevData,
-            images: [...prevData.images, ...base64Images],
-          }));
-          setImagePreviews((prevImages) => [...prevImages, ...base64Images]);
-        })
-        .catch((error) => {
-          console.error("Error converting images to base64:", error);
-          toast.error("Error uploading images");
-        });
+        Promise.all(base64Promises)
+          .then((base64Images) => {
+            setFormData((prevData) => ({
+              ...prevData,
+              images: [...prevData.images, ...base64Images],
+            }));
+            setImagePreviews((prevImages) => [...prevImages, ...base64Images]);
+          })
+          .catch((error) => {
+            console.error("Error converting images to base64:", error);
+            toast.error("Error uploading images");
+          });
+      }
     }
   };
 
-};
+  const handleFocus = () => {
+    if (!tooltipMessage) {
+      setTooltipMessage("Please upload an image smaller than 1 MB");
+    }
+  };
 
-
-const handleFocus = () => {
-  if (!tooltipMessage) {
-    setTooltipMessage("Please upload an image smaller than 1 MB");
-  }
-};
-
-type ErrorType = {
-  secondary_room_only?: string;
-  secondary_bread_breakfast?: string;
-  secondary_half_board?: string;
-  secondary_full_board?: string;
-};
-
+  type ErrorType = {
+    secondary_room_only?: string;
+    secondary_bread_breakfast?: string;
+    secondary_half_board?: string;
+    secondary_full_board?: string;
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -355,17 +381,25 @@ type ErrorType = {
     // Perform final validation
     const newErrors: ErrorType = {};
     if (formData.secondary_category) {
-      if (!formData.secondary_room_only) newErrors.secondary_room_only = "Room Only price for the secondary category is required.";
-      if (!formData.secondary_bread_breakfast) newErrors.secondary_bread_breakfast = "Bread and Breakfast price for the secondary category is required.";
-      if (!formData.secondary_half_board) newErrors.secondary_half_board = "Half board price for the secondary category is required.";
-      if (!formData.secondary_full_board) newErrors.secondary_full_board = "Full board price for the secondary category is required.";
+      if (!formData.secondary_room_only)
+        newErrors.secondary_room_only =
+          "Room Only price for the secondary category is required.";
+      if (!formData.secondary_bread_breakfast)
+        newErrors.secondary_bread_breakfast =
+          "Bread and Breakfast price for the secondary category is required.";
+      if (!formData.secondary_half_board)
+        newErrors.secondary_half_board =
+          "Half board price for the secondary category is required.";
+      if (!formData.secondary_full_board)
+        newErrors.secondary_full_board =
+          "Full board price for the secondary category is required.";
     }
-    
+
     // Set errors if any and prevent form submission
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    return;
-  }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     setLoading(true);
     const urlToBase64 = async (url: string): Promise<string> => {
@@ -392,9 +426,10 @@ type ErrorType = {
       const base64Images = await convertImagesToBase64(formData.images);
       const { images, ...roomData } = formData;
       // Add start and end dates to the form data
-      const formattedStartTime = startTime ? startTime.format("YYYY-MM-DD") : "";
+      const formattedStartTime = startTime
+        ? startTime.format("YYYY-MM-DD")
+        : "";
       const formattedEndTime = endTime ? endTime.format("YYYY-MM-DD") : "";
-
 
       const processedFormData = {
         ...formData,
@@ -438,7 +473,7 @@ type ErrorType = {
   return (
     <div className="flex flex-col gap-9">
       <div className="rounded-sm border border-stroke bg-white shadow-default">
-        <div className="p-6.5">        
+        <div className="p-6.5">
           <div className="mb-6.5">
             <h2 className="text-lg font-semibold text-black">Room Status</h2>
           </div>
@@ -505,8 +540,8 @@ type ErrorType = {
                 <option value="Triple">Triple</option>
               </select>
               {errors.category && (
-                  <p className="text-sm text-red">{errors.category}</p>
-                )}
+                <p className="text-sm text-red">{errors.category}</p>
+              )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -540,9 +575,34 @@ type ErrorType = {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.views && (
-                  <p className="text-sm text-red">{errors.views}</p>
-                )}
+                <p className="text-sm text-red">{errors.views}</p>
+              )}
             </div>
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                View
+              </label>
+              <input
+                type="text"
+                name="view"
+                required
+                placeholder="Enter the Views : hill, garden"
+                value={formData.view}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.view && (
+                <p className="text-sm text-red">{errors.view}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Horizontal separator */}
+          <hr className="my-10 border-t border-stroke" />
+          <div className="mb-6.5">
+            <h2 className="text-lg font-semibold text-black">
+              Primary Category
+            </h2>
           </div>
           <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
             <div className="w-full xl:w-1/3">
@@ -559,8 +619,8 @@ type ErrorType = {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.max_adults && (
-                  <p className="text-sm text-red">{errors.max_adults}</p>
-                )}
+                <p className="text-sm text-red">{errors.max_adults}</p>
+              )}
             </div>
             <div className="w-full xl:w-1/3">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -576,8 +636,8 @@ type ErrorType = {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.max_childs && (
-                  <p className="text-sm text-red">{errors.max_childs}</p>
-                )}
+                <p className="text-sm text-red">{errors.max_childs}</p>
+              )}
             </div>
             <div className="w-full xl:w-1/3">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -593,17 +653,9 @@ type ErrorType = {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.max_people && (
-                  <p className="text-sm text-red">{errors.max_people}</p>
-                )}
+                <p className="text-sm text-red">{errors.max_people}</p>
+              )}
             </div>
-          </div>
-
-           {/* Horizontal separator */}
-           <hr className="my-10 border-t border-stroke" />
-          <div className="mb-6.5">
-            <h2 className="text-lg font-semibold text-black">
-              Primary Category Prices
-            </h2>
           </div>
           <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
             <div className="w-full xl:w-1/4">
@@ -620,8 +672,8 @@ type ErrorType = {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.room_only && (
-                  <p className="text-sm text-red">{errors.room_only}</p>
-                )}
+                <p className="text-sm text-red">{errors.room_only}</p>
+              )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -637,8 +689,8 @@ type ErrorType = {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.bread_breakfast && (
-                  <p className="text-sm text-red">{errors.bread_breakfast}</p>
-                )}
+                <p className="text-sm text-red">{errors.bread_breakfast}</p>
+              )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -654,8 +706,8 @@ type ErrorType = {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.half_board && (
-                  <p className="text-sm text-red">{errors.half_board}</p>
-                )}
+                <p className="text-sm text-red">{errors.half_board}</p>
+              )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -670,18 +722,168 @@ type ErrorType = {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
-               {errors.full_board && (
-                  <p className="text-sm text-red">{errors.full_board}</p>
-                )}
+              {errors.full_board && (
+                <p className="text-sm text-red">{errors.full_board}</p>
+              )}
             </div>
           </div>
-           {/* Horizontal separator */}
-           <hr className="my-10 border-t border-stroke" />
+          <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Features
+              </label>
+              <input
+                type="text"
+                name="features"
+                required
+                placeholder="Enter Room Features"
+                value={formData.features}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.features && (
+                <p className="text-sm text-red">{errors.features}</p>
+              )}
+            </div>
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Room Size
+              </label>
+              <input
+                type="text"
+                name="size"
+                required
+                placeholder="Enter Room Size : 350 sq. ft"
+                value={formData.size}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.size && <p className="text-sm text-red">{errors.size}</p>}
+            </div>
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                No of Beds
+              </label>
+              <input
+                type="text"
+                name="beds"
+                required
+                placeholder="Enter Number of Beds"
+                value={formData.beds}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.beds && <p className="text-sm text-red">{errors.beds}</p>}
+            </div>
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Bathrooms
+              </label>
+              <input
+                type="text"
+                name="bathroom"
+                required
+                placeholder="Enter Bathroom Details"
+                value={formData.bathroom}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.bathroom && (
+                <p className="text-sm text-red">{errors.bathroom}</p>
+              )}
+            </div>
+          </div>
+          <div className="mb-6.5">
+            <div className="w-full">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Description
+              </label>
+              <textarea
+                rows={5}
+                name="description"
+                placeholder="Enter Room Description"
+                value={formData.description}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+            </div>
+          </div>
+          <div className="mb-6.5">
+            <div className="w-full">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Short Description
+              </label>
+              <textarea
+                rows={5}
+                name="short_description"
+                placeholder="Enter Short Description"
+                value={formData.short_description}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+            </div>
+          </div>
+
+          {/* Horizontal separator */}
+          <hr className="my-10 border-t border-stroke" />
           {/* Title Label for First Category */}
           <div className="mb-6.5">
             <h2 className="text-lg font-semibold text-black">
-              Secondary Category Prices
+              Secondary Category 
             </h2>
+          </div>
+          <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+            <div className="w-full xl:w-1/3">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Max Adults
+              </label>
+              <input
+                type="number"
+                name="secondary_max_adults"
+                required
+                placeholder="No of Adults"
+                value={formData.secondary_max_adults}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.secondary_max_adults && (
+                <p className="text-sm text-red">{errors.secondary_max_adults}</p>
+              )}
+            </div>
+            <div className="w-full xl:w-1/3">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Max Children
+              </label>
+              <input
+                type="number"
+                name="secondary_max_childs"
+                required
+                placeholder="No of Children"
+                value={formData.secondary_max_childs}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.secondary_max_childs && (
+                <p className="text-sm text-red">{errors.secondary_max_childs}</p>
+              )}
+            </div>
+            <div className="w-full xl:w-1/3">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Max People
+              </label>
+              <input
+                type="number"
+                name="secondary_max_people"
+                required
+                placeholder="No of People"
+                value={formData.secondary_max_people}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.secondary_max_people && (
+                <p className="text-sm text-red">{errors.secondary_max_people}</p>
+              )}
+            </div>
           </div>
           <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
             <div className="w-full xl:w-1/4">
@@ -698,10 +900,8 @@ type ErrorType = {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.secondary_room_only && (
-                  <p className="text-sm text-red">
-                    {errors.secondary_room_only}
-                  </p>
-                )}
+                <p className="text-sm text-red">{errors.secondary_room_only}</p>
+              )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -719,10 +919,10 @@ type ErrorType = {
                 }`}
               />
               {errors.secondary_bread_breakfast && (
-                  <p className="text-sm text-red">
-                    {errors.secondary_bread_breakfast}
-                  </p>
-                )}
+                <p className="text-sm text-red">
+                  {errors.secondary_bread_breakfast}
+                </p>
+              )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -738,10 +938,10 @@ type ErrorType = {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.secondary_half_board && (
-                  <p className="text-sm text-red">
-                    {errors.secondary_half_board}
-                  </p>
-                )}
+                <p className="text-sm text-red">
+                  {errors.secondary_half_board}
+                </p>
+              )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -757,33 +957,44 @@ type ErrorType = {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.secondary_full_board && (
-                  <p className="text-sm text-red">
-                    {errors.secondary_full_board}
-                  </p>
-                )}
+                <p className="text-sm text-red">
+                  {errors.secondary_full_board}
+                </p>
+              )}
             </div>
           </div>
-
-          {/* Horizontal separator */}
-          <hr className="my-10 border-t border-stroke" />
-
           <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Features
+              </label>
+              <input
+                type="text"
+                name="secondary_features"
+                required
+                placeholder="Enter Room Features"
+                value={formData.secondary_features}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.secondary_features && (
+                <p className="text-sm text-red">{errors.secondary_features}</p>
+              )}
+            </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
                 Room Size
               </label>
               <input
                 type="text"
-                name="size"
+                name="secondary_size"
                 required
                 placeholder="Enter Room Size : 350 sq. ft"
-                value={formData.size}
+                value={formData.secondary_size}
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
-              {errors.size && (
-                  <p className="text-sm text-red">{errors.size}</p>
-                )}
+              {errors.secondary_size && <p className="text-sm text-red">{errors.secondary_size}</p>}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -791,89 +1002,74 @@ type ErrorType = {
               </label>
               <input
                 type="text"
-                name="beds"
+                name="secondary_beds"
                 required
                 placeholder="Enter Number of Beds"
-                value={formData.beds}
+                value={formData.secondary_beds}
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
-              {errors.beds && (
-                  <p className="text-sm text-red">{errors.beds}</p>
-                )}
+              {errors.secondary_beds && <p className="text-sm text-red">{errors.secondary_beds}</p>}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
-                Bathroom
+                Bathrooms
               </label>
               <input
                 type="text"
-                name="bathroom"
+                name="secondary_bathroom"
                 required
                 placeholder="Enter Bathroom Details"
-                value={formData.bathroom}
+                value={formData.secondary_bathroom}
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
-              {errors.bathroom && (
-                  <p className="text-sm text-red">{errors.bathroom}</p>
-                )}
-            </div>
-            <div className="w-full xl:w-1/4">
-              <label className="mb-3 block text-sm font-medium text-black">
-                Features
-              </label>
-              <input
-                type="text"
-                name="features"
-                required
-                placeholder="Enter Room Features"
-                value={formData.features}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              />
-              {errors.features && (
-                  <p className="text-sm text-red">{errors.features}</p>
-                )}
+              {errors.secondary_bathroom && (
+                <p className="text-sm text-red">{errors.secondary_bathroom}</p>
+              )}
             </div>
           </div>
-          <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-            <div className="w-full xl:w-1/2">
+          <div className="mb-6.5">
+            <div className="w-full">
               <label className="mb-3 block text-sm font-medium text-black">
                 Description
               </label>
               <textarea
                 rows={5}
-                name="description"
+                name="secondary_description"
                 placeholder="Enter Room Description"
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              />
-            </div>
-            <div className="w-full xl:w-1/2">
-              <label className="mb-3 block text-sm font-medium text-black">
-                Short Description
-              </label>
-              <textarea
-                rows={5}
-                name="short_description"
-                placeholder="Enter Short Description"
-                value={formData.short_description}
+                value={formData.secondary_description}
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
             </div>
           </div>
-          
+          <div className="mb-6.5">
+            <div className="w-full">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Short Description
+              </label>
+              <textarea
+                rows={5}
+                name="secondary_short_description"
+                placeholder="Enter Short Description"
+                value={formData.secondary_short_description}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+            </div>
+          </div>
+
+          {/* Horizontal separator */}
+          <hr className="my-10 border-t border-stroke" />
 
           <div className="mb-4">
             <label className="mb-3 block text-sm font-medium text-black">
               Upload Room Images
             </label>
             {tooltipMessage && (
-                <div className="mt-2 text-sm text-red">{tooltipMessage}</div>
-              )}
+              <div className="mt-2 text-sm text-red">{tooltipMessage}</div>
+            )}
             <input
               type="file"
               accept="image/*"
@@ -884,8 +1080,8 @@ type ErrorType = {
               className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-white file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
             />
             {errors.profile_image && (
-                <p className="mt-1 text-sm text-red">{errors.profile_image}</p>
-              )}
+              <p className="mt-1 text-sm text-red">{errors.profile_image}</p>
+            )}
           </div>
           <div className="mb-6.5">
             <label className="mb-3 block text-sm font-medium text-black">
