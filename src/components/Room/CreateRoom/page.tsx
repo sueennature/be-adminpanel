@@ -37,6 +37,15 @@ interface RoomFormData {
   secondary_bread_breakfast: string;
   secondary_half_board: string;
   secondary_full_board: string;
+  secondary_max_adults: string;
+  secondary_max_childs: string;
+  secondary_max_people: string;
+  secondary_short_description: string;
+  secondary_description:string;
+  secondary_bathroom: string;
+  secondary_size: string;
+  secondary_beds: string;
+  secondary_features: string;
 }
 
 const CreateRoom = () => {
@@ -65,6 +74,15 @@ const CreateRoom = () => {
     secondary_bread_breakfast: "",
     secondary_half_board: "",
     secondary_full_board: "",
+    secondary_max_adults: "",
+    secondary_max_childs: "",
+    secondary_max_people: "",
+    secondary_short_description: "",
+    secondary_description:"",
+    secondary_bathroom: "",
+    secondary_size: "",
+    secondary_beds: "",
+    secondary_features: "",
   });
   const [errors, setErrors] = useState<any>({
     room_number: "",
@@ -91,6 +109,18 @@ const CreateRoom = () => {
     secondary_bread_breakfast: "",
     secondary_half_board: "",
     secondary_full_board: "",
+
+    secondary_max_adults: "",
+    secondary_max_childs: "",
+    secondary_max_people: "",
+    secondary_short_description: "",
+    secondary_description:"",
+    secondary_bathroom: "",
+    secondary_size: "",
+    secondary_beds: "",
+    secondary_features: "",
+
+
   });
   const [tooltipMessage, setTooltipMessage] = useState<string | null>(null); //set tooltip
   const router = useRouter();
@@ -326,6 +356,15 @@ const CreateRoom = () => {
         secondary_bread_breakfast: "",
         secondary_half_board: "",
         secondary_full_board: "",
+        secondary_max_adults: "",
+        secondary_max_childs: "",
+        secondary_max_people: "",
+        secondary_short_description: "",
+        secondary_description:"",
+        secondary_bathroom: "",
+        secondary_size: "",
+        secondary_beds: "",
+        secondary_features: "",
       });
       setTimeout(() => {
         router.push("/rooms");
@@ -437,6 +476,19 @@ const CreateRoom = () => {
                   <p className="text-sm text-red">{errors.view}</p>
                 )}
               </div>
+             
+            
+             
+            </div>
+            {/* Title Label for First Category */}
+            <div className="mb-6.5">
+              <h2 className="text-lg font-semibold text-black">
+                Primary Category
+              </h2>
+            </div>
+
+            <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+            
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Max Adults
@@ -488,12 +540,6 @@ const CreateRoom = () => {
                   <p className="text-sm text-red">{errors.max_people}</p>
                 )}
               </div>
-            </div>
-            {/* Title Label for First Category */}
-            <div className="mb-6.5">
-              <h2 className="text-lg font-semibold text-black">
-                Primary Category Prices
-              </h2>
             </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
               <div className="w-full xl:w-1/4">
@@ -565,12 +611,162 @@ const CreateRoom = () => {
                 )}
               </div>
             </div>
+            <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+              <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Features
+                </label>
+                <input
+                  type="text"
+                  name="features"
+                  required
+                  placeholder="Enter the Features"
+                  value={formData.features}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+                {errors.features && (
+                  <p className="text-sm text-red">{errors.features}</p>
+                )}
+              </div>
+              <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Size
+                </label>
+                <input
+                  type="text"
+                  name="size"
+                  required
+                  placeholder="Enter the Size"
+                  value={formData.size}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+                {errors.size && (
+                  <p className="text-sm text-red">{errors.size}</p>
+                )}
+              </div>
+              <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Beds
+                </label>
+                <input
+                  type="text"
+                  name="beds"
+                  required
+                  placeholder="Enter the beds"
+                  value={formData.beds}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+                {errors.beds && (
+                  <p className="text-sm text-red">{errors.beds}</p>
+                )}
+              </div>
+              <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Bathroom
+                </label>
+                <input
+                  type="text"
+                  name="bathroom"
+                  required
+                  placeholder="Enter the Bathrooms"
+                  value={formData.bathroom}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+                {errors.bathroom && (
+                  <p className="text-sm text-red">{errors.bathroom}</p>
+                )}
+              </div>
+            </div>
+            <div className="mb-6">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Description
+              </label>
+              <textarea
+                rows={6}
+                name="description"
+                placeholder="Type description"
+                value={formData.description}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              ></textarea>
+            </div>
+            <div className="mb-6">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Short Description
+              </label>
+              <textarea
+                rows={6}
+                name="short_description"
+                placeholder="Type short description"
+                value={formData.short_description}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              ></textarea>
+            </div>
             {/* Title Label for First Category */}
             <div className="mb-6.5">
               <h2 className="text-lg font-semibold text-black">
-                Secondary Category Prices
+                Secondary Category
               </h2>
             </div>
+            <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+            
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Max Adults
+              </label>
+              <input
+                type="number"
+                name="secondary_max_adults"
+                required
+                placeholder="No of Adults"
+                value={formData.secondary_max_adults}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.secondary_max_adults && (
+                <p className="text-sm text-red">{errors.secondary_max_adults}</p>
+              )}
+            </div>
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Max Children
+              </label>
+              <input
+                type="number"
+                name="secondary_max_childs"
+                required
+                placeholder="No of Children"
+                value={formData.secondary_max_childs}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.secondary_max_childs && (
+                <p className="text-sm text-red">{errors.secondary_max_childs}</p>
+              )}
+            </div>
+            <div className="w-full xl:w-1/4">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Max People
+              </label>
+              <input
+                type="number"
+                name="secondary_max_people"
+                required
+                placeholder="No of People"
+                value={formData.secondary_max_people}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              />
+              {errors.secondary_max_people && (
+                <p className="text-sm text-red">{errors.secondary_max_people}</p>
+              )}
+            </div>
+          </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -653,10 +849,6 @@ const CreateRoom = () => {
                 )}
               </div>
             </div>
-
-            {/* Horizontal separator */}
-            <hr className="my-10 border-t border-stroke" />
-
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -664,15 +856,15 @@ const CreateRoom = () => {
                 </label>
                 <input
                   type="text"
-                  name="features"
+                  name="secondary_features"
                   required
                   placeholder="Enter the Features"
-                  value={formData.features}
+                  value={formData.secondary_features}
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
-                {errors.features && (
-                  <p className="text-sm text-red">{errors.features}</p>
+                {errors.secondary_features && (
+                  <p className="text-sm text-red">{errors.secondary_features}</p>
                 )}
               </div>
               <div className="w-full xl:w-1/4">
@@ -681,15 +873,15 @@ const CreateRoom = () => {
                 </label>
                 <input
                   type="text"
-                  name="size"
+                  name="secondary_size"
                   required
                   placeholder="Enter the Size"
-                  value={formData.size}
+                  value={formData.secondary_size}
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
-                {errors.size && (
-                  <p className="text-sm text-red">{errors.size}</p>
+                {errors.secondary_size && (
+                  <p className="text-sm text-red">{errors.secondary_size}</p>
                 )}
               </div>
               <div className="w-full xl:w-1/4">
@@ -698,15 +890,15 @@ const CreateRoom = () => {
                 </label>
                 <input
                   type="text"
-                  name="beds"
+                  name="secondary_beds"
                   required
                   placeholder="Enter the beds"
-                  value={formData.beds}
+                  value={formData.secondary_beds}
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
-                {errors.beds && (
-                  <p className="text-sm text-red">{errors.beds}</p>
+                {errors.secondary_beds && (
+                  <p className="text-sm text-red">{errors.secondary_beds}</p>
                 )}
               </div>
               <div className="w-full xl:w-1/4">
@@ -715,18 +907,49 @@ const CreateRoom = () => {
                 </label>
                 <input
                   type="text"
-                  name="bathroom"
+                  name="secondary_bathroom"
                   required
                   placeholder="Enter the Bathrooms"
-                  value={formData.bathroom}
+                  value={formData.secondary_bathroom}
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
-                {errors.bathroom && (
-                  <p className="text-sm text-red">{errors.bathroom}</p>
+                {errors.secondary_bathroom && (
+                  <p className="text-sm text-red">{errors.secondary_bathroom}</p>
                 )}
               </div>
             </div>
+            <div className="mb-6">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Description
+              </label>
+              <textarea
+                rows={6}
+                name="secondary_description"
+                placeholder="Type description"
+                value={formData.secondary_description}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              ></textarea>
+            </div>
+            <div className="mb-6">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Short Description
+              </label>
+              <textarea
+                rows={6}
+                name="secondary_short_description"
+                placeholder="Type short description"
+                value={formData.secondary_short_description}
+                onChange={handleChange}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+              ></textarea>
+            </div>
+
+            {/* Horizontal separator */}
+            <hr className="my-10 border-t border-stroke" />
+
+
             <div className="mb-6">
               <label className="mb-3 block text-sm font-medium text-black">
                 Attach file
@@ -747,32 +970,7 @@ const CreateRoom = () => {
                 <p className="mt-1 text-sm text-red">{errors.profile_image}</p>
               )}
             </div>
-            <div className="mb-6">
-              <label className="mb-3 block text-sm font-medium text-black">
-                Description
-              </label>
-              <textarea
-                rows={6}
-                name="description"
-                placeholder="Type description"
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              ></textarea>
-            </div>
-            <div className="mb-6">
-              <label className="mb-3 block text-sm font-medium text-black">
-                Short Description
-              </label>
-              <textarea
-                rows={6}
-                name="short_description"
-                placeholder="Type short description"
-                value={formData.short_description}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              ></textarea>
-            </div>
+           
             <button
               type="submit"
               disabled={loading}

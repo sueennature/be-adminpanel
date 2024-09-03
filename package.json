@@ -20,7 +20,7 @@
     "@types/js-cookie": "^3.0.6",
     "apexcharts": "^3.45.2",
     "axios": "^1.7.2",
-    "chart.js": "^4.4.3",
+    "chart.js": "^4.4.4",
     "cookie": "^0.6.0",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.13",
