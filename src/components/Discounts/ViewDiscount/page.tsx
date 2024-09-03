@@ -115,12 +115,18 @@ const ViewDiscount = () => {
     const fetchUsers = async () => {
       try {
         const accessToken = Cookies.get("access_token");
+        const limit = 100; // Number of items per page
+        let skip = 0; // Initial offset
 
         const response = await axios.get(`${process.env.BE_URL}/discounts`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
             "x-api-key": process.env.X_API_KEY,
+          },
+          params: {
+            skip,
+            limit, 
           },
         });
         console.log(response.data);
