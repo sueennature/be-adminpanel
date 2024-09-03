@@ -75,9 +75,30 @@ const ViewRoom = () => {
               <div className="m-2">Name</div>
             </div>
             <div className="flex-1">
-              <div className="m-2">{roomData.name}</div>
+              <div className="m-2">{roomData.room_number || 'N/A'}</div>
             </div>
           </div>
+          
+          
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Category</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.category}</div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Second Category</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.secondary_category}</div>
+            </div>
+          </div>
+          {/* Horizontal separator */}
+          <hr className="my-10 border-t border-stroke" />
+          <h2 className="m-2 text-lg font-semibold">Primary Category</h2>
           <div className="flex">
             <div className="flex-1">
               <div className="m-2">Max Adults</div>
@@ -104,31 +125,36 @@ const ViewRoom = () => {
           </div>
           <div className="flex">
             <div className="flex-1">
-              <div className="m-2">Description</div>
+              <div className="m-2">Features</div>
             </div>
             <div className="flex-1">
-              <div className="m-2">{roomData.description}</div>
+              <div className="m-2">{roomData.features}</div>
             </div>
           </div>
           <div className="flex">
             <div className="flex-1">
-              <div className="m-2">Category</div>
+              <div className="m-2">Beds</div>
             </div>
             <div className="flex-1">
-              <div className="m-2">{roomData.category}</div>
+              <div className="m-2">{roomData.beds}</div>
+            </div>
+          </div>     
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Size</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.size}</div>
             </div>
           </div>
           <div className="flex">
             <div className="flex-1">
-              <div className="m-2">Second Category</div>
+              <div className="m-2">Bathrooms</div>
             </div>
             <div className="flex-1">
-              <div className="m-2">{roomData.secondary_category}</div>
+              <div className="m-2">{roomData.bathroom}</div>
             </div>
           </div>
-          {/* Horizontal separator */}
-          <hr className="my-10 border-t border-stroke" />
-          <h2 className="m-2 text-lg font-semibold">Primary Category Prices</h2>
 
           <div className="flex">
             <div className="flex-1">
@@ -164,11 +190,83 @@ const ViewRoom = () => {
               <div className="m-2">{roomData.full_board?.toLocaleString()}</div>
             </div>
           </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Description</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.description}</div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Short Description</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.short_description}</div>
+            </div>
+          </div>
           {/* Horizontal separator */}
           <hr className="my-10 border-t border-stroke" />
           <h2 className="m-2 text-lg font-semibold">
-            Secondary Category Prices
+            Secondary Category 
           </h2>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Max Adults</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.secondary_max_adults}</div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Max Children</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.secondary_max_childs}</div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Max People</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.secondary_max_people}</div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Features</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.secondary_features || 'N/A'}</div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Beds</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.secondary_beds || 'N/A'}</div>
+            </div>
+          </div>     
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Size</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.secondary_size || 'N/A'}</div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Bathrooms</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.secondary_bathroom || 'N/A'}</div>
+            </div>
+          </div>
           <div className="flex">
             <div className="flex-1">
               <div className="m-2">Room Only</div>
@@ -209,32 +307,25 @@ const ViewRoom = () => {
               </div>
             </div>
           </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Description</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.secondary_description || 'N/A'}</div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
+              <div className="m-2">Short Description</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{roomData.secondary_short_description || 'N/A'}</div>
+            </div>
+          </div>
           {/* Horizontal separator */}
           <hr className="my-10 border-t border-stroke" />
-          <div className="flex">
-            <div className="flex-1">
-              <div className="m-2">Beds</div>
-            </div>
-            <div className="flex-1">
-              <div className="m-2">{roomData.beds}</div>
-            </div>
-          </div>
-          <div className="flex">
-            <div className="flex-1">
-              <div className="m-2">Features</div>
-            </div>
-            <div className="flex-1">
-              <div className="m-2">{roomData.features}</div>
-            </div>
-          </div>
-          <div className="flex">
-            <div className="flex-1">
-              <div className="m-2">Size</div>
-            </div>
-            <div className="flex-1">
-              <div className="m-2">{roomData.size}</div>
-            </div>
-          </div>
+          
           <div className="flex">
             <div className="flex-1">
               <div className="m-2">Images</div>
@@ -263,14 +354,6 @@ const ViewRoom = () => {
                   )}
                 </div>
               </div>{" "}
-            </div>
-          </div>
-          <div className="flex">
-            <div className="flex-1">
-              <div className="m-2">Bathroom</div>
-            </div>
-            <div className="flex-1">
-              <div className="m-2">{roomData.bathroom}</div>
             </div>
           </div>
         </div>
