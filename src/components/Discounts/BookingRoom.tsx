@@ -277,7 +277,17 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       console.log(err)
     }
   }
-
+  function getCategoryById(id:any) {
+    const room = responseDatas?.rooms.find((r:any) => r.id === id);
+    if (room) {
+        return {
+            category: room.category,
+            secondary_category: room.secondary_category
+        };
+    } else {
+        return null; 
+    }
+}
 
   const handleUpdateCatogory = (event: any, id: any) => {
     try {
@@ -309,6 +319,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const handleUpdateChildren = (event: any, id: any) => {
     try {
       const val = parseInt(event.target.value || 0)
+      console.log("valvalvalvalvalvalvalvalvalval",val)
       const arr = Array(val).fill(3);
       setRequestRoom((prev: any) =>
         prev?.map((item: any) =>
@@ -453,15 +464,18 @@ const BookingRoom: React.FC<BookingRoomData> = ({
       const requestBody = {
         "check_in": checkIN,
         "check_out": checkOut,
-        "rooms": await requestRoom.map((room: any) => ({
-          room_id: room.room_id,
-          adults: room.adults,
-          children: room.child,
-          infants: room.infants,
-          meal_plan: room.meal_plan,
-          category: room?.category,
-          additional_services: additionalServicesByRoom?.[room?.room_id]?.map(service => service.additional_service_id) || []
-        })),
+        "rooms": await requestRoom.map((room: any) => {
+          console.log("roomroomroomroomroomroomroom",room)
+          return ({
+            room_id: room.room_id,
+            adults: room.adults,
+            children: room.children || [],
+            infants: room.infants,
+            meal_plan: room.meal_plan,
+            category: room?.category,
+            additional_services: additionalServicesByRoom?.[room?.room_id]?.map(service => service.additional_service_id) || []
+          })
+        }),
         "activities": await activities?.map((activity: any) => ({ activity_id: activity?.id })),
         "taxes": selectedTaxesArray,
         "discounts": await selectedDiscountsArray?.filter(item => item.discount_id !== null),
@@ -626,7 +640,6 @@ const BookingRoom: React.FC<BookingRoomData> = ({
               </Stack>
             </div>
           </div>
-
         </div>
         <TableContainer component={Paper} sx={{ marginBottom: 5 }}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -661,8 +674,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                       }}
                     >
                       <option value={""}>Select Category</option>
-                      {room?.category && <option value={`${room?.category}`}>{room?.category}</option>}
-                      {room?.secondary_category && <option value={`${room?.secondary_category}`}>{room?.secondary_category}</option>}
+                      {<option value={`${getCategoryById(room?.room_id)?.category}`}>{getCategoryById(room?.room_id)?.category}</option>}
+                      {<option value={`${getCategoryById(room?.room_id)?.secondary_category}`}>{getCategoryById(room?.room_id)?.secondary_category}</option>}
                     </select>
                   </TableCell>
                   <TableCell >
@@ -756,7 +769,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                         }
                         className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                       >
-                        {Array.from({ length: 8 }, (_, i) => i + 3)?.map((option, key) => {
+                        {Array.from({ length: 16 }, (_, i) => i + 3)?.map((option, key) => {
                           return <option key={key} value={option}>
                             {option}
                           </option>
