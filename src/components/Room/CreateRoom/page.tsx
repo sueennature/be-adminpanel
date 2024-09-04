@@ -41,7 +41,7 @@ interface RoomFormData {
   secondary_max_childs: string;
   secondary_max_people: string;
   secondary_short_description: string;
-  secondary_description:string;
+  secondary_description: string;
   secondary_bathroom: string;
   secondary_size: string;
   secondary_beds: string;
@@ -78,7 +78,7 @@ const CreateRoom = () => {
     secondary_max_childs: "",
     secondary_max_people: "",
     secondary_short_description: "",
-    secondary_description:"",
+    secondary_description: "",
     secondary_bathroom: "",
     secondary_size: "",
     secondary_beds: "",
@@ -114,13 +114,11 @@ const CreateRoom = () => {
     secondary_max_childs: "",
     secondary_max_people: "",
     secondary_short_description: "",
-    secondary_description:"",
+    secondary_description: "",
     secondary_bathroom: "",
     secondary_size: "",
     secondary_beds: "",
     secondary_features: "",
-
-
   });
   const [tooltipMessage, setTooltipMessage] = useState<string | null>(null); //set tooltip
   const router = useRouter();
@@ -134,8 +132,7 @@ const CreateRoom = () => {
       ...formData,
       [name]: value,
     });
-  
-  
+
     // Conditional validation logic
     if (name === "secondary_category") {
       if (value !== "") {
@@ -177,29 +174,44 @@ const CreateRoom = () => {
       max_adults: "Amount of Maximum Adult is required",
       max_childs: "Amount of Maximum Children is required",
       max_people: "Amount of Maximum People is required",
+      secondary_max_adults: "Amount of Maximum Adult in secondary category is required",
+      secondary_max_childs: "Amount of Maximum Children in secondary category is required",
+      secondary_max_people: "Amount of Maximum People in secondary category is required",
       views: "Room view is required",
       room_only: "Price for Room only is required",
       bread_breakfast: "Price for bread and breakfast room is required",
       half_board: "Price for half board room is required",
       full_board: "Price for full board room is required",
       secondary_room_only: "Price for secondary room only is required",
-      secondary_bread_breakfast: "Price for secondary bread and breakfast room is required",
+      secondary_bread_breakfast:
+        "Price for secondary bread and breakfast room is required",
       secondary_half_board: "Price for secondary half board room is required",
       secondary_full_board: "Price for secondary full board room is required",
       features: "Features are required",
       size: "Room size is required",
+      secondary_size:"Secondary Room size is required",
       beds: "Beds are required",
       bathroom: "Bathroom is required",
+      secondary_features: "Features are required for secondary category",
+      secondary_beds: "Beds are required for secondary category",
+      secondary_bathroom: "Bathroom is required for secondary category",
     };
-  
-    const error = !value.trim() ? validationMessages[name] || "" : "";
-  
+    let error = "";
+    // Check if the value is empty
+    if (!value.trim()) {
+      error = validationMessages[name] || "";
+    } else {
+      // Additional validation for specific fields
+      if ((name === "size" || name === "secondary_size") && !/^\d+(\.\d+)?$/.test(value)) {
+        error = `${name === "size" ? "Room" : "Secondary room"} size must be a number`;
+      }
+    }
+
     setErrors((prevErrors: any) => ({
       ...prevErrors,
       [name]: error,
     }));
   };
-  
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -280,20 +292,28 @@ const CreateRoom = () => {
     // Perform final validation
     const newErrors: ErrorType = {};
     if (formData.secondary_category) {
-      if (!formData.secondary_room_only) newErrors.secondary_room_only = "Room Only price for the secondary category is required.";
-      if (!formData.secondary_bread_breakfast) newErrors.secondary_bread_breakfast = "Bread and Breakfast price for the secondary category is required.";
-      if (!formData.secondary_half_board) newErrors.secondary_half_board = "Half board price for the secondary category is required.";
-      if (!formData.secondary_full_board) newErrors.secondary_full_board = "Full board price for the secondary category is required.";
+      if (!formData.secondary_room_only)
+        newErrors.secondary_room_only =
+          "Room Only price for the secondary category is required.";
+      if (!formData.secondary_bread_breakfast)
+        newErrors.secondary_bread_breakfast =
+          "Bread and Breakfast price for the secondary category is required.";
+      if (!formData.secondary_half_board)
+        newErrors.secondary_half_board =
+          "Half board price for the secondary category is required.";
+      if (!formData.secondary_full_board)
+        newErrors.secondary_full_board =
+          "Full board price for the secondary category is required.";
     }
 
-  // Set errors if any and prevent form submission
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    return;
-  }
+    // Set errors if any and prevent form submission
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
-  // Proceed with form submission if no errors
-  console.log("Form submitted successfully");
+    // Proceed with form submission if no errors
+    console.log("Form submitted successfully");
 
     const processedFormData = {
       ...formData,
@@ -360,7 +380,7 @@ const CreateRoom = () => {
         secondary_max_childs: "",
         secondary_max_people: "",
         secondary_short_description: "",
-        secondary_description:"",
+        secondary_description: "",
         secondary_bathroom: "",
         secondary_size: "",
         secondary_beds: "",
@@ -476,9 +496,6 @@ const CreateRoom = () => {
                   <p className="text-sm text-red">{errors.view}</p>
                 )}
               </div>
-             
-            
-             
             </div>
             {/* Title Label for First Category */}
             <div className="mb-6.5">
@@ -488,7 +505,6 @@ const CreateRoom = () => {
             </div>
 
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-            
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
                   Max Adults
@@ -637,7 +653,7 @@ const CreateRoom = () => {
                   type="text"
                   name="size"
                   required
-                  placeholder="Enter the Size"
+                  placeholder="Enter Room Size : 24 sq. m"
                   value={formData.size}
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
@@ -714,59 +730,64 @@ const CreateRoom = () => {
               </h2>
             </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
-            
-            <div className="w-full xl:w-1/4">
-              <label className="mb-3 block text-sm font-medium text-black">
-                Max Adults
-              </label>
-              <input
-                type="number"
-                name="secondary_max_adults"
-                required
-                placeholder="No of Adults"
-                value={formData.secondary_max_adults}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              />
-              {errors.secondary_max_adults && (
-                <p className="text-sm text-red">{errors.secondary_max_adults}</p>
-              )}
+              <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Max Adults
+                </label>
+                <input
+                  type="number"
+                  name="secondary_max_adults"
+                  required
+                  placeholder="No of Adults"
+                  value={formData.secondary_max_adults}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+                {errors.secondary_max_adults && (
+                  <p className="text-sm text-red">
+                    {errors.secondary_max_adults}
+                  </p>
+                )}
+              </div>
+              <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Max Children
+                </label>
+                <input
+                  type="number"
+                  name="secondary_max_childs"
+                  required
+                  placeholder="No of Children"
+                  value={formData.secondary_max_childs}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+                {errors.secondary_max_childs && (
+                  <p className="text-sm text-red">
+                    {errors.secondary_max_childs}
+                  </p>
+                )}
+              </div>
+              <div className="w-full xl:w-1/4">
+                <label className="mb-3 block text-sm font-medium text-black">
+                  Max People
+                </label>
+                <input
+                  type="number"
+                  name="secondary_max_people"
+                  required
+                  placeholder="No of People"
+                  value={formData.secondary_max_people}
+                  onChange={handleChange}
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
+                />
+                {errors.secondary_max_people && (
+                  <p className="text-sm text-red">
+                    {errors.secondary_max_people}
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="w-full xl:w-1/4">
-              <label className="mb-3 block text-sm font-medium text-black">
-                Max Children
-              </label>
-              <input
-                type="number"
-                name="secondary_max_childs"
-                required
-                placeholder="No of Children"
-                value={formData.secondary_max_childs}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              />
-              {errors.secondary_max_childs && (
-                <p className="text-sm text-red">{errors.secondary_max_childs}</p>
-              )}
-            </div>
-            <div className="w-full xl:w-1/4">
-              <label className="mb-3 block text-sm font-medium text-black">
-                Max People
-              </label>
-              <input
-                type="number"
-                name="secondary_max_people"
-                required
-                placeholder="No of People"
-                value={formData.secondary_max_people}
-                onChange={handleChange}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
-              />
-              {errors.secondary_max_people && (
-                <p className="text-sm text-red">{errors.secondary_max_people}</p>
-              )}
-            </div>
-          </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
               <div className="w-full xl:w-1/4">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -864,7 +885,9 @@ const CreateRoom = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
                 {errors.secondary_features && (
-                  <p className="text-sm text-red">{errors.secondary_features}</p>
+                  <p className="text-sm text-red">
+                    {errors.secondary_features}
+                  </p>
                 )}
               </div>
               <div className="w-full xl:w-1/4">
@@ -875,7 +898,7 @@ const CreateRoom = () => {
                   type="text"
                   name="secondary_size"
                   required
-                  placeholder="Enter the Size"
+                  placeholder="Enter Room Size : 24 sq. m"
                   value={formData.secondary_size}
                   onChange={handleChange}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
@@ -915,7 +938,9 @@ const CreateRoom = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                 />
                 {errors.secondary_bathroom && (
-                  <p className="text-sm text-red">{errors.secondary_bathroom}</p>
+                  <p className="text-sm text-red">
+                    {errors.secondary_bathroom}
+                  </p>
                 )}
               </div>
             </div>
@@ -949,7 +974,6 @@ const CreateRoom = () => {
             {/* Horizontal separator */}
             <hr className="my-10 border-t border-stroke" />
 
-
             <div className="mb-6">
               <label className="mb-3 block text-sm font-medium text-black">
                 Attach file
@@ -970,7 +994,7 @@ const CreateRoom = () => {
                 <p className="mt-1 text-sm text-red">{errors.profile_image}</p>
               )}
             </div>
-           
+
             <button
               type="submit"
               disabled={loading}

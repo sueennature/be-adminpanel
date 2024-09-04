@@ -302,17 +302,33 @@ const UpdateRoom = () => {
       max_adults: "Amount of Maximum Adult is required",
       max_childs: "Amount of Maximum Children is required",
       max_people: "Amount of Maximum People is required",
+      secondary_max_adults: "Amount of Maximum Adult in secondary category is required",
+      secondary_max_childs: "Amount of Maximum Children in secondary category is required",
+      secondary_max_people: "Amount of Maximum People in secondary category is required",
       room_only: "Price for Room only is required",
       bread_breakfast: "Price for bread and breakfast room is required",
       half_board: "Price for half board room is required",
       full_board: "Price for full board room is required",
       features: "Features are required",
       size: "Room size is required",
+      secondary_size:"Secondary Room size is required",
       beds: "Beds are required",
       bathroom: "Bathroom is required",
+      secondary_features: "Features are required for secondary category",
+      secondary_beds: "Beds are required for secondary category",
+      secondary_bathroom: "Bathroom is required for secondary category",
     };
 
-    const error = !value.trim() ? validationMessages[name] || "" : "";
+    let error = "";
+    // Check if the value is empty
+    if (!value.trim()) {
+      error = validationMessages[name] || "";
+    } else {
+      // Additional validation for specific fields
+      if ((name === "size" || name === "secondary_size") && !/^\d+(\.\d+)?$/.test(value)) {
+        error = `${name === "size" ? "Room" : "Secondary room"} size must be a number`;
+      }
+    }
 
     setErrors((prevErrors: any) => ({
       ...prevErrors,
@@ -753,7 +769,7 @@ const UpdateRoom = () => {
                 type="text"
                 name="size"
                 required
-                placeholder="Enter Room Size : 350 sq. ft"
+                placeholder="Enter Room Size : 24 sq. m"
                 value={formData.size}
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
@@ -989,7 +1005,7 @@ const UpdateRoom = () => {
                 type="text"
                 name="secondary_size"
                 required
-                placeholder="Enter Room Size : 350 sq. ft"
+                placeholder="Enter Room Size : 24 sq. m"
                 value={formData.secondary_size}
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
