@@ -9,11 +9,13 @@ const CreateCarousel = () => {
   useAuthRedirect();
   const [formData, setFormData] = useState<any>({
     title: '',
+    tags:'',
     media_type: '',
     media_urls: [],
   });
   const [errors, setErrors] = useState<any>({
     title: '',
+    tags:'',
     media_type: '',
     media_urls: '',
   });
@@ -176,6 +178,11 @@ const CreateCarousel = () => {
                 error = 'Title for carousel is required';
             }
             break;
+        case 'tags':
+              if (!value.trim()) {
+                  error = 'Tags is required';
+              }
+              break;    
 
         case 'media_type':
             if (!value.trim()) {
@@ -264,6 +271,23 @@ const CreateCarousel = () => {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               />
               {errors.title && <p className="text-red text-sm">{errors.title}</p>}
+            </div>
+          </div>
+          <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
+            <div className="w-full xl:w-1/2">
+              <label className="mb-3 block text-sm font-medium text-black">
+                Tags
+              </label>
+              <input
+                type="text"
+                name="tags"
+                required
+                value={formData.tags}
+                onChange={handleInputChange}
+                placeholder="Enter tags to categorize images (e.g., 'Summer', 'Product Launch')"
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              />
+              {errors.tags && <p className="text-red text-sm">{errors.tags}</p>}
             </div>
           </div>
 

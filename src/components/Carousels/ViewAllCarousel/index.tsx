@@ -23,6 +23,7 @@ import ReactPlayer from "react-player";
 interface DiscountData {
   id: number;
   title: string;
+  tags:string;
   media_type: string;
   media_urls: [];
 }
@@ -96,9 +97,10 @@ const ViewAllCarousel = () => {
   const prevPage = () => {
     setCurrentPage((prev) => prev - 1);
   };
-  const csvData = filteredDiscounts.map(({ id, title, media_type }) => ({
+  const csvData = filteredDiscounts.map(({ id, title,tags, media_type }) => ({
     id,
     title,
+    tags,
     media_type,
   }));
 
@@ -150,7 +152,7 @@ const ViewAllCarousel = () => {
     } catch (err) {
       console.error(err);
       toast.error(
-        "There was an error deleting the user. Please try again later",
+        "There was an error deleting the carousel. Please try again later",
       );
     }
   };
@@ -227,6 +229,9 @@ const ViewAllCarousel = () => {
                           Title
                         </th>
                         <th scope="col" className="px-6 py-3">
+                          Tags
+                        </th>
+                        <th scope="col" className="px-6 py-3">
                           Media Type
                         </th>
                         <th scope="col" className="px-6 py-3">
@@ -263,6 +268,7 @@ const ViewAllCarousel = () => {
                           </td>
                           <td className="px-6 py-4">{activity.id}</td>
                           <td className="px-6 py-4">{activity.title}</td>
+                          <td className="px-6 py-4">{activity?.tags ? activity.tags : 'N/A'}</td>
                           <td className="px-6 py-4">{activity.media_type}</td>
                           {activity.media_type ==="video" ? (
                            <td className="min-w-[200px] min-h-[500px] overflow-x-auto px-6 py-4">

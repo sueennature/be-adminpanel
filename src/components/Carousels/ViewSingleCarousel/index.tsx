@@ -71,6 +71,14 @@ useAuthRedirect();
           </div>
           <div className="flex">
             <div className="flex-1">
+              <div className="m-2">Tags</div>
+            </div>
+            <div className="flex-1">
+              <div className="m-2">{activity?.tags ? activity.tags:'N/A'}</div>
+            </div>
+          </div>
+          <div className="flex">
+            <div className="flex-1">
               <div className="m-2">Media Type</div>
             </div>
             <div className="flex-1">
