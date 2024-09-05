@@ -292,7 +292,33 @@ const BookingRoom: React.FC<BookingRoomData> = ({
   const handleUpdateCatogory = (event: any, id: any) => {
     try {
       const val = event.target.value
-
+      if(val == "Single"){
+        setRequestRoom((prev: any) =>
+          prev?.map((item: any) =>
+            item?.room_id === id ? { ...item, children: [] } : item
+          )
+        );
+        setRequestRoom((prev: any) =>
+          prev?.map((item: any) =>
+            item?.room_id === id ? { ...item, children: [] } : item
+          )
+        );
+        setRequestRoom((prev: any) =>
+          prev?.map((item: any) =>
+            item?.room_id === id ? { ...item, infants: [] } : item
+          )
+        );
+        setRequestRoom((prev: any) =>
+          prev?.map((item: any) =>
+            item?.room_id === id ? { ...item, infants: [] } : item
+          )
+        );
+        setRequestRoom((prev: any) =>
+          prev?.map((item: any) =>
+            item?.room_id === id ? { ...item, adults: 1 } : item
+          )
+        );
+      }
       setRequestRoom((prev: any) =>
         prev?.map((item: any) =>
           item?.room_id === id ? { ...item, category: val } : item
@@ -743,7 +769,7 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                     </select>
                   </TableCell>
                   <TableCell>
-                    {room?.category != "Single" && <div>
+                    {<div>
                       <select
                         onChange={(e) =>
                           handleUpdateChildren(e, room?.room_id)
@@ -751,9 +777,9 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                         className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                       >
                         <option>0</option>
-                        {Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
+                        {room?.category != "Single" ? Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
                           return <option>{num}</option>
-                        })}
+                        }) : <option>1</option>}
 
                       </select>
                     </div>}
@@ -774,13 +800,11 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                             {option}
                           </option>
                         })}
-
-
                       </select>
                     })}
                   </TableCell>
                   <TableCell>
-                    {room?.category != "Single" && <div>
+                    {<div>
                       <select
                         onChange={(e) =>
                           handleUpdateInfants(e, room?.room_id)
@@ -788,9 +812,9 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                         className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                       >
                         <option>0</option>
-                        {Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
+                        {room?.category != "Single" ? Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
                           return <option>{num}</option>
-                        })}
+                        }) : <option>1</option>}
 
                       </select>
                     </div>}
