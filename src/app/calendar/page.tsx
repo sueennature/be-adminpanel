@@ -16,8 +16,8 @@ const CalendarPage = () => {
     <DefaultLayout>
       <Breadcrumb pageName="Booking Calendar" firstLink={"/calendar"}/>
       <CheckAvailability/>
-      <Calendar/>
       <BookingTable/>
+      <Calendar/>
     </DefaultLayout>
   );
 };

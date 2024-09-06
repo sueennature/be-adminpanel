@@ -7,6 +7,13 @@ import { Edit, Trash, Eye, Plus } from "react-feather";
 import BookingEdit from './BookingEdit';
 import BookingShow from './BookingShow';
 import ConfirmAlertDialog from '../common/Notifications/ConfirmMessage';
+import dayjs, { Dayjs } from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import TextField from '@mui/material/TextField';
+
 type HelloWorldProps = {
     
 };
@@ -19,12 +26,27 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
     const [open, setOpen] = React.useState(false);
     const [openView, setOpenView] = React.useState(false);
     const [selectedItem, setSelectedItem] = React.useState();
-
     const [openDelete, setOpenDelete] = React.useState(false);
-
-
     const [bookingData, setBookingData] = React.useState({});
+    const [checkInDate, setCheckInDate] = React.useState<Dayjs | null>(null);
+    const [checkOutDate, setCheckOutDate] = React.useState<Dayjs | null>(null);
+    const [searchKey, setSearchKey] = React.useState<string>("");
 
+    const handleDateChangeCheckOut = (newValue: Dayjs | null) => {
+      if (newValue) {
+        const formattedDate = newValue.format('YYYY-MM-DD');
+        console.log(formattedDate); // You can store this value or perform other actions
+        setCheckOutDate(newValue);
+      }
+    };
+
+    const handleDateChangeCheckIn = (newValue: Dayjs | null) => {
+        if (newValue) {
+          const formattedDate = newValue.format('YYYY-MM-DD');
+          console.log(formattedDate); // You can store this value or perform other actions
+          setCheckInDate(newValue);
+        }
+      };
     const handleClickOpen = () => {
       setOpen(true);
     };
@@ -127,10 +149,72 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
             console.log(err)
         }
     }
+
+    const searchBooking = async () => {
+        try {
+            const accessToken = Cookies.get("access_token");
+            let body={
+                search_query:searchKey,
+                check_in: null,
+                check_out: null
+            }
+            const response = await axios.post(`${process.env.BE_URL}/bookings/search`, body, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                    "x-api-key": process.env.X_API_KEY,
+                },
+            });
+            console.log("responseresponseresponseresponse", response)
+            setBookings(response?.data?.bookings || [])
+            setNumRecords(response?.data?.total_records)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    // useEffect(() => {
+        
+    // }, [])
+
+    // useEffect(() => {
+    //     if(searchKey == ""){
+    //         fetchBookings()
+    //     }else{
+    //         searchBooking()
+    //     }
+       
+    // }, [itemsPerPage, currentPage, searchKey])
+
     useEffect(() => {
-        fetchBookings()
+        searchBooking()
     }, [itemsPerPage, currentPage])
     return <div>
+       <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 20, marginTop: 20 }}>
+        {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={['DatePicker']}>
+                <DatePicker 
+                    label="check in"
+                    value={checkInDate}
+                    onChange={handleDateChangeCheckIn}
+                    format="YYYY-MM-DD"
+                />
+            </DemoContainer>
+        </LocalizationProvider>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={['DatePicker']}>
+                <DatePicker 
+                    label="check out"
+                    value={checkOutDate}
+                    onChange={handleDateChangeCheckOut}
+                    format="YYYY-MM-DD"
+                />
+            </DemoContainer>
+        </LocalizationProvider> */}
+        <TextField id="outlined-basic" label="Search Bookings" variant="outlined" onChange={(e)=>{setSearchKey(e.target.value)}} />
+    </div>
+
+
         <table className="text-gray-500 dark:text-gray-400 w-full text-left text-sm">
             <thead className="text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 text-xs uppercase">
                 <tr>
