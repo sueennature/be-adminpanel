@@ -6,15 +6,34 @@ import { Calendar} from 'react-feather';
 import CheckAvailability from '@/components/Discounts/CheckAvailability'
 import Cookies from "js-cookie";
 import axios from "axios";
+import dayjs, { Dayjs } from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 const ECommerce: React.FC = () => {
   const [dashboardDataDaly, setDashboardDataDaly] = useState<any>({});
   const [dashboardDataMonthly, setDashboardDataMonthly] = useState<any>({});
+  const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(null);
+  const [dateStr, setDateStr] = React.useState<string>("");
+  const [monthStr, setMonthStr] = React.useState<string>("");
 
+  const handleDateChange = (newValue: Dayjs | null) => {
+    if (newValue) {
+      const formattedDate = newValue.format('YYYY-MM-DD');
+      const formattedMonth = newValue.format('YYYY-MM');
+      console.log("formattedMonthformattedMonthformattedMonth",formattedMonth)
+      console.log(formattedDate); // You can store this value or perform other actions
+      setSelectedDate(newValue);
+      setDateStr(formattedDate)
+      setMonthStr(formattedMonth)
+    }
+  };
   useEffect(() => {
     const fetchDashBoardData = async () => {
       try {
         const accessToken = Cookies.get("access_token");
-        const response = await axios.get(`${process.env.BE_URL}/dashboard/daily_report/`, {
+        const response = await axios.get(`${process.env.BE_URL}/dashboard/daily_report/${dateStr}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
@@ -30,7 +49,7 @@ const ECommerce: React.FC = () => {
     const fetchDashBoardDataMonthly = async () => {
       try {
         const accessToken = Cookies.get("access_token");
-        const response = await axios.get(`${process.env.BE_URL}/dashboard/monthly_report/`, {
+        const response = await axios.get(`${process.env.BE_URL}/dashboard/monthly_report/${monthStr?.split("-")?.[0]}/${monthStr?.split("-")?.[1]}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
@@ -46,7 +65,7 @@ const ECommerce: React.FC = () => {
     fetchDashBoardDataMonthly()
     const intervalId = setInterval(fetchDashBoardData, 3600000);
     return () => clearInterval(intervalId);
-  }, [])
+  }, [selectedDate])
   const chartData = {
     Booking_Status_Count: {
       Total_Bookings: 1,
@@ -81,8 +100,18 @@ const ECommerce: React.FC = () => {
       <CheckAvailability />
       {/* dashboard cards */}
       <h3 className="m-2 text-2xl font-bold text-black">
-        Day Counts
+        Day Counts 
       </h3>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DemoContainer components={['DatePicker']}>
+        <DatePicker 
+          label="Search By Date"
+          value={selectedDate}
+          onChange={handleDateChange}
+          format="YYYY-MM-DD"
+        />
+      </DemoContainer>
+    </LocalizationProvider>
       <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-4 2xl:gap-7.5 mt-6">
       {Object.entries(dashboardDataDaly).map(([status, value] :any, key) => (
           <Card key={key} title={status}data={value || {}} > <Calendar /></Card>      
