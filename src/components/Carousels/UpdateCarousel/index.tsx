@@ -7,6 +7,7 @@ import axios from "axios";
 import Image from "next/image";
 import { useAuthRedirect } from "@/utils/checkToken";
 import Swal from 'sweetalert2';
+import Select from "react-select";
 
 interface FormData {
   title: string;
@@ -25,7 +26,6 @@ const UpdateCarousel: React.FC = () => {
   });
   const [errors, setErrors] = useState<any>({
     title: '',
-    tags:"",
     media_type: '',
     media_urls: '',
   });
@@ -35,6 +35,12 @@ const UpdateCarousel: React.FC = () => {
   const searchParams = useSearchParams();
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
+ //tag options for tag selecotor
+ const tagOptions = [
+  { value: "Gallery", label: "Gallery" },
+  { value: "Carousel", label: "Carousel" },
+  { value: "Home page", label: "Home page" },
+];
   const carouselId = searchParams.get("carouselID");
 
   const handleDeleteImage = async (index: number) => {
@@ -118,6 +124,21 @@ const UpdateCarousel: React.FC = () => {
     validateField(name, value);
   };
 
+  const handleTagChange = (selectedOptions: any) => {
+    const tagsString = selectedOptions
+      ? selectedOptions.map((option: { value: string }) => option.value).join(", ")
+      : "";
+    setFormData((prevFormData: any) => ({
+      ...prevFormData,
+      tags: tagsString, // Convert tags to a comma-separated string
+    }));
+  };
+  const selectedTags = formData.tags
+    ? formData.tags.split(", ").map((tag: string) =>
+        tagOptions.find((option :any) => option.value === tag)
+      ).filter((option :any) => option) // Filter out any undefined options
+    : [];
+
   const validateField = (name: string, value: string) => {
     let error = '';
 
@@ -126,12 +147,7 @@ const UpdateCarousel: React.FC = () => {
             if (!value.trim()) {
                 error = 'Title for carousel is required';
             }
-            break;
-        case 'tags':
-              if (!value.trim()) {
-                  error = 'Tags is required';
-              }
-              break;    
+            break;   
         case 'media_type':
             if (!value.trim()) {
                 error = 'Media type is required';
@@ -366,16 +382,29 @@ const UpdateCarousel: React.FC = () => {
                 <label className="mb-3 block text-sm font-medium text-black">
                   Tags
                 </label>
-                <input
-                  type="text"
-                  name="tags"
-                  required
-                  value={formData.tags}
-                  onChange={handleInputChange}
-                  placeholder="Enter tags to categorize images (e.g., 'Summer', 'Product Launch')"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
-                />
-                {errors.tags && <p className="text-red text-sm">{errors.tags}</p>}
+                <Select
+                isMulti
+                name="tags"
+                options={tagOptions}
+                classNamePrefix="select"
+                value={selectedTags} // Ensure 'tag' is typed as a string
+                onChange={handleTagChange}
+                placeholder="Select tags to categorize images"
+                className="w-full rounded border-none bg-transparent text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+                styles={{
+                  control: (provided, state) => ({
+                    ...provided,
+                    border: state.isFocused ? "1.5px solid #3c50e0" : "1.5px solid #E2e8f0", // Blue border on focus
+                    borderRadius: "4px",
+                    boxShadow: "none", // Remove shadow
+                    transition: "border-color 0.2s ease", // Smooth transition for border color
+                  }),
+                  input: (provided) => ({
+                    ...provided,
+                    padding: "8px", // Increase padding inside the input container
+                  }),
+                }}
+              />
               </div>
             </div>
             <div className="mb-6">
