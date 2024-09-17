@@ -40,6 +40,7 @@ const UpdateCarousel: React.FC = () => {
   { value: "Gallery", label: "Gallery" },
   { value: "Carousel", label: "Carousel" },
   { value: "Home page", label: "Home page" },
+  { value: "Services", label: "Services" },
 ];
   const carouselId = searchParams.get("carouselID");
 
