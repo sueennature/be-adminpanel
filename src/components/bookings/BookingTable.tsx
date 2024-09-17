@@ -28,15 +28,22 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
     const [selectedItem, setSelectedItem] = React.useState();
     const [openDelete, setOpenDelete] = React.useState(false);
     const [bookingData, setBookingData] = React.useState({});
-    const [checkInDate, setCheckInDate] = React.useState<Dayjs | null>(null);
-    const [checkOutDate, setCheckOutDate] = React.useState<Dayjs | null>(null);
+    const [checkInDate, setCheckInDate] = React.useState<Dayjs | null>(dayjs());
+    const [checkOutDate, setCheckOutDate] = React.useState<Dayjs | null>(dayjs().add(1, 'day'));
+    
+
+    const [checkInDateStr, setCheckInDateStr] = React.useState<string>(checkInDate.toISOString());
+    const [checkOutDateStr, setCheckOutDateStr] = React.useState<string>(checkOutDate.toISOString());
+
     const [searchKey, setSearchKey] = React.useState<string>("");
 
     const handleDateChangeCheckOut = (newValue: Dayjs | null) => {
       if (newValue) {
         const formattedDate = newValue.format('YYYY-MM-DD');
-        console.log(formattedDate); // You can store this value or perform other actions
+        const isoDate = newValue.toISOString();
+        console.log(isoDate); // You can store this value or perform other actions
         setCheckOutDate(newValue);
+        setCheckOutDateStr(isoDate)
       }
     };
 
@@ -44,7 +51,9 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
         if (newValue) {
           const formattedDate = newValue.format('YYYY-MM-DD');
           console.log(formattedDate); // You can store this value or perform other actions
+          const isoDate = newValue.toISOString();
           setCheckInDate(newValue);
+          setCheckInDateStr(isoDate)
         }
       };
     const handleClickOpen = () => {
@@ -134,14 +143,13 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
     const fetchBookings = async () => {
         try {
             const accessToken = Cookies.get("access_token");
-            const response = await axios.get(`${process.env.BE_URL}/bookings/?skip=${currentPage}&limit=${itemsPerPage}`, {
+            const response = await axios.get(`${process.env.BE_URL}/bookings/?skip=${currentPage}&limit=${itemsPerPage}&search_query=${searchKey}&check_in=${checkInDateStr}&check_out=${checkOutDateStr}`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${accessToken}`,
                     "x-api-key": process.env.X_API_KEY,
                 },
             });
-            console.log("fetchBookings", `${process.env.BE_URL}/bookings/?skip=${currentPage}&limit=${itemsPerPage}`)
             console.log("response?.data", response)
             setBookings(response?.data?.bookings || [])
             setNumRecords(response?.data?.total_records)
@@ -150,48 +158,41 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
         }
     }
 
-    const searchBooking = async () => {
-        try {
-            const accessToken = Cookies.get("access_token");
-            let body={
-                search_query:searchKey,
-                check_in: null,
-                check_out: null
-            }
-            const response = await axios.post(`${process.env.BE_URL}/bookings/search`, body, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${accessToken}`,
-                    "x-api-key": process.env.X_API_KEY,
-                },
-            });
-            console.log("responseresponseresponseresponse", response)
-            setBookings(response?.data?.bookings || [])
-            setNumRecords(response?.data?.total_records)
-        } catch (err) {
-            console.log(err)
-        }
-    }
-
-    // useEffect(() => {
-        
-    // }, [])
-
-    // useEffect(() => {
-    //     if(searchKey == ""){
-    //         fetchBookings()
-    //     }else{
-    //         searchBooking()
+    // const searchBooking = async () => {
+    //     try {
+    //         const accessToken = Cookies.get("access_token");
+    //         let body={
+    //             search_query:searchKey,
+    //             check_in: null,
+    //             check_out: null
+    //         }
+    //         const response = await axios.post(`${process.env.BE_URL}/bookings/search`, body, {
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //                 Authorization: `Bearer ${accessToken}`,
+    //                 "x-api-key": process.env.X_API_KEY,
+    //             },
+    //         });
+    //         console.log("responseresponseresponseresponse", response)
+    //         setBookings(response?.data?.bookings || [])
+    //         setNumRecords(response?.data?.total_records)
+    //     } catch (err) {
+    //         console.log(err)
     //     }
-       
-    // }, [itemsPerPage, currentPage, searchKey])
+    // }
+
+   
 
     useEffect(() => {
-        searchBooking()
-    }, [itemsPerPage, currentPage])
+            fetchBookings()
+    }, [itemsPerPage, currentPage, searchKey, checkInDateStr, checkOutDateStr ])
+
+    // useEffect(() => {
+    //     searchBooking()
+    // }, [itemsPerPage, currentPage])
     return <div>
        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 20, marginTop: 20 }}>
-        {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={['DatePicker']}>
                 <DatePicker 
                     label="check in"
@@ -210,7 +211,7 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
                     format="YYYY-MM-DD"
                 />
             </DemoContainer>
-        </LocalizationProvider> */}
+        </LocalizationProvider>
         <TextField id="outlined-basic" label="Search Bookings" variant="outlined" onChange={(e)=>{setSearchKey(e.target.value)}} />
     </div>
 
