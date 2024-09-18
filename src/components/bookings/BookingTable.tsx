@@ -32,8 +32,9 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
     const [checkOutDate, setCheckOutDate] = React.useState<Dayjs | null>(dayjs().add(1, 'day'));
     
 
-    const [checkInDateStr, setCheckInDateStr] = React.useState<string>(checkInDate.toISOString());
-    const [checkOutDateStr, setCheckOutDateStr] = React.useState<string>(checkOutDate.toISOString());
+    const [checkInDateStr, setCheckInDateStr] = React.useState<string>(checkInDate ? checkInDate.toISOString() : "");
+    const [checkOutDateStr, setCheckOutDateStr] = React.useState<string>(checkOutDate ? checkOutDate.toISOString() : "");
+    
 
     const [searchKey, setSearchKey] = React.useState<string>("");
 

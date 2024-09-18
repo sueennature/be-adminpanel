@@ -14,9 +14,10 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 const ECommerce: React.FC = () => {
   const [dashboardDataDaly, setDashboardDataDaly] = useState<any>({});
   const [dashboardDataMonthly, setDashboardDataMonthly] = useState<any>({});
-  const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(null);
-  const [dateStr, setDateStr] = React.useState<string>("");
-  const [monthStr, setMonthStr] = React.useState<string>("");
+  const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(dayjs());
+  const [dateStr, setDateStr] = React.useState<string>(selectedDate?.format('YYYY-MM-DD') || '');
+  const [monthStr, setMonthStr] = React.useState<string>(selectedDate?.format('YYYY-MM') || '');
+  
 
   const handleDateChange = (newValue: Dayjs | null) => {
     if (newValue) {
