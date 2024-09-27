@@ -28,13 +28,15 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
     const [selectedItem, setSelectedItem] = React.useState();
     const [openDelete, setOpenDelete] = React.useState(false);
     const [bookingData, setBookingData] = React.useState({});
-    const [checkInDate, setCheckInDate] = React.useState<Dayjs | null>(dayjs());
-    const [checkOutDate, setCheckOutDate] = React.useState<Dayjs | null>(dayjs().add(1, 'day'));
+    const [checkInDate, setCheckInDate] = React.useState<Dayjs | null>(null);
+    const [checkOutDate, setCheckOutDate] = React.useState<Dayjs | null>(null);
     
 
     const [checkInDateStr, setCheckInDateStr] = React.useState<string>(checkInDate ? checkInDate.toISOString() : "");
     const [checkOutDateStr, setCheckOutDateStr] = React.useState<string>(checkOutDate ? checkOutDate.toISOString() : "");
     
+console.log("checkInDateStr",checkInDateStr)
+console.log("checkOutDateStr",checkOutDateStr)
 
     const [searchKey, setSearchKey] = React.useState<string>("");
 
@@ -144,7 +146,8 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
     const fetchBookings = async () => {
         try {
             const accessToken = Cookies.get("access_token");
-            const response = await axios.get(`${process.env.BE_URL}/bookings/?skip=${currentPage}&limit=${itemsPerPage}&search_query=${searchKey}&check_in=${checkInDateStr}&check_out=${checkOutDateStr}`, {
+            let quary = `${process.env.BE_URL}/bookings/?skip=${currentPage}&limit=${itemsPerPage}&search_query=${searchKey}${(checkInDateStr!=="" && checkOutDateStr!=="") ? `&check_in=${checkInDateStr}&check_out=${checkOutDateStr}`:""}`
+            const response = await axios.get(quary, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${accessToken}`,
