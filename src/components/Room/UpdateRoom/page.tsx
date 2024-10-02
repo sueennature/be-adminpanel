@@ -58,7 +58,7 @@ interface RoomFormData {
   description: string;
   short_description: string;
   images: string[];
-  status: Boolean;
+  status: string;
   out_of_service_start: string;
   out_of_service_end: string;
 }
@@ -97,10 +97,12 @@ const UpdateRoom = () => {
     secondary_size: "",
     secondary_beds: "",
     secondary_features: "",
-    status: false,
+    status: "",
     out_of_service_start: "",
     out_of_service_end: "",
   });
+
+  console.log("formDataformDataformData",formData)
   const [errors, setErrors] = useState<any>({
     category: "",
     max_adults: "",
@@ -145,9 +147,9 @@ const UpdateRoom = () => {
 
   const handleStatusChange = async (
     event: ChangeEvent<{}> | null,
-    status: boolean,
+    status: string,
   ) => {
-    if (formData.status && !status) {
+    if (status == "OUT_OF_SERVICE") {
       // Show confirmation dialog when changing from "Available" to "Out-of-Service"
       const result = await Swal.fire({
         title: "Are you sure?",
@@ -497,13 +499,13 @@ const UpdateRoom = () => {
             <div className="flex w-full max-w-60 justify-between rounded-md border-transparent shadow-md shadow-black">
               <button
                 className={`flex-1 text-nowrap rounded-l-md rounded-r-none px-4 py-4 text-sm font-semibold ${formData.status ? "bg-green-500 text-white " : "bg-gray-300 text-black hover:bg-green-300"}`}
-                onClick={() => handleStatusChange(null, true)}
+                onClick={() => handleStatusChange(null, "AVAILABLE")}
               >
                 Available
               </button>
               <button
                 className={`flex-1 text-nowrap rounded-l-none rounded-r-md px-4 py-4 text-sm font-semibold  ${!formData.status ? "bg-red text-white" : "bg-slate-300 text-black hover:bg-red hover:bg-opacity-80"}`}
-                onClick={() => handleStatusChange(null, false)}
+                onClick={() => handleStatusChange(null, "OUT_OF_SERVICE")}
               >
                 Out-of-Service
               </button>
