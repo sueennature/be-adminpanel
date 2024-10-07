@@ -28,7 +28,10 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { banks } from "../../utils/banks"
+import Button from '@mui/material/Button';
 
+import AutoCompleateSeachBox from "../bookings/AutoCompleateSeachBox";
+import AutoCompleateAgentSearch from "../bookings/AutoCompleateAgentSearch";
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 interface AgentInfo {
@@ -132,6 +135,43 @@ const BookingRoom: React.FC<BookingRoomData> = ({
     gender: '',
 
   });
+
+  
+
+  const clearGuestInfo = () => {
+    setGuestInfo({
+      firstName: '',
+      lastName: '',
+      email: '',
+      nationality: 'Sri Lanka',
+      telephone: '',
+      address: '',
+      identificationType: '',
+  
+      identificationNo: '',
+      gender: '',
+  
+    });
+  };
+
+  const clearAgentInfo = () => {
+    setAgentInfo({
+      firstName: '',
+      lastName: '',
+      email: '',
+      nationality: 'Sri Lanka',
+      telephone: '',
+      address: ''
+    });
+  };
+
+  const updateGuestInfo = (updatedInfo: GestInfo) => {
+    setGuestInfo(updatedInfo);
+  };
+
+  const updateAgentInfo = (updatedInfo: AgentInfo) => {
+    setAgentInfo(updatedInfo);
+  };
 
   const handleDobChange = (newValue: any) => {
     const formattedDate = newValue ? newValue.toISOString() : '';
@@ -961,6 +1001,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
         <div className="flex flex-col gap-9">
           <form>
             <div className="mb-4 text-2xl font-bold text-black">Guest Info</div>
+            <div className="mb-4" style={{ display: 'flex', alignItems: 'center' }}>
+              <AutoCompleateSeachBox updateGuestInfo={updateGuestInfo} />
+              <Button onClick={clearGuestInfo} variant="contained" style={{ padding:16, marginLeft:'8px' }}>clear</Button>
+            </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
               <div className="w-full xl:w-1/5">
                 <label className="mb-3 block text-xl font-medium text-black">
@@ -1133,6 +1177,10 @@ const BookingRoom: React.FC<BookingRoomData> = ({
               ></textarea>
             </div>
             <div className="mb-4 text-2xl font-bold text-black">Agent Info</div>
+            <div className="mb-4" style={{ display: 'flex', alignItems: 'center' }}>
+              <AutoCompleateAgentSearch updateAgentInfo={updateAgentInfo} />
+              <Button onClick={clearAgentInfo} variant="contained" style={{ padding:16, marginLeft:'8px' }}>clear</Button>
+            </div>
             <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
               <div className="w-full xl:w-1/5">
                 <label className="mb-3 block text-xl font-medium text-black">
