@@ -20,9 +20,18 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Button from '@mui/material/Button';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
+import dayjs from 'dayjs';
+import "react-toastify/dist/ReactToastify.css";
 
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 interface RoomFormData {
@@ -102,7 +111,6 @@ const UpdateRoom = () => {
     out_of_service_end: "",
   });
 
-  console.log("formDataformDataformData",formData)
   const [errors, setErrors] = useState<any>({
     category: "",
     max_adults: "",
@@ -144,47 +152,69 @@ const UpdateRoom = () => {
   const [loading, setLoading] = useState(false);
   const [startTime, setStartTime] = React.useState<Dayjs | null>(null);
   const [endTime, setEndTime] = React.useState<Dayjs | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string>('available');
+  const [open, setOpen] = React.useState(false);
+  const [checkInDate, setCheckInDate] = React.useState<Dayjs | null>(null);
+  const [checkOutDate, setCheckOutDate] = React.useState<Dayjs | null>(null);
 
-  const handleStatusChange = async (
-    event: ChangeEvent<{}> | null,
-    status: string,
-  ) => {
-    if (status == "OUT_OF_SERVICE") {
-      // Show confirmation dialog when changing from "Available" to "Out-of-Service"
-      const result = await Swal.fire({
-        title: "Are you sure?",
-        text: "Changing the status to Out-of-Service will require you to set a start and end date.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, change status",
-        cancelButtonText: "Cancel",
-      });
-      if (result.isConfirmed) {
-        // User confirmed the change, update the status
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          status: status,
-        }));
-      } else {
-        // User cancelled the change, do nothing
-        return;
-      }
-    } else {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        status: status,
-      }));
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setCheckInDate(null)
+    setCheckOutDate(null)
+  };
+
+  const handleStatusChange = (status: string) => {
+    setSelectedStatus(status);
+    if(status === "out_of_service"){
+      handleClickOpen()
+    }else{
+      updateStatus()
     }
   };
-  const [oldSecondaryPrices, setOldSecondaryPrices] = useState({
-    secondary_room_only: "",
-    secondary_bread_breakfast: "",
-    secondary_half_board: "",
-    secondary_full_board: "",
-  }); //make sate for previous category prices
 
+  const updateStatus = async() =>{
+    try{
+      const requestBody = {
+        "room_id": roomId,
+        "status": selectedStatus,
+        "out_of_service_start": selectedStatus === "available" ? null : checkInDate?.toISOString(),
+        "out_of_service_end": selectedStatus === "available" ? null : checkOutDate?.toISOString()
+      }
+
+      const accessToken = await Cookies.get("access_token");
+      const response = await axios.put(`${process.env.BE_URL}/rooms/${roomId}/status`, requestBody, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          "x-api-key": process.env.X_API_KEY,
+        },
+      });
+      if(response?.status == 200){
+        toast.success(`Update State To ${selectedStatus == "out_of_service" ? "Out of service" : "Available"}!`);
+        if(selectedStatus === "out_of_service"){
+          await handleClose()
+        }
+      }else{
+        toast.error(`Something wrong!`);
+        if(selectedStatus === "out_of_service"){
+          await handleClose()
+        }
+      }
+      await fetchRooms()
+    }catch(err){
+      console.log(err)
+      toast.error(`Something wrong!`);
+      if(selectedStatus === "out_of_service"){
+        await handleClose()
+      }
+      await fetchRooms()
+    }
+  }
+  
   const fileInputRef = useRef<any>(null);
   const handleDeleteImage = async (index: number) => {
     const imageUrl = formData.images[index];
@@ -200,7 +230,6 @@ const UpdateRoom = () => {
       });
 
       if (result.isConfirmed) {
-        console.log("IMAGEURL", imageUrl);
         try {
           await axios.delete(`${process.env.BE_URL}/rooms/${roomId}/images`, {
             data: { files_to_delete: [imageUrl] },
@@ -231,33 +260,34 @@ const UpdateRoom = () => {
       }
     }
   };
-  useEffect(() => {
-    const fetchRooms = async () => {
-      if (roomId) {
-        try {
-          const accessToken = Cookies.get("access_token");
 
-          const response = await axios.get(
-            `${process.env.BE_URL}/rooms/${roomId}`,
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${accessToken}`,
-                "x-api-key": process.env.X_API_KEY,
-              },
+  const fetchRooms = async () => {
+    if (roomId) {
+      try {
+        const accessToken = Cookies.get("access_token");
+
+        const response = await axios.get(
+          `${process.env.BE_URL}/rooms/${roomId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+              "x-api-key": process.env.X_API_KEY,
             },
-          );
+          },
+        );
 
-          setFormData(response.data);
-          if (response.data.images && Array.isArray(response.data.images)) {
-            setImagePreviews(response.data.images);
-          }
-        } catch (err) {
-          console.log(err);
+        setFormData(response.data);
+        if (response.data.images && Array.isArray(response.data.images)) {
+          setImagePreviews(response.data.images);
         }
+      } catch (err) {
+        console.log(err);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchRooms();
   }, [roomId]);
 
@@ -444,16 +474,16 @@ const UpdateRoom = () => {
       const base64Images = await convertImagesToBase64(formData.images);
       const { images, ...roomData } = formData;
       // Add start and end dates to the form data
-      const formattedStartTime = startTime
-        ? startTime.format("YYYY-MM-DD")
-        : "";
-      const formattedEndTime = endTime ? endTime.format("YYYY-MM-DD") : "";
+      // const formattedStartTime = startTime
+      //   ? startTime.format("YYYY-MM-DD")
+      //   : "";
+      // const formattedEndTime = endTime ? endTime.format("YYYY-MM-DD") : "";
 
       const processedFormData = {
         ...formData,
         images: base64Images,
-        out_of_service_start: formattedStartTime,
-        out_of_service_end: formattedEndTime,
+        // out_of_service_start: formattedStartTime,
+        // out_of_service_end: formattedEndTime,
       };
 
       const response = await fetch("/api/room/update", {
@@ -496,45 +526,25 @@ const UpdateRoom = () => {
             <h2 className="text-lg font-semibold text-black">Room Status</h2>
           </div>
           <div className="my-6.5 flex flex-col items-center gap-4 md:flex-row">
-            <div className="flex w-full max-w-60 justify-between rounded-md border-transparent shadow-md shadow-black">
-              <button
-                className={`flex-1 text-nowrap rounded-l-md rounded-r-none px-4 py-4 text-sm font-semibold ${formData.status ? "bg-green-500 text-white " : "bg-gray-300 text-black hover:bg-green-300"}`}
-                onClick={() => handleStatusChange(null, "AVAILABLE")}
-              >
-                Available
-              </button>
-              <button
-                className={`flex-1 text-nowrap rounded-l-none rounded-r-md px-4 py-4 text-sm font-semibold  ${!formData.status ? "bg-red text-white" : "bg-slate-300 text-black hover:bg-red hover:bg-opacity-80"}`}
-                onClick={() => handleStatusChange(null, "OUT_OF_SERVICE")}
-              >
-                Out-of-Service
-              </button>
+            <div >
+            <ButtonGroup disableElevation aria-label="status button group">
+            <Button
+              onClick={() => handleStatusChange('available')}
+              variant={formData?.status === 'available' ? 'contained' : 'outlined'}
+              color="success"
+            >
+              Available
+            </Button>
+            <Button
+              onClick={() => handleStatusChange('out_of_service')}
+              variant={formData?.status === 'out_of_service' ? 'contained' : 'outlined'}
+              color="warning"
+            >
+              Out-of-Service
+            </Button>
+          </ButtonGroup>
             </div>
-            <div className="mb-6 flex items-center space-x-4">
-              {/* Conditionally render DatePicker components */}
-              {!formData.status && (
-                <div className="mt-4 flex flex-row gap-2">
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={["DatePicker"]}>
-                      <DatePicker
-                        label="Start Date"
-                        value={startTime}
-                        onChange={(newValue) => setStartTime(newValue)}
-                      />
-                    </DemoContainer>
-                  </LocalizationProvider>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={["DatePicker"]}>
-                      <DatePicker
-                        label="End Date"
-                        value={endTime}
-                        onChange={(newValue) => setEndTime(newValue)}
-                      />
-                    </DemoContainer>
-                  </LocalizationProvider>
-                </div>
-              )}
-            </div>
+           
           </div>
           {/* Horizontal separator */}
           <hr className="my-10 border-t border-stroke" />
@@ -1140,6 +1150,46 @@ const UpdateRoom = () => {
           </button>
         </div>
       </div>
+     
+      
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title" >
+          {"Are you sure to change room status?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Changing the status to Out-of-Service will require you to set a start and end date.
+          </DialogContentText>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Check-in Date"
+              value={checkInDate}
+              onChange={(newValue) => setCheckInDate(newValue)}
+              slots={{ textField: TextField }} // This replaces renderInput
+              slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+            />
+            <DatePicker
+              label="Check-out Date"
+              value={checkOutDate}
+              onChange={(newValue) => setCheckOutDate(newValue)}
+              slots={{ textField: TextField }} // This replaces renderInput
+              slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+            />
+          </LocalizationProvider>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={updateStatus} disabled={(checkInDate && checkOutDate) ? false : true } >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+    
     </div>
   );
 };

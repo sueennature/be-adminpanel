@@ -50,7 +50,6 @@ const AutoCompleateSeachBox: React.FC<ChildProps> = ({ updateGuestInfo }) => {
       });
 
       setOptions(response?.data);
-      console.log("response?.data?.length == 1", response?.data?.length == 1)
       const data = response?.data?.[0]
       if(response?.data?.length == 1){
         const updatedInfo: GuestInfo = {
