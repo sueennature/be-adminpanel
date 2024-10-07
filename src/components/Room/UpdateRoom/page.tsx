@@ -1185,7 +1185,7 @@ const UpdateRoom = () => {
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button onClick={updateStatus} disabled={(checkInDate && checkOutDate) ? false : true } >
-            Confirm
+            Update
           </Button>
         </DialogActions>
       </Dialog>
