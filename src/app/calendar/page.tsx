@@ -4,6 +4,7 @@ import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import CheckAvailability from '@/components/Discounts/CheckAvailability'
 import BookingTable from "@/components/bookings/BookingTable";
+import CustomTimeLine from "@/components/CustomTimeLine/CustomTimeLine";
 
 export const metadata: Metadata = {
   title: "Admin | Dashboard",
@@ -17,7 +18,7 @@ const CalendarPage = () => {
       <Breadcrumb pageName="Booking Calendar" firstLink={"/calendar"}/>
       <CheckAvailability/>
       <BookingTable/>
-      <Calendar/>
+      <CustomTimeLine/>
     </DefaultLayout>
   );
 };
