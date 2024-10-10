@@ -257,8 +257,8 @@ console.log("checkOutDateStr",checkOutDateStr)
                 </tr>
             </thead>
             <tbody>
-                {bookings?.map((data: any) => {
-                    return <tr className="dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-b bg-white">
+                {bookings?.map((data: any, index: number) => {
+                    return <tr key={index} className="dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-b bg-white">
                         <td className="px-6 py-4">{data?.id}</td>
                         <td className="px-6 py-4">{timestampToDate(data?.check_in)}</td>
                         <td className="px-6 py-4">{timestampToDate(data?.check_out)}</td>

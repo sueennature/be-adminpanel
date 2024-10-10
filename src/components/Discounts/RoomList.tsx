@@ -22,7 +22,7 @@ const RoomList: React.FC<RoomListProps> = ({ rooms }) => {
                 </div>
                 <Stack  direction="row" spacing={1} style={{ marginBottom: 20 , overflowX: 'auto', }}>
                     {data?.map((room: any, key: any) => (
-                        <div style={{
+                        <div key={key} style={{
                             backgroundColor: '#346e41', 
                             color: 'white', 
                             margin: 10, 

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import Calendar, { CalendarProps, TileContentProps } from 'react-calendar';
+import Calendar, { CalendarProps } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import bookingsData from '../../components/Datatables/bookings.json'; // Adjust the path to your JSON file
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi'; // Import icons from react-icons library
@@ -66,7 +66,7 @@ const Datepicker: React.FC = () => {
     return selectedDateTime >= bookingStartTime && selectedDateTime <= bookingEndTime;
   };
 
-  const renderTileContent = ({ date, view }: TileContentProps) => {
+  const renderTileContent = ({ date, view }: any) => {
     if (view === 'month') {
       const dayBookings = filteredBookings.filter(booking => isDateInRange(date, booking.start, booking.end));
       if (dayBookings.length > 0) {

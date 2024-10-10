@@ -32,6 +32,7 @@ import Button from '@mui/material/Button';
 
 import AutoCompleateSeachBox from "../bookings/AutoCompleateSeachBox";
 import AutoCompleateAgentSearch from "../bookings/AutoCompleateAgentSearch";
+import zIndex from "@mui/material/styles/zIndex";
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 interface AgentInfo {
@@ -817,8 +818,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                         className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                       >
                         <option>0</option>
-                        {room?.category != "Single" ? Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
-                          return <option>{num}</option>
+                        {room?.category != "Single" ? Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num, index) => {
+                          return <option key={index}>{num}</option>
                         }) : <option>1</option>}
 
                       </select>
@@ -852,8 +853,8 @@ const BookingRoom: React.FC<BookingRoomData> = ({
                         className="rounded border-[1.5px] border-stroke bg-transparent px-4 py-2 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
                       >
                         <option>0</option>
-                        {room?.category != "Single" ? Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num) => {
-                          return <option>{num}</option>
+                        {room?.category != "Single" ? Array?.from({ length: room?.max_childs || 0 }, (_, i) => i + 1)?.map((num, index) => {
+                          return <option key={index}>{num}</option>
                         }) : <option>1</option>}
 
                       </select>
