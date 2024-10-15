@@ -118,7 +118,7 @@ const ViewDiscount = () => {
         const limit = 100; // Number of items per page
         let skip = 0; // Initial offset
 
-        const response = await axios.get(`${process.env.BE_URL}/discounts`, {
+        const response = await axios.get(`${process.env.BE_URL}/discounts/`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,

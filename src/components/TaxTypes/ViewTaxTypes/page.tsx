@@ -102,7 +102,7 @@ const ViewTaxTypes = () => {
             const limit = 100; // Number of items per page
             let skip = 0; // Initial offset
     
-            const response = await axios.get(`${process.env.BE_URL}/taxes`, {
+            const response = await axios.get(`${process.env.BE_URL}/taxes/`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${accessToken}`,
