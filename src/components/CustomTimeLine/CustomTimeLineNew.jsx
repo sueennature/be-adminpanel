@@ -9,6 +9,7 @@ import axios from "axios";
 const CustomTimeLineNew = () => {
   const [groups, setGroups] = useState([]);
   const [items, setItems] = useState([]);
+  const [key, setKey] = useState(0); 
 
   const fetchBookings = async () => {
     try {
@@ -36,13 +37,13 @@ const CustomTimeLineNew = () => {
         id: `${booking.booking_id}-${booking.room_id}`,
         group: booking.room_number,
         title: `${booking.guest_name} | Check-in: ${moment(booking.check_in).format("YYYY-MM-DD HH:mm")} | Check-out: ${moment(booking.check_out).format("YYYY-MM-DD HH:mm")}`,
-        start_time: moment(booking.check_in).valueOf(),
-        end_time: moment(booking.check_out).valueOf(),
+        start_time: moment(booking.check_in),
+        end_time: moment(booking.check_out),
       }));
 
       setItems(transformedItems);
 
-      setBookings(bookings);
+      setKey((prevKey) => prevKey + 1);
     } catch (err) {
       console.error(err);
     }
@@ -54,6 +55,7 @@ const CustomTimeLineNew = () => {
 
   return (
     <Timeline
+      key={key} 
       groups={groups}
       items={items}
       defaultTimeStart={moment().add(-12, "hour")}
