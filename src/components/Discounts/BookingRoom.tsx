@@ -32,6 +32,7 @@ import Button from '@mui/material/Button';
 
 import AutoCompleateSeachBox from "../bookings/AutoCompleateSeachBox";
 import AutoCompleateAgentSearch from "../bookings/AutoCompleateAgentSearch";
+import zIndex from "@mui/material/styles/zIndex";
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 interface AgentInfo {

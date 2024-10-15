@@ -3,13 +3,12 @@
 This is the admin Dashboard of Sueen Nature,SueenNature admin built on **Next.js and Tailwind CSS**.It is a comprehensive management interface designed for administrators to oversee and manage all aspects of the platform. 
 
 
-
 ## Installation
 Here are the steps you need to follow to install the dependencies.
 
 1. Download and extract the template from Next.js Templates.
 
-2. After that **cd** into the template directory then run this command to install all the dependencies
+2. After that **cd** into the template directory then run this command to install all the dependencies 
 
 ```
 npm install
