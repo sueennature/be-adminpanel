@@ -37,7 +37,7 @@ const ViewAdditionalServices = () => {
         const accessToken = Cookies.get("access_token");
         const limit = 100; // Number of items per page
         let skip = 0; // Initial offset
-        const response = await axios.get(`${process.env.BE_URL}/additional-services`, {
+        const response = await axios.get(`${process.env.BE_URL}/additional-services/`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
