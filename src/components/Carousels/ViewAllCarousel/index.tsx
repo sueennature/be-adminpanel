@@ -111,7 +111,7 @@ const ViewAllCarousel = () => {
         const limit = 100; // Number of items per page
         let skip = 0; // Initial offset
 
-        const response = await axios.get(`${process.env.BE_URL}/carousels`, {
+        const response = await axios.get(`${process.env.BE_URL}/carousels/`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,

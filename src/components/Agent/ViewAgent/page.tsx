@@ -45,7 +45,7 @@ const ViewAgent = () => {
         let hasMore = true;
     
         while (hasMore) {
-          const response = await axios.get<AgentData[]>(`${process.env.BE_URL}/agents`, {
+          const response = await axios.get<AgentData[]>(`${process.env.BE_URL}/agents/`, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${accessToken}`,
