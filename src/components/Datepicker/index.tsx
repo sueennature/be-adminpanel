@@ -66,7 +66,7 @@ const Datepicker: React.FC = () => {
     return selectedDateTime >= bookingStartTime && selectedDateTime <= bookingEndTime;
   };
 
-  const renderTileContent = ({ date, view }: any) => {
+  const renderTileContent = ({ date, view } : any) => {
     if (view === 'month') {
       const dayBookings = filteredBookings.filter(booking => isDateInRange(date, booking.start, booking.end));
       if (dayBookings.length > 0) {
