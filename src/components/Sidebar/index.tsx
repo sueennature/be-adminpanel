@@ -109,6 +109,15 @@ const menuGroups = [
         label: "Additional Service",
         route: "/additionalServices",
       },
+      {
+        icon: (
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+  <path fill="currentColor" d="M15 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V7l-5-5zm2 16H7v-2h10v2zm0-4H7v-2h10v2zm-3-7V3.5L18.5 9H14z"/>
+</svg>
+     ),
+        label: "Reports",
+        route: "/reports",
+      },
     ],
   }
 
