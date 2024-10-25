@@ -15,7 +15,7 @@ import { useAuthRedirect } from "@/utils/checkToken";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { getReports } from "@/app/api/report/route";
+// import { getReports } from "@/app/api/report/route";
 import dayjs, { Dayjs } from "dayjs";
 import { Button, CircularProgress } from "@mui/material";
 
@@ -277,19 +277,19 @@ const ViewReports = () => {
   const handleGenerateReports = async (type: string) => {
     setReportType(type);
     setIsGenerating(true);
-    const reportResponse = await getReports({
-      type: type,
-      start_date: startDate ? startDate.format("YYYY-MM-DD") : "",
-      end_date: endDate ? endDate.format("YYYY-MM-DD") : "",
-    });
+    // const reportResponse = await getReports({
+    //   type: type,
+    //   start_date: startDate ? startDate.format("YYYY-MM-DD") : "",
+    //   end_date: endDate ? endDate.format("YYYY-MM-DD") : "",
+    // });
 
-    if (reportResponse) {
-      setIsGenerating(false);
-      setIsReportReady(true);
-      setReadyFiles((prev) => [...prev, type])
-    }
+    // if (reportResponse) {
+    //   setIsGenerating(false);
+    //   setIsReportReady(true);
+    //   setReadyFiles((prev) => [...prev, type])
+    // }
 
-    console.log(reportResponse);
+    // console.log(reportResponse);
   };
 
   const handleDateChange = (type: string) =>{
