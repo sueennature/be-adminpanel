@@ -20,7 +20,9 @@ import { GET } from "@/app/api/report/route";
 import dayjs, { Dayjs } from "dayjs";
 import { Button, CircularProgress } from "@mui/material";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+// import "jspdf-autotable";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
 
 interface ActivityData {
   id: number;
@@ -279,39 +281,76 @@ const ViewReports = () => {
     }),
   );
 
-  const pdf = (data: any, type: string) => {
-    const keys = Object.keys(data[0]);
+//   const pdf = (data: any, type: string) => {
+//     const keys = Object.keys(data[0]);
 
-    let bodyData = [];
-    for (let j = 0;  j < data.length; j++) {
-      let rowData = [];
-      for(let key of keys){
-        rowData.push(data[j][key])
-      }
-      bodyData.push(rowData);
-    }
+//     let bodyData = [];
+//     for (let j = 0;  j < data.length; j++) {
+//       let rowData = [];
+//       for(let key of keys){
+//         rowData.push(data[j][key])
+//       }
+//       bodyData.push(rowData);
+//     }
 
-    const doc = new jsPDF({ orientation: "portrait" });
-    var time = new Date().toLocaleString();
-    doc.setFontSize(20);
-    doc.text(`${type} Report`, 105, 13, { align: "center" });
-    doc.setFontSize(12);
-    doc.text("Sueen Nature © 2024 All rights reserved.", 105, 41, {
-      align: "center",
-    });
+//     const doc = new jsPDF({ orientation: "portrait" });
+//     var time = new Date().toLocaleString();
+//     doc.setFontSize(20);
+//     doc.text(`${type} Report`, 105, 13, { align: "center" });
+//     doc.setFontSize(12);
+//     doc.text("Sueen Nature © 2024 All rights reserved.", 105, 41, {
+//       align: "center",
+//     });
 
-    // @ts-ignore
-    doc.autoTable({
-      theme: "grid",
-      styles: { align: "center" },
-      headStyles: { fillColor: [71, 201, 76] },
-      startY: 27,
-      head: [ keys ],
-      body: bodyData,
-    });
+//     // @ts-ignore
+//     doc.autoTable({
+//       theme: "grid",
+//       styles: { align: "center" },
+//       headStyles: { fillColor: [71, 201, 76] },
+//       startY: 27,
+//       head: [ keys ],
+//       body: bodyData,
+//     });
 
-  doc.save(`${type}.pdf`);
+//   doc.save(`${type}.pdf`);
+// };
+
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
+const pdf = (data: any[], type: string) => {
+  const keys = Object.keys(data[0]);
+
+  const tableBody = [
+    keys.map((key) => ({ text: key, style: "tableHeader" })),
+    ...data.map((row) => keys.map((key) => ({ text: String(row[key]), style: "tableBody" }))),
+  ];
+
+  const docDefinition = {
+    content: [
+      { text: `${type} Report`, style: "header" },
+      {
+        table: {
+          headerRows: 1,
+          widths: Array(keys.length).fill("auto"), 
+          body: tableBody,
+        },
+        layout: {
+          fillColor: (rowIndex: number) => (rowIndex % 2 === 0 ? "#f5f5f5" : null),
+        },
+      },
+      { text: "Sueen Nature © 2024 All rights reserved.", style: "subheader", margin: [0, 20, 0, 0] },
+    ],
+    styles: {
+      header: { fontSize: 20, bold: true, alignment: "center", margin: [0, 0, 0, 10] },
+      subheader: { fontSize: 12, alignment: "center", margin: [0, 0, 0, 20] },
+      tableHeader: { fillColor: "#47C94C", color: "white", bold: true, alignment: "center" },
+      tableBody: { alignment: "center", margin: [0, 2] },
+    },
+  };
+
+  pdfMake.createPdf(docDefinition).open();
 };
+
 
 const handleGenerateReports = async (type: string) => {
     setReportType(type);
