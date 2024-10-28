@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Edit, Trash, Eye, Plus } from "react-feather";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { NextRequest } from "next/server";
 import { CSVLink } from "react-csv";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -15,9 +16,11 @@ import { useAuthRedirect } from "@/utils/checkToken";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-// import { getReports } from "@/app/api/report/route";
+import { GET } from "@/app/api/report/route";
 import dayjs, { Dayjs } from "dayjs";
 import { Button, CircularProgress } from "@mui/material";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 interface ActivityData {
   id: number;
@@ -107,6 +110,8 @@ const ViewReports = () => {
   const [isReportReady, setIsReportReady] = React.useState(false);
   const [readyFiles, setReadyFiles] = React.useState<string[]>([]);
   const [updatedDates, setUpdatedDates] = React.useState<string[]>([]);
+  const [generatedData, setGeneratedData] = React.useState([]);
+  const [type, setType] = React.useState("");
   const router = useRouter();
   useAuthRedirect();
 
@@ -274,23 +279,72 @@ const ViewReports = () => {
     }),
   );
 
-  const handleGenerateReports = async (type: string) => {
+  const pdf = (data: any, type: string) => {
+    const keys = Object.keys(data[0]);
+
+    let bodyData = [];
+    for (let j = 0;  j < data.length; j++) {
+      let rowData = [];
+      for(let key of keys){
+        rowData.push(data[j][key])
+      }
+      bodyData.push(rowData);
+    }
+
+    const doc = new jsPDF({ orientation: "portrait" });
+    var time = new Date().toLocaleString();
+    doc.setFontSize(20);
+    doc.text(`${type} Report`, 105, 13, { align: "center" });
+    doc.setFontSize(12);
+    doc.text("Sueen Nature © 2024 All rights reserved.", 105, 41, {
+      align: "center",
+    });
+
+    // @ts-ignore
+    doc.autoTable({
+      theme: "grid",
+      styles: { align: "center" },
+      headStyles: { fillColor: [71, 201, 76] },
+      startY: 27,
+      head: [ keys ],
+      body: bodyData,
+    });
+
+  doc.save(`${type}.pdf`);
+};
+
+const handleGenerateReports = async (type: string) => {
     setReportType(type);
     setIsGenerating(true);
-    // const reportResponse = await getReports({
-    //   type: type,
-    //   start_date: startDate ? startDate.format("YYYY-MM-DD") : "",
-    //   end_date: endDate ? endDate.format("YYYY-MM-DD") : "",
-    // });
 
-    // if (reportResponse) {
-    //   setIsGenerating(false);
-    //   setIsReportReady(true);
-    //   setReadyFiles((prev) => [...prev, type])
-    // }
+    const url = new URL(`${process.env.BE_URL}/api/report`);
+    url.searchParams.append("type", type);
+    url.searchParams.append("start_date", startDate ? startDate.format("YYYY-MM-DD") : "");
+    url.searchParams.append("end_date", endDate ? endDate.format("YYYY-MM-DD") : "");
 
-    // console.log(reportResponse);
-  };
+    const reportResponse = await GET({ url: url.toString() } as NextRequest);
+
+    if (reportResponse.ok) {
+        const reportData = await reportResponse.json();
+        if (reportData && reportData.data && reportData.data.report) {
+            setGeneratedData(reportData.data.report);
+            setIsReportReady(true);
+            setType(reportData.report_type);
+            setReadyFiles((prev) => [...prev, type]);
+        } else {
+            console.error("Report data is missing in the response:", reportData);
+        }
+    } else {
+        console.error("Failed to generate report:", await reportResponse.json());
+    }
+
+    setIsGenerating(false);
+};
+
+
+  const handleDownload = () =>{
+    pdf(generatedData, type);
+  }
 
   const handleDateChange = (type: string) =>{
     const updatedReadyFiles = readyFiles.filter((item) => item !== type);
@@ -418,6 +472,7 @@ const ViewReports = () => {
                                   className="w-25 justify-center rounded p-3 font-medium text-gray hover:bg-opacity-90"
                                   variant="contained"
                                   color="success"
+                                  onClick={()=>handleDownload()}
                                 >
                                   Download
                                 </Button>

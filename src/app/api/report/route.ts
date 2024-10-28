@@ -1,19 +1,13 @@
 import Cookies from "js-cookie";
 import { NextRequest, NextResponse } from "next/server";
 
-interface ReportParams {
-    type: string;
-    start_date: string;
-    end_date: string;
-}
-
 interface ErrorResponse {
     error: string;
     details?: any;
 }
 
-// The actual GET handler for Next.js API route
-export const dynamic = 'force-dynamic'; // Mark the route as dynamic
+// Mark the route as dynamic
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
     try {
