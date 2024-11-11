@@ -34,13 +34,12 @@ export default function Login() {
     });
 
     const data = await response.json();
-    console.log(data)
+
     setLoading(false)
+    
     if (data.access_token) {
-     // setTimeout(() => {
+        localStorage.setItem("user_role", data.user_role);
         router.push("/home");
-    //  }, 1500);
-      return toast.success(`Successfully logged In`);
     } else if ((data.detail = "Invalid credentials")) {
       setLoading(false)
       return toast.error(`Invalid Credentials`);
@@ -49,6 +48,7 @@ export default function Login() {
       return toast.error("Something went wrong");
     }
   };
+
   return (
     <div className="flex min-h-screen items-center justify-center rounded-sm border bg-white  ">
       <div className="flex h-full items-center justify-center">

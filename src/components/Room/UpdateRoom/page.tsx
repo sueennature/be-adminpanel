@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import React, {
   ChangeEvent,
   FormEvent,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -20,18 +21,19 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import ButtonGroup from '@mui/material/ButtonGroup';
-import Button from '@mui/material/Button';
+import ButtonGroup from "@mui/material/ButtonGroup";
+import Button from "@mui/material/Button";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import TextField from '@mui/material/TextField';
-import dayjs from 'dayjs';
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import TextField from "@mui/material/TextField";
+import dayjs from "dayjs";
 import "react-toastify/dist/ReactToastify.css";
+import { useUserContext } from "@/hooks/useUserContext";
 
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 interface RoomFormData {
@@ -152,10 +154,11 @@ const UpdateRoom = () => {
   const [loading, setLoading] = useState(false);
   const [startTime, setStartTime] = React.useState<Dayjs | null>(null);
   const [endTime, setEndTime] = React.useState<Dayjs | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<string>('available');
+  const [selectedStatus, setSelectedStatus] = useState<string>("available");
   const [open, setOpen] = React.useState(false);
   const [checkInDate, setCheckInDate] = React.useState<Dayjs | null>(null);
   const [checkOutDate, setCheckOutDate] = React.useState<Dayjs | null>(null);
+  const { groupThree, groupFour } = useUserContext();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -163,58 +166,68 @@ const UpdateRoom = () => {
 
   const handleClose = () => {
     setOpen(false);
-    setCheckInDate(null)
-    setCheckOutDate(null)
+    setCheckInDate(null);
+    setCheckOutDate(null);
   };
 
   const handleStatusChange = (status: string) => {
-    setSelectedStatus(status);
-    if(status === "out_of_service"){
-      handleClickOpen()
-    }else{
-      updateStatus()
+    if (groupThree) {
+      setSelectedStatus(status);
+      if (status === "out_of_service") {
+        handleClickOpen();
+      } else {
+        updateStatus();
+      }
     }
   };
 
-  const updateStatus = async() =>{
-    try{
+  const updateStatus = async () => {
+    try {
       const requestBody = {
-        "room_id": roomId,
-        "status": selectedStatus,
-        "out_of_service_start": selectedStatus === "available" ? null : checkInDate?.toISOString(),
-        "out_of_service_end": selectedStatus === "available" ? null : checkOutDate?.toISOString()
-      }
+        room_id: roomId,
+        status: selectedStatus,
+        out_of_service_start:
+          selectedStatus === "available" ? null : checkInDate?.toISOString(),
+        out_of_service_end:
+          selectedStatus === "available" ? null : checkOutDate?.toISOString(),
+      };
 
       const accessToken = await Cookies.get("access_token");
-      const response = await axios.put(`${process.env.BE_URL}/rooms/${roomId}/status`, requestBody, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-          "x-api-key": process.env.X_API_KEY,
+      const response = await axios.put(
+        `${process.env.BE_URL}/rooms/${roomId}/status`,
+        requestBody,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+            "x-api-key": process.env.X_API_KEY,
+          },
         },
-      });
-      if(response?.status == 200){
-        toast.success(`Update State To ${selectedStatus == "out_of_service" ? "Out of service" : "Available"}!`);
-        if(selectedStatus === "out_of_service"){
-          await handleClose()
+      );
+      if (response?.status == 200) {
+        toast.success(
+          `Update State To ${selectedStatus == "out_of_service" ? "Out of service" : "Available"}!`,
+        );
+        if (selectedStatus === "out_of_service") {
+          await handleClose();
         }
-      }else{
+      } else {
         toast.error(`Something wrong!`);
-        if(selectedStatus === "out_of_service"){
-          await handleClose()
+        if (selectedStatus === "out_of_service") {
+          await handleClose();
         }
       }
-      await fetchRooms()
-    }catch(err){
-      console.log(err)
+      await fetchRooms();
+    } catch (err) {
+      console.log(err);
       toast.error(`Something wrong!`);
-      if(selectedStatus === "out_of_service"){
-        await handleClose()
+      if (selectedStatus === "out_of_service") {
+        await handleClose();
       }
-      await fetchRooms()
+      await fetchRooms();
     }
-  }
-  
+  };
+
   const fileInputRef = useRef<any>(null);
   const handleDeleteImage = async (index: number) => {
     const imageUrl = formData.images[index];
@@ -334,16 +347,19 @@ const UpdateRoom = () => {
       max_adults: "Amount of Maximum Adult is required",
       max_childs: "Amount of Maximum Children is required",
       max_people: "Amount of Maximum People is required",
-      secondary_max_adults: "Amount of Maximum Adult in secondary category is required",
-      secondary_max_childs: "Amount of Maximum Children in secondary category is required",
-      secondary_max_people: "Amount of Maximum People in secondary category is required",
+      secondary_max_adults:
+        "Amount of Maximum Adult in secondary category is required",
+      secondary_max_childs:
+        "Amount of Maximum Children in secondary category is required",
+      secondary_max_people:
+        "Amount of Maximum People in secondary category is required",
       room_only: "Price for Room only is required",
       bread_breakfast: "Price for bread and breakfast room is required",
       half_board: "Price for half board room is required",
       full_board: "Price for full board room is required",
       features: "Features are required",
       size: "Room size is required",
-      secondary_size:"Secondary Room size is required",
+      secondary_size: "Secondary Room size is required",
       beds: "Beds are required",
       bathroom: "Bathroom is required",
       secondary_features: "Features are required for secondary category",
@@ -357,7 +373,10 @@ const UpdateRoom = () => {
       error = validationMessages[name] || "";
     } else {
       // Additional validation for specific fields
-      if ((name === "size" || name === "secondary_size") && !/^\d+(\.\d+)?$/.test(value)) {
+      if (
+        (name === "size" || name === "secondary_size") &&
+        !/^\d+(\.\d+)?$/.test(value)
+      ) {
         error = `${name === "size" ? "Room" : "Secondary room"} size must be a number`;
       }
     }
@@ -526,25 +545,30 @@ const UpdateRoom = () => {
             <h2 className="text-lg font-semibold text-black">Room Status</h2>
           </div>
           <div className="my-6.5 flex flex-col items-center gap-4 md:flex-row">
-            <div >
-            <ButtonGroup disableElevation aria-label="status button group">
-            <Button
-              onClick={() => handleStatusChange('available')}
-              variant={formData?.status === 'available' ? 'contained' : 'outlined'}
-              color="success"
-            >
-              Available
-            </Button>
-            <Button
-              onClick={() => handleStatusChange('out_of_service')}
-              variant={formData?.status === 'out_of_service' ? 'contained' : 'outlined'}
-              color="warning"
-            >
-              Out-of-Service
-            </Button>
-          </ButtonGroup>
+            <div>
+              <ButtonGroup disableElevation aria-label="status button group">
+                <Button
+                  onClick={() => handleStatusChange("available")}
+                  variant={
+                    formData?.status === "available" ? "contained" : "outlined"
+                  }
+                  color="success"
+                >
+                  Available
+                </Button>
+                <Button
+                  onClick={() => handleStatusChange("out_of_service")}
+                  variant={
+                    formData?.status === "out_of_service"
+                      ? "contained"
+                      : "outlined"
+                  }
+                  color="warning"
+                >
+                  Out-of-Service
+                </Button>
+              </ButtonGroup>
             </div>
-           
           </div>
           {/* Horizontal separator */}
           <hr className="my-10 border-t border-stroke" />
@@ -619,9 +643,7 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
-              {errors.view && (
-                <p className="text-sm text-red">{errors.view}</p>
-              )}
+              {errors.view && <p className="text-sm text-red">{errors.view}</p>}
             </div>
           </div>
 
@@ -857,7 +879,7 @@ const UpdateRoom = () => {
           {/* Title Label for First Category */}
           <div className="mb-6.5">
             <h2 className="text-lg font-semibold text-black">
-              Secondary Category 
+              Secondary Category
             </h2>
           </div>
           <div className="mb-6.5 flex flex-col gap-6 xl:flex-row">
@@ -875,7 +897,9 @@ const UpdateRoom = () => {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.secondary_max_adults && (
-                <p className="text-sm text-red">{errors.secondary_max_adults}</p>
+                <p className="text-sm text-red">
+                  {errors.secondary_max_adults}
+                </p>
               )}
             </div>
             <div className="w-full xl:w-1/3">
@@ -892,7 +916,9 @@ const UpdateRoom = () => {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.secondary_max_childs && (
-                <p className="text-sm text-red">{errors.secondary_max_childs}</p>
+                <p className="text-sm text-red">
+                  {errors.secondary_max_childs}
+                </p>
               )}
             </div>
             <div className="w-full xl:w-1/3">
@@ -909,7 +935,9 @@ const UpdateRoom = () => {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
               {errors.secondary_max_people && (
-                <p className="text-sm text-red">{errors.secondary_max_people}</p>
+                <p className="text-sm text-red">
+                  {errors.secondary_max_people}
+                </p>
               )}
             </div>
           </div>
@@ -1022,7 +1050,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
-              {errors.secondary_size && <p className="text-sm text-red">{errors.secondary_size}</p>}
+              {errors.secondary_size && (
+                <p className="text-sm text-red">{errors.secondary_size}</p>
+              )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -1037,7 +1067,9 @@ const UpdateRoom = () => {
                 onChange={handleChange}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
               />
-              {errors.secondary_beds && <p className="text-sm text-red">{errors.secondary_beds}</p>}
+              {errors.secondary_beds && (
+                <p className="text-sm text-red">{errors.secondary_beds}</p>
+              )}
             </div>
             <div className="w-full xl:w-1/4">
               <label className="mb-3 block text-sm font-medium text-black">
@@ -1095,7 +1127,7 @@ const UpdateRoom = () => {
             <label className="mb-3 block text-sm font-medium text-black">
               Upload Room Images
             </label>
-            {tooltipMessage && (
+            {tooltipMessage && groupFour && (
               <div className="mt-2 text-sm text-red">{tooltipMessage}</div>
             )}
             <input
@@ -1105,9 +1137,10 @@ const UpdateRoom = () => {
               ref={fileInputRef} // Assign the ref to the input
               onChange={handleFileChange}
               onFocus={handleFocus}
+              disabled={!groupFour}
               className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-white file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-white"
             />
-            {errors.profile_image && (
+            {errors.profile_image && groupFour && (
               <p className="mt-1 text-sm text-red">{errors.profile_image}</p>
             )}
           </div>
@@ -1129,13 +1162,15 @@ const UpdateRoom = () => {
                     height={100}
                     className="h-20 rounded object-cover"
                   />
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteImage(index)}
-                    className="bg-red-500 relative left-[80px]  top-[-80px] rounded-full font-bold text-red"
-                  >
-                    X
-                  </button>
+                  {groupFour && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage(index)}
+                      className="bg-red-500 relative left-[80px]  top-[-80px] rounded-full font-bold text-red"
+                    >
+                      X
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -1150,20 +1185,20 @@ const UpdateRoom = () => {
           </button>
         </div>
       </div>
-     
-      
+
       <Dialog
         open={open}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title" >
+        <DialogTitle id="alert-dialog-title">
           {"Are you sure to change room status?"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Changing the status to Out-of-Service will require you to set a start and end date.
+            Changing the status to Out-of-Service will require you to set a
+            start and end date.
           </DialogContentText>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
@@ -1171,25 +1206,27 @@ const UpdateRoom = () => {
               value={checkInDate}
               onChange={(newValue) => setCheckInDate(newValue)}
               slots={{ textField: TextField }} // This replaces renderInput
-              slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+              slotProps={{ textField: { fullWidth: true, margin: "dense" } }}
             />
             <DatePicker
               label="Check-out Date"
               value={checkOutDate}
               onChange={(newValue) => setCheckOutDate(newValue)}
               slots={{ textField: TextField }} // This replaces renderInput
-              slotProps={{ textField: { fullWidth: true, margin: 'dense' } }}
+              slotProps={{ textField: { fullWidth: true, margin: "dense" } }}
             />
           </LocalizationProvider>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={updateStatus} disabled={(checkInDate && checkOutDate) ? false : true } >
+          <Button
+            onClick={updateStatus}
+            disabled={checkInDate && checkOutDate ? false : true}
+          >
             Update
           </Button>
         </DialogActions>
       </Dialog>
-    
     </div>
   );
 };

@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import NoData from "@/components/NoData";
 import Loader from "@/components/common/Loader";
 import { useAuthRedirect } from "@/utils/checkToken";
+import { useUserContext } from "@/hooks/useUserContext";
 
 interface ActivityData {
   id: number;
@@ -21,15 +22,18 @@ interface ActivityData {
   media: string;
 }
 
-const ViewActivity = () => {
+const ViewActivity = (user: any) => {
   const [activities, setActivities] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [nameFilter, setNameFilter] = React.useState<string>("");
-  const [activitiesSelection, setActivitiesSelection] = React.useState<number[]>([]);
+  const [activitiesSelection, setActivitiesSelection] = React.useState<
+    number[]
+  >([]);
   const [currentPage, setCurrentPage] = React.useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
   const router = useRouter();
-  useAuthRedirect()
+  useAuthRedirect();
+  const { groupThree, groupFour } = useUserContext();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -50,10 +54,9 @@ const ViewActivity = () => {
         });
 
         // Check if response data is an array
-       
-        
-        setActivities(response.data.data); 
-        console.log(response.data.data);  
+
+        setActivities(response.data.data);
+        console.log(response.data.data);
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -67,20 +70,21 @@ const ViewActivity = () => {
   const [idFilter, setIdFilter] = React.useState<string>("");
 
   // Ensure activities is an array before using .filter
-  const filteredActivities = Array.isArray(activities) ? activities.filter(
-    (activity) =>
-      activity.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-      String(activity.id).toLowerCase().includes(idFilter.toLowerCase())
-  ) : [];
+  const filteredActivities = Array.isArray(activities)
+    ? activities.filter(
+        (activity) =>
+          activity.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
+          String(activity.id).toLowerCase().includes(idFilter.toLowerCase()),
+      )
+    : [];
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredActivities.slice(
     indexOfFirstItem,
-    indexOfLastItem
+    indexOfLastItem,
   );
 
-  
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       const allActivities = currentItems.map((activity) => activity.id);
@@ -92,27 +96,27 @@ const ViewActivity = () => {
 
   const handleCheckboxChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    activityId: number
+    activityId: number,
   ) => {
     if (e.target.checked) {
       setActivitiesSelection((prevSelected) => [...prevSelected, activityId]);
     } else {
       setActivitiesSelection((prevSelected) =>
-        prevSelected.filter((id) => id !== activityId)
+        prevSelected.filter((id) => id !== activityId),
       );
     }
   };
 
-  const handleEditPush = (activity:any) => {
+  const handleEditPush = (activity: any) => {
     router.push(`/activity/update?activityID=${activity.id}`);
   };
 
-  const handleViewPush = (activity:any) => {
+  const handleViewPush = (activity: any) => {
     router.push(`/activity/view/view?activityID=${activity.id}`);
   };
 
   const handleItemsPerPageChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
+    e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     setItemsPerPage(Number(e.target.value));
     setCurrentPage(1);
@@ -171,14 +175,14 @@ const ViewActivity = () => {
       name,
       description,
       price,
-    })
+    }),
   );
 
   return (
     <div>
       <div>
         <div className="mb-4 flex items-center justify-between">
-          {activities.length > 0 && (
+          {(activities.length > 0 && groupFour) && (
             <div className="flex items-center gap-4">
               <input
                 type="text"
@@ -189,11 +193,13 @@ const ViewActivity = () => {
               />
             </div>
           )}
-          <div className="cursor-pointer text-blue-400">
-            <Link href="/activity/create">
-              <Plus />
-            </Link>
-          </div>
+          {groupFour && (
+            <div className="cursor-pointer text-blue-400">
+              <Link href="/activity/create">
+                <Plus />
+              </Link>
+            </div>
+          )}
         </div>
         {!loading ? (
           <div>
@@ -256,7 +262,7 @@ const ViewActivity = () => {
                                   id={`checkbox-table-search-${activity.id}`}
                                   type="checkbox"
                                   checked={activitiesSelection.includes(
-                                    activity.id
+                                    activity.id,
                                   )}
                                   onChange={(e) =>
                                     handleCheckboxChange(e, activity.id)
@@ -286,43 +292,52 @@ const ViewActivity = () => {
                               LKR {activity.price.toLocaleString()}
                             </td>
                             <td className="min-w-[200px] overflow-x-auto px-6 py-4">
-                            <div className="flex items-center gap-2">
-                              {activity.media?.map((media:any, index :any) => (
-                                <div
-                                  key={index}
-                                  className="h-20 w-20 flex-shrink-0 overflow-hidden"
-                                >
-                                  <Image
-                                    src={media.startsWith('data:') ? media: `https://api.sueennature.com/${media}`}
-                                    alt={activity.name}
-                                    width={80}
-                                    height={80}
-                                    className="h-full w-full object-cover"
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                          </td>
+                              <div className="flex items-center gap-2">
+                                {activity.media?.map(
+                                  (media: any, index: any) => (
+                                    <div
+                                      key={index}
+                                      className="h-20 w-20 flex-shrink-0 overflow-hidden"
+                                    >
+                                      <Image
+                                        src={
+                                          media.startsWith("data:")
+                                            ? media
+                                            : `https://api.sueennature.com/${media}`
+                                        }
+                                        alt={activity.name}
+                                        width={80}
+                                        height={80}
+                                        className="h-full w-full object-cover"
+                                      />
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </td>
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-4 ">
+                                {groupFour && (
                                 <button
                                   onClick={() => handleEditPush(activity)}
                                   className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                                 >
                                   <Edit />
-                                </button>
+                                </button>)}
                                 <button
                                   onClick={() => handleViewPush(activity)}
                                   className="dark:text-red-500 font-medium text-green-600 hover:underline"
                                 >
                                   <Eye />
                                 </button>
+                                {groupThree && (
                                 <a
                                   href="#"
                                   className="font-medium text-rose-600 hover:underline"
-                                  onClick={() => confirmDelete(activity.id)}>
+                                  onClick={() => confirmDelete(activity.id)}
+                                >
                                   <Trash />
-                                </a>
+                                </a>)}
                               </div>
                             </td>
                           </tr>
@@ -384,4 +399,3 @@ const ViewActivity = () => {
 };
 
 export default ViewActivity;
-

@@ -4,6 +4,7 @@ import React from 'react'
 import CreateActivity from '@/components/Actitivities/CreateActivity/page'
 
 const CreateActivitiesPage = () => {
+
   return (
     <DefaultLayout>
         <Breadcrumb pageName={'Activities'} firstLink={"/activity"} secondLink={"/rooms/createActivity"} pageNameTwo={'Create Actitvity'}/>

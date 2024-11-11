@@ -3,12 +3,15 @@ import cookie from 'cookie';
 
 
 export async function POST(request: Request) {
+
     const { email, password } = await request.json();
 
     const queryParams = new URLSearchParams({
         email,
         password
     }).toString();
+
+    console.log("request", request);
 
     const response = await fetch(`https://api.sueennature.com/users/login?${queryParams}`, {
         method: 'POST', 
