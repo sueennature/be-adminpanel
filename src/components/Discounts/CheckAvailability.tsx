@@ -18,7 +18,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import SearchIcon from '@mui/icons-material/Search';
-
+import { useUserContext } from "@/hooks/useUserContext";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -61,7 +61,7 @@ const CheckAvailability = () => {
   const [views, setViews] = React.useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [personName, setPersonName] = React.useState<string[]>([]);
-console.log("personNamepersonName",personName)
+  const { groupFour } = useUserContext();
   const handleChange = (event: SelectChangeEvent<typeof personName>) => {
     const {
       target: { value },
@@ -113,6 +113,9 @@ console.log("personNamepersonName",personName)
   };
 
   return (
+    <>
+      {groupFour && (
+
     <div className="flex flex-col gap-2">
       <h3 className="m-2 text-2xl font-bold text-black">
         {showBooking ? "Book Your Room" : "Check the Room Availability"}
@@ -302,6 +305,8 @@ console.log("personNamepersonName",personName)
         </div>
       </div>
     </div>
+      )}
+      </>
   );
 };
 

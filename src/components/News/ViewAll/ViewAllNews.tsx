@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import NoData from "@/components/NoData";
 import Loader from "@/components/common/Loader";
 import ReactPlayer from "react-player";
+import { useUserContext } from "@/hooks/useUserContext";
 
 const ViewAllNews = () => {
   const [news, setNews] = React.useState<any[]>([]);
@@ -23,8 +24,8 @@ const ViewAllNews = () => {
   const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
   const [loading, setLoading] = React.useState<boolean>(true);
   const router = useRouter();
+  const { groupFour, groupThree } = useUserContext();
 
-   
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -170,11 +171,13 @@ const ViewAllNews = () => {
               />
             </div>
           )}
-          <div className="cursor-pointer text-blue-400">
-            <Link href="/news/create">
-              <Plus />
-            </Link>
-          </div>
+          {groupFour && (
+            <div className="cursor-pointer text-blue-400">
+              <Link href="/news/create">
+                <Plus />
+              </Link>
+            </div>
+          )}
         </div>
         {!loading ? (
           <div>
@@ -266,7 +269,11 @@ const ViewAllNews = () => {
                                   ) => (
                                     <div key={index} className="flex-shrink-0">
                                       <Image
-                                        src={image.startsWith('data:') ? image : `https://api.sueennature.com/${image}`}
+                                        src={
+                                          image.startsWith("data:")
+                                            ? image
+                                            : `https://api.sueennature.com/${image}`
+                                        }
                                         alt={news.name}
                                         width={50}
                                         height={50}
@@ -288,7 +295,11 @@ const ViewAllNews = () => {
                                   ) => (
                                     <div key={index} className="flex-shrink-0">
                                       <video
-                                        src={video.startsWith('data:') ? video : `https://api.sueennature.com/${video}`}
+                                        src={
+                                          video.startsWith("data:")
+                                            ? video
+                                            : `https://api.sueennature.com/${video}`
+                                        }
                                         width={140}
                                         height={80}
                                         controls
@@ -301,25 +312,30 @@ const ViewAllNews = () => {
 
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-4 ">
-                                <button
-                                  onClick={() => handleEditPush(news)}
-                                  className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                                >
-                                  <Edit />
-                                </button>
+                                {groupFour && (
+                                  <button
+                                    onClick={() => handleEditPush(news)}
+                                    className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                                  >
+                                    <Edit />
+                                  </button>
+                                )}
+
                                 <button
                                   onClick={() => handleViewPush(news)}
                                   className="dark:text-red-500 font-medium text-green-600 hover:underline"
                                 >
                                   <Eye />
                                 </button>
-                                <a
-                                  href="#"
-                                  className="font-medium text-rose-600  hover:underline"
-                                  onClick={() => confirmDelete(news.id)}
-                                >
-                                  <Trash />
-                                </a>
+                                {groupThree && (
+                                  <a
+                                    href="#"
+                                    className="font-medium text-rose-600  hover:underline"
+                                    onClick={() => confirmDelete(news.id)}
+                                  >
+                                    <Trash />
+                                  </a>
+                                )}
                               </div>
                             </td>
                           </tr>

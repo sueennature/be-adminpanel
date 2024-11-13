@@ -14,6 +14,7 @@ import NoData from "@/components/NoData";
 import Loader from "@/components/common/Loader";
 import useAuth from "@/hooks/useAuth";
 import { useAuthRedirect } from "@/utils/checkToken";
+import { useUserContext } from "@/hooks/useUserContext";
 
 interface userData {
   id: number;
@@ -33,30 +34,32 @@ const ViewAllUsers = () => {
   const [currentPage, setCurrentPage] = React.useState<number>(0);
   const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
   const [loading, setLoading] = React.useState<boolean>(true);
+  const { groupTwo, groupFour } = useUserContext();
 
   const router = useRouter();
   useAuthRedirect();
 
   useEffect(() => {
     const fetchUsers = async () => {
-   
       try {
         const accessToken = Cookies.get("access_token");
 
-         // Adjust the skip value for zero-based indexing
-         const skip = currentPage  * itemsPerPage;
-        
+        // Adjust the skip value for zero-based indexing
+        const skip = currentPage * itemsPerPage;
 
-        const response = await axios.get(`${process.env.BE_URL}/users/?skip=${skip}&limit=${itemsPerPage}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": process.env.X_API_KEY,
-          }
-        });
+        const response = await axios.get(
+          `${process.env.BE_URL}/users/?skip=${skip}&limit=${itemsPerPage}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+              "x-api-key": process.env.X_API_KEY,
+            },
+          },
+        );
         console.log(response.data);
         setGuests(response.data);
-        setNumRecords(response?.data?.total_records ) // Assuming API returns total records count
+        setNumRecords(response?.data?.total_records); // Assuming API returns total records count
         console.log("Total Records:", response?.data?.length);
         setLoading(false);
       } catch (err) {
@@ -68,24 +71,24 @@ const ViewAllUsers = () => {
     fetchUsers();
   }, [itemsPerPage, currentPage]);
 
-   // Filter guests based on nameFilter and idFilter
-   const filteredGuests = guests.filter(
+  // Filter guests based on nameFilter and idFilter
+  const filteredGuests = guests.filter(
     (guest) =>
       guest.username.toLowerCase().includes(nameFilter.toLowerCase()) &&
-      String(guest.id).toLowerCase().includes(idFilter.toLowerCase())
+      String(guest.id).toLowerCase().includes(idFilter.toLowerCase()),
   );
 
   // Debugging log for filtered guests
   console.log("filteredGuests:", filteredGuests);
 
   const indexOfLastItem = (currentPage + 1) * itemsPerPage;
-  const indexOfFirstItem =0;
+  const indexOfFirstItem = 0;
   const currentItems = filteredGuests.slice(indexOfFirstItem, indexOfLastItem);
-  console.log("current page :",currentPage);
-  console.log("itemsPerPage :",itemsPerPage);
-  console.log("indexOfLastItem :",indexOfLastItem);
-  console.log("indexOfFirstItem :",indexOfFirstItem);
-  console.log("currentItems :",currentItems);
+  console.log("current page :", currentPage);
+  console.log("itemsPerPage :", itemsPerPage);
+  console.log("indexOfLastItem :", indexOfLastItem);
+  console.log("indexOfFirstItem :", indexOfFirstItem);
+  console.log("currentItems :", currentItems);
 
   const handleItemsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -96,11 +99,11 @@ const ViewAllUsers = () => {
 
   const nextPage = () => {
     setCurrentPage((prev) => prev + 1); // Move to the next page
-};
+  };
 
-const prevPage = () => {
-  setCurrentPage((prev) => Math.max(prev - 1, 0)); // Move to the previous page but ensure it doesn't go below 1
-};
+  const prevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 0)); // Move to the previous page but ensure it doesn't go below 1
+  };
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -204,22 +207,24 @@ const prevPage = () => {
            /> */}
             </div>
           )}
-          <div className="cursor-pointer text-blue-400">
-            <Link href="/users/create">
-              <Plus />
-            </Link>
-          </div>
+          {groupTwo && (
+            <div className="cursor-pointer text-blue-400">
+              <Link href="/users/create">
+                <Plus />
+              </Link>
+            </div>
+          )}
         </div>
         {!loading ? (
           <div>
-            {guests.length >= 0 ? (
+            {guests.length >= 0 && groupFour ? (
               <div>
                 <div className="bg-white ">
                   <div className="overflow-x-auto shadow-md sm:rounded-lg">
                     <table className="text-gray-500 dark:text-gray-400 w-full text-left text-sm rtl:text-right">
                       <thead className="text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 text-xs uppercase">
                         <tr>
-                         <th scope="col" className="p-4">
+                          <th scope="col" className="p-4">
                             <div className="flex items-center">
                               <input
                                 id="checkbox-all-search"
@@ -268,7 +273,7 @@ const prevPage = () => {
                             className="dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-b bg-white text-black"
                           >
                             <td className="w-4 p-4">
-                             <div className="flex items-center">
+                              <div className="flex items-center">
                                 <input
                                   id={`checkbox-table-search-${user.id}`}
                                   type="checkbox"
@@ -284,8 +289,8 @@ const prevPage = () => {
                                 >
                                   checkbox
                                 </label>
-                              </div> 
-                            </td> 
+                              </div>
+                            </td>
                             <td className="px-6 py-4">{user.id}</td>
                             <td className="px-6 py-4">{user.username}</td>
                             <td className="px-6 py-4">{user.email}</td>
@@ -305,24 +310,30 @@ const prevPage = () => {
 
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-4 ">
-                                <button
-                                  onClick={() => handleEditPush(user)}
-                                  className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                                >
-                                  <Edit />
-                                </button>
+                                {groupTwo && (
+                                  <button
+                                    onClick={() => handleEditPush(user)}
+                                    className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                                  >
+                                    <Edit />
+                                  </button>
+                                )}
+
                                 <button
                                   onClick={() => handleViewPush(user)}
                                   className="dark:text-red-500 font-medium text-green-600 hover:underline"
                                 >
                                   <Eye />
                                 </button>
-                                <button
-                                  className="font-medium text-rose-600  hover:underline"
-                                  onClick={() => confirmDelete(user.id)}
-                                >
-                                  <Trash />
-                                </button>
+                                {
+                                  groupTwo && (
+                                    <button
+                                      className="font-medium text-rose-600  hover:underline"
+                                      onClick={() => confirmDelete(user.id)}
+                                    >
+                                      <Trash />
+                                    </button>
+                                  )}
                               </div>
                             </td>
                           </tr>

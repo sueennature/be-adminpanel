@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import NoData from "@/components/NoData";
 import Loader from "@/components/common/Loader";
 import { useAuthRedirect } from "@/utils/checkToken";
+import { useUserContext } from "@/hooks/useUserContext";
 
 interface ActivityData {
   id: number;
@@ -25,11 +26,13 @@ const ViewAdditionalServices = () => {
   const [additionalServices, setAdditionalServices] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [nameFilter, setNameFilter] = React.useState<string>("");
-  const [additionalServicesSelection, setAdditionalServicesSelection] = React.useState<number[]>([]);
+  const [additionalServicesSelection, setAdditionalServicesSelection] =
+    React.useState<number[]>([]);
   const [currentPage, setCurrentPage] = React.useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
   const router = useRouter();
-  useAuthRedirect()
+  const { groupThree, groupFour } = useUserContext();
+  useAuthRedirect();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -37,23 +40,25 @@ const ViewAdditionalServices = () => {
         const accessToken = Cookies.get("access_token");
         const limit = 100; // Number of items per page
         let skip = 0; // Initial offset
-        const response = await axios.get(`${process.env.BE_URL}/additional-services/`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-            "x-api-key": process.env.X_API_KEY,
+        const response = await axios.get(
+          `${process.env.BE_URL}/additional-services/`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+              "x-api-key": process.env.X_API_KEY,
+            },
+            params: {
+              skip,
+              limit,
+            },
           },
-          params: {
-            skip,
-            limit,
-          },
-        });
+        );
 
         // Check if response data is an array
-       
-        
-        setAdditionalServices(response.data); 
-        console.log(response.data.data);  
+
+        setAdditionalServices(response.data);
+        console.log(response.data.data);
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -67,23 +72,30 @@ const ViewAdditionalServices = () => {
   const [idFilter, setIdFilter] = React.useState<string>("");
 
   // Ensure activities is an array before using .filter
-  const filteredAdditionalServices = Array.isArray(additionalServices) ? additionalServices.filter(
-    (additionalService) =>
-      additionalService.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-      String(additionalService.id).toLowerCase().includes(idFilter.toLowerCase())
-  ) : [];
+  const filteredAdditionalServices = Array.isArray(additionalServices)
+    ? additionalServices.filter(
+        (additionalService) =>
+          additionalService.name
+            .toLowerCase()
+            .includes(nameFilter.toLowerCase()) &&
+          String(additionalService.id)
+            .toLowerCase()
+            .includes(idFilter.toLowerCase()),
+      )
+    : [];
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredAdditionalServices.slice(
     indexOfFirstItem,
-    indexOfLastItem
+    indexOfLastItem,
   );
 
-  
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      const allAdditionalServices = currentItems.map((additionalService) => additionalService.id);
+      const allAdditionalServices = currentItems.map(
+        (additionalService) => additionalService.id,
+      );
       setAdditionalServicesSelection(allAdditionalServices);
     } else {
       setAdditionalServicesSelection([]);
@@ -92,27 +104,34 @@ const ViewAdditionalServices = () => {
 
   const handleCheckboxChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    additionalServiceId: number
+    additionalServiceId: number,
   ) => {
     if (e.target.checked) {
-      setAdditionalServicesSelection((prevSelected) => [...prevSelected, additionalServiceId]);
+      setAdditionalServicesSelection((prevSelected) => [
+        ...prevSelected,
+        additionalServiceId,
+      ]);
     } else {
       setAdditionalServicesSelection((prevSelected) =>
-        prevSelected.filter((id) => id !== additionalServiceId)
+        prevSelected.filter((id) => id !== additionalServiceId),
       );
     }
   };
 
-  const handleEditPush = (additionalService:any) => {
-    router.push(`/additionalServices/update?additionalServiceID=${additionalService.id}`);
+  const handleEditPush = (additionalService: any) => {
+    router.push(
+      `/additionalServices/update?additionalServiceID=${additionalService.id}`,
+    );
   };
 
-  const handleViewPush = (additionalService:any) => {
-    router.push(`/additionalServices/view/view?additionalServiceID=${additionalService.id}`);
+  const handleViewPush = (additionalService: any) => {
+    router.push(
+      `/additionalServices/view/view?additionalServiceID=${additionalService.id}`,
+    );
   };
 
   const handleItemsPerPageChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
+    e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     setItemsPerPage(Number(e.target.value));
     setCurrentPage(1);
@@ -130,15 +149,20 @@ const ViewAdditionalServices = () => {
     const accessToken = Cookies.get("access_token");
 
     try {
-      await axios.delete(`${process.env.BE_URL}/additional-services/${additionalServiceID}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-          "x-api-key": process.env.X_API_KEY,
+      await axios.delete(
+        `${process.env.BE_URL}/additional-services/${additionalServiceID}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+            "x-api-key": process.env.X_API_KEY,
+          },
         },
-      });
+      );
       setAdditionalServices((prevAdditionalService) =>
-        prevAdditionalService.filter((additionalService) => additionalService.id !== additionalServiceID),
+        prevAdditionalService.filter(
+          (additionalService) => additionalService.id !== additionalServiceID,
+        ),
       );
       toast.success("Additional Service is Deleted Successfully");
     } catch (err) {
@@ -171,7 +195,7 @@ const ViewAdditionalServices = () => {
       name,
       description,
       price,
-    })
+    }),
   );
 
   return (
@@ -189,11 +213,13 @@ const ViewAdditionalServices = () => {
               />
             </div>
           )}
-          <div className="cursor-pointer text-blue-400">
-            <Link href="/additionalServices/create">
-              <Plus />
-            </Link>
-          </div>
+          {groupThree && (
+            <div className="cursor-pointer text-blue-400">
+              <Link href="/additionalServices/create">
+                <Plus />
+              </Link>
+            </div>
+          )}
         </div>
         {!loading ? (
           <div>
@@ -253,10 +279,13 @@ const ViewAdditionalServices = () => {
                                   id={`checkbox-table-search-${additionalService.id}`}
                                   type="checkbox"
                                   checked={additionalServicesSelection.includes(
-                                    additionalService.id
+                                    additionalService.id,
                                   )}
                                   onChange={(e) =>
-                                    handleCheckboxChange(e, additionalService.id)
+                                    handleCheckboxChange(
+                                      e,
+                                      additionalService.id,
+                                    )
                                   }
                                   className="bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
                                 />
@@ -268,8 +297,12 @@ const ViewAdditionalServices = () => {
                                 </label>
                               </div>
                             </td>
-                            <td className="px-6 py-4">{additionalService.id}</td>
-                            <td className="px-6 py-4">{additionalService.name}</td>
+                            <td className="px-6 py-4">
+                              {additionalService.id}
+                            </td>
+                            <td className="px-6 py-4">
+                              {additionalService.name}
+                            </td>
                             <td
                               className="px-6 py-4"
                               style={{ minWidth: "200px" }}
@@ -284,24 +317,35 @@ const ViewAdditionalServices = () => {
                             </td>
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-4 ">
+                                {groupThree && (
+                                  <button
+                                    onClick={() =>
+                                      handleEditPush(additionalService)
+                                    }
+                                    className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                                  >
+                                    <Edit />
+                                  </button>
+                                )}
                                 <button
-                                  onClick={() => handleEditPush(additionalService)}
-                                  className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                                >
-                                  <Edit />
-                                </button>
-                                <button
-                                  onClick={() => handleViewPush(additionalService)}
+                                  onClick={() =>
+                                    handleViewPush(additionalService)
+                                  }
                                   className="dark:text-red-500 font-medium text-green-600 hover:underline"
                                 >
                                   <Eye />
                                 </button>
-                                <a
-                                  href="#"
-                                  className="font-medium text-rose-600 hover:underline"
-                                  onClick={() => confirmDelete(additionalService.id)}>
-                                  <Trash />
-                                </a>
+                                {groupThree && (
+                                  <a
+                                    href="#"
+                                    className="font-medium text-rose-600 hover:underline"
+                                    onClick={() =>
+                                      confirmDelete(additionalService.id)
+                                    }
+                                  >
+                                    <Trash />
+                                  </a>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -332,7 +376,9 @@ const ViewAdditionalServices = () => {
                       </button>
                       <button
                         onClick={nextPage}
-                        disabled={indexOfLastItem >= filteredAdditionalServices.length}
+                        disabled={
+                          indexOfLastItem >= filteredAdditionalServices.length
+                        }
                         className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-pointer rounded-md px-3 py-1"
                       >
                         Next
@@ -363,4 +409,3 @@ const ViewAdditionalServices = () => {
 };
 
 export default ViewAdditionalServices;
-

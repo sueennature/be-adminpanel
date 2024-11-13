@@ -4,13 +4,13 @@ import cookie from 'cookie';
 export async function POST(request: Request) {
     try {
         const cookies = cookie.parse(request.headers.get('cookie') || '');
-        
+        const BE_URL = process.env.BE_URL;
         const accessToken = cookies.access_token;
         if (!accessToken) {
             return NextResponse.json({ error: 'Access token is missing' }, { status: 401 });
         }
         const agentData = await request.json();
-        const response = await fetch('https://api.sueennature.com/agents/', {
+        const response = await fetch(`${BE_URL}/agents/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
