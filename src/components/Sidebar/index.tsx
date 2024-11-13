@@ -197,6 +197,7 @@ const menuGroups = [
         ),
         label: "News",
         route: "/news",
+        access: "groupOne",
       },
       {
         icon: (
@@ -242,7 +243,7 @@ const menuGroups = [
         ),
         label: "Users",
         route: "/users",
-        access: "groupOne",
+        access: "groupTwo",
       },
       {
         icon: (

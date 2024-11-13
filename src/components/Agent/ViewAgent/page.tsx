@@ -33,7 +33,7 @@ const ViewAgent = () => {
   const [currentPage, setCurrentPage] = React.useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
   const [loading, setLoading] = React.useState<boolean>(true);
-  const { groupThree, groupFour } = useUserContext();
+  const { groupThree, groupFour, groupTwo } = useUserContext();
 
   const router = useRouter();
 
@@ -231,6 +231,8 @@ const ViewAgent = () => {
   //   };
   //   return new Date(dateString).toLocaleDateString(undefined, options);
   // };
+
+  console.log("GROUPTWOOOO", groupTwo)
 
   return (
     <div>

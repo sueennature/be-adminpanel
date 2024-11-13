@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
     console.log("request", request);
 
-    const response = await fetch(`https://api.sueennature.com/users/login?${queryParams}`, {
+    const response = await fetch(`https://devapi.sueennature.com/users/login?${queryParams}`, {
         method: 'POST', 
         headers: {
             'x-api-key': process.env.X_API_KEY || '', 

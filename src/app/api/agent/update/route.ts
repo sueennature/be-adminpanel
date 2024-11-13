@@ -3,6 +3,7 @@ import cookie from 'cookie';
 
 export async function PUT(request: Request) {
     try {
+        const BE_URL = process.env.BE_URL;
         const cookies = cookie.parse(request.headers.get('cookie') || '');
         const accessToken = cookies.access_token;
 
@@ -16,7 +17,7 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
         }
 
-        const response = await fetch(`https://api.sueennature.com/agents/${id}`, {
+        const response = await fetch(`${BE_URL}/agents/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
