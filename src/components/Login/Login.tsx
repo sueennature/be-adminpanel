@@ -14,7 +14,7 @@ export default function Login() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { setUser } =useUserContext();
+  const { setUser, setUserName } =useUserContext();
 
   const handleSubmit = async (e:any) => {
     e.preventDefault();
@@ -43,6 +43,7 @@ export default function Login() {
     if (data.access_token) {
         localStorage.setItem("user_role", data.user_role);
         setUser(data.user_role);
+        setUserName(data.user_name);
         router.push("/home");
     } else if ((data.detail = "Invalid credentials")) {
       setLoading(false)
