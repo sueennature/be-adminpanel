@@ -5,19 +5,22 @@ import ClickOutside from "@/components/ClickOutside";
 import Cookie from 'js-cookie';
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { useUserContext } from "@/hooks/useUserContext";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
+  const { user, userName } = useUserContext();
 
   const handleLogout = () => {
     Cookie.remove('access_token');
-    toast.success("Logged Out Success fully")
+    toast.success("Logged Out Successfully")
     setTimeout(()=>{
       router.push('/');
 
     },1500)
   };
+
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
       <Link
@@ -27,12 +30,12 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black ">
-            Thomas Anree
+            {userName}
           </span>
-          <span className="block text-xs">UX Designer</span>
+          <span className="block text-xs">{user}</span>
         </span>
 
-        <span className="h-12 w-12 rounded-full">
+        {/* <span className="h-12 w-12 rounded-full">
           <Image
             width={112}
             height={112}
@@ -43,7 +46,7 @@ const DropdownUser = () => {
             }}
             alt="User"
           />
-        </span>
+        </span> */}
 
         <svg
           className="hidden fill-current sm:block"

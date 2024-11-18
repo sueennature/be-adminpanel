@@ -1,13 +1,14 @@
-'use client';
+"use client";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { ChangeEvent, useEffect, useState } from 'react';
-import SelectGroupOne from '../../SelectGroup/SelectGroupOne';
-import { toast } from 'react-toastify';
-import Cookies from 'js-cookie';
+import React, { ChangeEvent, useEffect, useState } from "react";
+import SelectGroupOne from "../../SelectGroup/SelectGroupOne";
+import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 import Image from "next/image";
 import { useAuthRedirect } from "@/utils/checkToken";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
+import { useUserContext } from "@/hooks/useUserContext";
 
 interface ActivityFormData {
   name: string;
@@ -18,9 +19,9 @@ interface ActivityFormData {
 
 const UpdateActivity = () => {
   const [formData, setFormData] = useState<ActivityFormData>({
-    name: '',
-    price: '',
-    description: '',
+    name: "",
+    price: "",
+    description: "",
     media: [],
   });
 
@@ -29,55 +30,55 @@ const UpdateActivity = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<any>({});
-  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);  //set tooltip
-  useAuthRedirect()
-
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null); //set tooltip
+  useAuthRedirect();
+  const { groupThree } = useUserContext();
 
   const handleDeleteImage = async (index: number) => {
     const imageUrl = formData.media[index];
-    const payload = [imageUrl] ;
+    const payload = [imageUrl];
 
     if (imageUrl) {
       const result = await Swal.fire({
-          title: 'Are you sure?',
-          text: 'This action cannot be undone!',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Yes, delete it!'
+        title: "Are you sure?",
+        text: "This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
       });
 
       if (result.isConfirmed) {
-          console.log("IMAGEURL", imageUrl);
-          try {
-            const reponse = await axios.delete(`${process.env.BE_URL}/activities/${activityId}/media`, {
+        console.log("IMAGEURL", imageUrl);
+        try {
+          const reponse = await axios.delete(
+            `${process.env.BE_URL}/activities/${activityId}/media`,
+            {
               data: payload,
               headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${Cookies.get('access_token')}`,
-                  'x-api-key': process.env.X_API_KEY,
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${Cookies.get("access_token")}`,
+                "x-api-key": process.env.X_API_KEY,
               },
-          });
-     
-          setImagePreviews(prevImages => prevImages.filter((_, i) => i !== index));
-          setFormData(prevData => ({
-              ...prevData,
-              media: prevData.media.filter((_, i) => i !== index),
+            },
+          );
+
+          setImagePreviews((prevImages) =>
+            prevImages.filter((_, i) => i !== index),
+          );
+          setFormData((prevData) => ({
+            ...prevData,
+            media: prevData.media.filter((_, i) => i !== index),
           }));
 
-              Swal.fire(
-                  'Deleted!',
-                  'Image has been deleted.',
-                  'success'
-              );
-          } catch (err) {
-              console.log('Error deleting image:', err);
-              toast.error('Error deleting image');
-          }
+          Swal.fire("Deleted!", "Image has been deleted.", "success");
+        } catch (err) {
+          console.log("Error deleting image:", err);
+          toast.error("Error deleting image");
+        }
       }
-  }
-   
+    }
   };
 
   const router = useRouter();
@@ -86,29 +87,29 @@ const UpdateActivity = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    
 
     if (files) {
       const fileArray = Array.from(files);
-      const oversizedFiles = fileArray.filter(file => file.size > 1024 * 1024); // 1 MB in bytes
-      
+      const oversizedFiles = fileArray.filter(
+        (file) => file.size > 1024 * 1024,
+      ); // 1 MB in bytes
+
       if (oversizedFiles.length > 0) {
-        
-        setErrors((prevErrors :any) => ({
-            ...prevErrors,
-            profile_image: 'File size must be less than 1 MB',
+        setErrors((prevErrors: any) => ({
+          ...prevErrors,
+          profile_image: "File size must be less than 1 MB",
         }));
-    } else {
-      setTooltipMessage(null);
-        setErrors((prevErrors :any) => ({
-            ...prevErrors,
-            profile_image: '',
+      } else {
+        setTooltipMessage(null);
+        setErrors((prevErrors: any) => ({
+          ...prevErrors,
+          profile_image: "",
         }));
       }
       const fileReaders = fileArray.map((file) => {
@@ -122,25 +123,27 @@ const UpdateActivity = () => {
         });
       });
 
-      Promise.all(fileReaders).then((base64Strings) => {
-        setImagePreviews(prevImages => [...prevImages, ...base64Strings]);
-        setFormData(prevData => ({
-          ...prevData,
-          media: [...prevData.media, ...base64Strings]
-        }));
-      }).catch((error) => {
-        console.error("Error converting files to base64:", error);
-      });
+      Promise.all(fileReaders)
+        .then((base64Strings) => {
+          setImagePreviews((prevImages) => [...prevImages, ...base64Strings]);
+          setFormData((prevData) => ({
+            ...prevData,
+            media: [...prevData.media, ...base64Strings],
+          }));
+        })
+        .catch((error) => {
+          console.error("Error converting files to base64:", error);
+        });
     }
   };
   const handleFocus = () => {
     if (!tooltipMessage) {
-      setTooltipMessage('Please upload an image smaller than 1 MB');
+      setTooltipMessage("Please upload an image smaller than 1 MB");
     }
   };
 
   const removeBase64Prefix = (base64String: string) => {
-    const base64Prefix = 'data:image/png;base64,';
+    const base64Prefix = "data:image/png;base64,";
     if (base64String.startsWith(base64Prefix)) {
       return base64String.substring(base64Prefix.length);
     }
@@ -164,8 +167,6 @@ const UpdateActivity = () => {
       errors.description = "Description is required";
     }
 
-    
-
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -177,18 +178,24 @@ const UpdateActivity = () => {
     const fetchActivity = async () => {
       if (activityId) {
         try {
-          const accessToken = Cookies.get('access_token'); 
+          const accessToken = Cookies.get("access_token");
 
-          const response = await axios.get(`${process.env.BE_URL}/activities/${activityId}`, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${accessToken}`,
-              'x-api-key': process.env.X_API_KEY, 
+          const response = await axios.get(
+            `${process.env.BE_URL}/activities/${activityId}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+                "x-api-key": process.env.X_API_KEY,
+              },
             },
-          });
+          );
           console.log(response.data.data);
           setFormData(response.data.data);
-          if (response.data.data.media && Array.isArray(response.data.data.media)) {
+          if (
+            response.data.data.media &&
+            Array.isArray(response.data.data.media)
+          ) {
             setImagePreviews(response.data.data.media);
           }
         } catch (err) {
@@ -208,16 +215,16 @@ const UpdateActivity = () => {
     }
     setLoading(true);
     const processedFormData = {
-      media: formData.media.map(removeBase64Prefix) // Process each base64 image
+      media: formData.media.map(removeBase64Prefix), // Process each base64 image
     };
-    
+
     console.log(processedFormData);
 
     try {
-      const response = await fetch('/api/activity/update', {
-        method: 'PUT',
+      const response = await fetch("/api/activity/update", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ id: activityId, ...formData }),
       });
@@ -225,18 +232,17 @@ const UpdateActivity = () => {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to update item');
+        throw new Error(result.error || "Failed to update item");
       }
 
-      toast.success('Activity updated successfully');
+      toast.success("Activity updated successfully");
       setTimeout(() => {
-        router.push('/activity');
+        router.push("/activity");
       }, 1000);
-    
     } catch (err) {
       console.log(err);
       setLoading(false);
-      toast.error('An error occurred');
+      toast.error("An error occurred");
     }
   };
 
@@ -259,9 +265,7 @@ const UpdateActivity = () => {
                   placeholder="Enter the Activity Name"
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
-                {errors.name && (
-                  <span className="text-red">{errors.name}</span>
-                )}
+                {errors.name && <span className="text-red">{errors.name}</span>}
               </div>
               <div className="w-full xl:w-1/2">
                 <label className="mb-3 block text-sm font-medium text-black">
@@ -287,10 +291,8 @@ const UpdateActivity = () => {
                   Attach file
                 </label>
                 {tooltipMessage && (
-        <div className="mt-2 text-sm text-red">
-            {tooltipMessage}
-        </div>
-    )}
+                  <div className="mt-2 text-sm text-red">{tooltipMessage}</div>
+                )}
                 <input
                   type="file"
                   multiple
@@ -298,10 +300,11 @@ const UpdateActivity = () => {
                   onFocus={handleFocus}
                   className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
-                 {errors.profile_image && (
-            <p className="text-red text-sm mt-1">{errors.profile_image}</p>
-        )}
-                
+                {errors.profile_image && (
+                  <p className="mt-1 text-sm text-red">
+                    {errors.profile_image}
+                  </p>
+                )}
               </div>
             </div>
             <div className="mb-6.5">
@@ -312,19 +315,25 @@ const UpdateActivity = () => {
                 {imagePreviews.map((media, index) => (
                   <div key={index} className="relative">
                     <Image
-                       src={media.startsWith('data:') ? media : `https://api.sueennature.com/${media}`}
+                      src={
+                        media.startsWith("data:")
+                          ? media
+                          : `https://api.sueennature.com/${media}`
+                      }
                       alt={`Preview ${index}`}
                       width={100}
                       height={100}
-                      className="object-cover rounded h-20"
+                      className="h-20 rounded object-cover"
                     />
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteImage(index)}
-                      className="relative top-[-80px] left-[80px] text-red bg-red-500 rounded-full font-bold"
-                    >
-                      X
-                    </button>
+                    {groupThree && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteImage(index)}
+                        className="bg-red-500 relative left-[80px] top-[-80px] rounded-full font-bold text-red"
+                      >
+                        X
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -343,14 +352,14 @@ const UpdateActivity = () => {
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               ></textarea>
               {errors.description && (
-                  <span className="text-red">{errors.description}</span>
-                )}
+                <span className="text-red">{errors.description}</span>
+              )}
             </div>
             <button
               type="submit"
               className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
             >
-              {loading ? "Updating..." : "Update"} 
+              {loading ? "Updating..." : "Update"}
             </button>
           </div>
         </form>
@@ -360,5 +369,3 @@ const UpdateActivity = () => {
 };
 
 export default UpdateActivity;
-
-

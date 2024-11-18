@@ -2,7 +2,9 @@ import React, { createContext, useState, ReactNode, useEffect } from "react";
 
 interface UserContextType {
   user: string | null;
+  userName: string | null;
   setUser: React.Dispatch<React.SetStateAction<string | null>>;
+  setUserName: React.Dispatch<React.SetStateAction<string | null>>;
   groupOne: boolean;
   setGroupOne: React.Dispatch<React.SetStateAction<boolean>>;
   groupTwo: boolean;
@@ -25,6 +27,7 @@ interface UserProviderProps {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [user, setUser] = useState<string | null>("");
+  const [userName, setUserName] = useState<string | null>("");
   const [groupOne, setGroupOne] = useState<boolean>(true);
   const [groupTwo, setGroupTwo] = useState<boolean>(false);
   const [groupThree, setGroupThree] = useState<boolean>(false);
@@ -108,6 +111,8 @@ useEffect(() => {
     groupFive,
     setGroupFive,
     activeGroupNames,
+    userName,
+    setUserName,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

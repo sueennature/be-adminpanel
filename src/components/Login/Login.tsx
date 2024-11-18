@@ -1,9 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { UserContext } from "@/context/userContext";
+import { useUserContext } from "@/hooks/useUserContext";
 
 export default function Login() {
   const [email, setEmail] = React.useState<string>("");
@@ -12,6 +14,7 @@ export default function Login() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { setUser, setUserName } =useUserContext();
 
   const handleSubmit = async (e:any) => {
     e.preventDefault();
@@ -39,6 +42,8 @@ export default function Login() {
     
     if (data.access_token) {
         localStorage.setItem("user_role", data.user_role);
+        setUser(data.user_role);
+        setUserName(data.user_name);
         router.push("/home");
     } else if ((data.detail = "Invalid credentials")) {
       setLoading(false)
