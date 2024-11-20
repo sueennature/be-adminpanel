@@ -5,10 +5,11 @@ import "@/css/satoshi.css";
 import "@/css/style.css";
 import React, { useEffect, useState } from "react";
 import Loader from "@/components/common/Loader";
-import "react-big-calendar/lib/css/react-big-calendar.css";  //react calendar
+import "react-big-calendar/lib/css/react-big-calendar.css"; //react calendar
 import { StoreProvider } from "@/store/StoreProvider";
 import ToastProvider from "./ToastProvider";
 import useAuth from "@/hooks/useAuth";
+import { UserProvider } from "@/context/userContext";
 
 export default function RootLayout({
   children,
@@ -23,21 +24,19 @@ export default function RootLayout({
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
-useAuth();
+  useAuth();
+
   return (
     <StoreProvider>
-      
-        <html lang="en">
-      <body suppressHydrationWarning={true}>
-        <div className="dark:bg-boxdark-2 dark:text-bodydark">
-        <ToastProvider>
-        {loading ? <Loader /> : children}
-        </ToastProvider>
-       
-        </div>
-      </body>
-    </html>
+      <UserProvider>
+      <html lang="en">
+        <body suppressHydrationWarning={true}>
+          <div className="dark:bg-boxdark-2 dark:text-bodydark">
+            <ToastProvider>{loading ? <Loader /> : children}</ToastProvider>
+          </div>
+        </body>
+      </html>
+      </UserProvider>
     </StoreProvider>
-  
   );
 }

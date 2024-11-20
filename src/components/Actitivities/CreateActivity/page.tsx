@@ -1,28 +1,29 @@
-'use client'
+"use client";
 import { useRouter } from "next/navigation";
-import React, { ChangeEvent, useState } from 'react';
-import SelectGroupOne from '../../SelectGroup/SelectGroupOne';
-import { toast } from 'react-toastify';
+import React, { ChangeEvent, useState } from "react";
+import SelectGroupOne from "../../SelectGroup/SelectGroupOne";
+import { toast } from "react-toastify";
 import { useAuthRedirect } from "@/utils/checkToken";
-import Cookies from "js-cookie";
+import Cookies from "js-cookie";//-
 
-const CreateActivity = () => {
+const CreateActivity = ( ) => {
   const [formData, setFormData] = useState<any>({
-    name: '',
-    price: '',
-    description: '',
+    name: "",
+    price: "",
+    description: "",
     media: [],
   });
   const router = useRouter();
-  const [loading, setLoading] = React.useState(false)
+  const [loading, setLoading] = React.useState(false);
   const [errors, setErrors] = useState<any>({});
-  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);  //set tooltip
-useAuthRedirect()
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null); //set tooltip
+  useAuthRedirect();
+
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -31,59 +32,60 @@ useAuthRedirect()
       const filesArray = Array.from(e.target.files);
       // Clear media error immediately after file selection
 
-      const oversizedFiles = filesArray.filter(file => file.size > 1024 * 1024); // 1 MB in bytes
+      const oversizedFiles = filesArray.filter(
+        (file) => file.size > 1024 * 1024,
+      ); // 1 MB in bytes
       if (oversizedFiles.length > 0) {
-        
-        setErrors((prevErrors :any) => ({
-            ...prevErrors,
-            profile_image: 'File size must be less than 1 MB',
-        }));
-    } else {
-      setTooltipMessage(null);
-        setErrors((prevErrors :any) => ({
-            ...prevErrors,
-            profile_image: '',
-        }));
-
-      if (filesArray.length > 0) {
         setErrors((prevErrors: any) => ({
-            ...prevErrors,
-            media: '' // Clear the media error
+          ...prevErrors,
+          profile_image: "File size must be less than 1 MB",
         }));
-    }
-      const base64Promises = filesArray.map(file => {
-        return new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = error => reject(error);
-        });
-      });
+      } else {
+        setTooltipMessage(null);
+        setErrors((prevErrors: any) => ({
+          ...prevErrors,
+          profile_image: "",
+        }));
 
-      Promise.all(base64Promises)
-        .then(base64Images => {
-          setFormData({
-            ...formData,
-            media: base64Images
+        if (filesArray.length > 0) {
+          setErrors((prevErrors: any) => ({
+            ...prevErrors,
+            media: "", // Clear the media error
+          }));
+        }
+        const base64Promises = filesArray.map((file) => {
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = (error) => reject(error);
           });
-        })
-        .catch(error => {
-          console.error("Error converting images to base64:", error);
-          toast.error("Error uploading images");
         });
+
+        Promise.all(base64Promises)
+          .then((base64Images) => {
+            setFormData({
+              ...formData,
+              media: base64Images,
+            });
+          })
+          .catch((error) => {
+            console.error("Error converting images to base64:", error);
+            toast.error("Error uploading images");
+          });
+      }
     }
   };
-};
   const handleFocus = () => {
     if (!tooltipMessage) {
-      setTooltipMessage('Please upload an image smaller than 1 MB');
+      setTooltipMessage("Please upload an image smaller than 1 MB");
     }
   };
- // Log the original base64 images
+  // Log the original base64 images
   const removeBase64Prefix = (base64String: string) => {
     // Find the comma that separates the metadata from the base64 data
     const base64PrefixPattern = /^data:image\/(png|jpeg|jpg);base64,/;
-    return base64String.replace(base64PrefixPattern, '');
+    return base64String.replace(base64PrefixPattern, "");
   };
 
   const validateForm = () => {
@@ -111,23 +113,27 @@ useAuthRedirect()
     return Object.keys(errors).length === 0;
   };
 
-
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!validateForm()) {
       toast.error("Please fill these input fields correctly");
       return;
     }
-    setLoading(true)
-      // Process the base64 images in formData
+    setLoading(true);
+    // Process the base64 images in formData
     const processedFormData = {
       ...formData,
-      media: formData.media?.map(removeBase64Prefix) // Process each base64 image
+      media: formData.media?.map(removeBase64Prefix), // Process each base64 image
     };
-  
+
     console.log(processedFormData);
 
-    if (!formData.name || !formData.price || !formData.description || formData.media.length === 0) {
+    if (
+      !formData.name ||
+      !formData.price ||
+      !formData.description ||
+      formData.media.length === 0
+    ) {
       toast.error("Please fill all fields");
       return;
     }
@@ -147,23 +153,23 @@ useAuthRedirect()
         toast.error("Failed to create activity");
         return;
       }
-      if(response.status === 401){
-        toast.error("Credentials Expired. Please Log in Again")
-        Cookies.remove('access_token');
-        setTimeout(()=>{
-          router.push('/')
-        },1500)
+      if (response.status === 401) {
+        toast.error("Credentials Expired. Please Log in Again");
+        Cookies.remove("access_token");
+        setTimeout(() => {
+          router.push("/");
+        }, 1500);
         return;
       }
       const responseData = await response.json();
-      setLoading(false)
+      setLoading(false);
       console.log("Success:", responseData);
       toast.success("Activity created successfully");
-      setTimeout(()=>{
-        router.push("/activity")
-      },1500)
+      setTimeout(() => {
+        router.push("/activity");
+      }, 1500);
     } catch (error) {
-      setLoading(false)
+      setLoading(false);
       console.error("Error:", error);
       toast.error("Something went wrong!");
     }
@@ -212,10 +218,8 @@ useAuthRedirect()
                   Attach file
                 </label>
                 {tooltipMessage && (
-        <div className="mt-2 text-sm text-red">
-            {tooltipMessage}
-        </div>
-    )}
+                  <div className="mt-2 text-sm text-red">{tooltipMessage}</div>
+                )}
                 <input
                   type="file"
                   multiple
@@ -225,8 +229,10 @@ useAuthRedirect()
                   className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                 />
                 {errors.profile_image && (
-            <p className="text-red text-sm mt-1">{errors.profile_image}</p>
-        )}
+                  <p className="mt-1 text-sm text-red">
+                    {errors.profile_image}
+                  </p>
+                )}
               </div>
             </div>
             <div className="mb-6">
@@ -242,7 +248,9 @@ useAuthRedirect()
                 placeholder="Type description"
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               ></textarea>
-              {errors.description && <p className="text-red">{errors.description}</p>}
+              {errors.description && (
+                <p className="text-red">{errors.description}</p>
+              )}
             </div>
             <button
               type="submit"
@@ -259,4 +267,3 @@ useAuthRedirect()
 };
 
 export default CreateActivity;
-

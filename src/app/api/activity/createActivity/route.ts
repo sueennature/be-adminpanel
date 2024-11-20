@@ -3,6 +3,7 @@ import cookie from 'cookie';
 
 export async function POST(request: any) {
     try {
+        const BE_URL = process.env.BE_URL;
         const cookies = cookie.parse(request.headers.get('cookie') || '');
         const accessToken = cookies.access_token;
         if (!accessToken) {
@@ -11,7 +12,7 @@ export async function POST(request: any) {
 
         const ActivityData = await request.json();
 
-        const response = await fetch('https://api.sueennature.com/activities', {
+        const response = await fetch(`${BE_URL}/activities`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

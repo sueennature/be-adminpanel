@@ -4,7 +4,7 @@ import cookie from 'cookie';
 export async function POST(request: any) {
     try {
         const cookies = cookie.parse(request.headers.get('cookie') || '');
-        console.log("COOKIES", cookies)
+        const BE_URL = process.env.BE_URL;
         const accessToken = cookies.access_token;
         console.log(accessToken)
 
@@ -14,7 +14,7 @@ export async function POST(request: any) {
 
         const guestData = await request.json();
 
-        const response = await fetch('https://api.sueennature.com/news', {
+        const response = await fetch(`${BE_URL}/news`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

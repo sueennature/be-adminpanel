@@ -5,13 +5,15 @@ export async function POST(request: any) {
     try {
         const cookies = cookie.parse(request.headers.get('cookie') || '');
         const accessToken = cookies.access_token;
+        const BE_URL = process.env.BE_URL;
+  
         if (!accessToken) {
             return NextResponse.json({ error: 'Access token is missing' }, { status: 401 });
         }
 
         const ActivityData = await request.json();
 
-        const response = await fetch('https://api.sueennature.com/additional-services/', {
+        const response = await fetch(`${BE_URL}/additional-services/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

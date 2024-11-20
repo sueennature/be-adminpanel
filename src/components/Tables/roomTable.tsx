@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import NoData from "@/components/NoData";
 import Loader from "@/components/common/Loader";
+import { useUserContext } from "@/hooks/useUserContext";
 
 interface RoomData {
   id: number;
@@ -25,10 +26,10 @@ interface RoomData {
   half_board: number;
   full_board: number;
   description: string;
-  short_description:string;
-  view:string;
+  short_description: string;
+  view: string;
   secondary_category: string;
-  views:string;
+  views: string;
   secondary_max_adults: number;
   secondary_max_childs: number;
   secondary_max_people: number;
@@ -57,7 +58,7 @@ const RoomTable = () => {
   const [currentPage, setCurrentPage] = React.useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = React.useState<number>(10);
   const [loading, setLoading] = React.useState<boolean>(true);
-
+  const { groupFour, groupTwo } = useUserContext();
   const router = useRouter();
 
   const [idFilter, setIdFilter] = React.useState<string>("");
@@ -97,7 +98,9 @@ const RoomTable = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredRooms.slice(indexOfFirstItem, indexOfLastItem);
-  {console.log("currentItems",currentItems)}
+  {
+    console.log("currentItems", currentItems);
+  }
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -128,7 +131,6 @@ const RoomTable = () => {
   const handleViewPush = (roomData: any) => {
     router.push(`/rooms/view/view?roomID=${roomData.id}`);
   };
-
 
   const handleItemsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -210,21 +212,19 @@ const RoomTable = () => {
       full_board,
       views,
       secondary_category,
-  secondary_max_adults,
-  secondary_max_childs,
-  secondary_max_people,
-  secondary_short_description,
-  secondary_description,
-  secondary_room_only,
-  secondary_bread_breakfast,
-  secondary_half_board,
-  secondary_full_board,
-  secondary_bathroom,
-  secondary_size,
-  secondary_beds,
-  secondary_features,
-      
-
+      secondary_max_adults,
+      secondary_max_childs,
+      secondary_max_people,
+      secondary_short_description,
+      secondary_description,
+      secondary_room_only,
+      secondary_bread_breakfast,
+      secondary_half_board,
+      secondary_full_board,
+      secondary_bathroom,
+      secondary_size,
+      secondary_beds,
+      secondary_features,
     }) => ({
       id,
       room_number,
@@ -245,26 +245,25 @@ const RoomTable = () => {
       bathroom,
       views,
       secondary_category,
-  secondary_max_adults,
-  secondary_max_childs,
-  secondary_max_people,
-  secondary_short_description,
-  secondary_description,
-  secondary_room_only,
-  secondary_bread_breakfast,
-  secondary_half_board,
-  secondary_full_board,
-  secondary_bathroom,
-  secondary_size,
-  secondary_beds,
-  secondary_features,
-      
+      secondary_max_adults,
+      secondary_max_childs,
+      secondary_max_people,
+      secondary_short_description,
+      secondary_description,
+      secondary_room_only,
+      secondary_bread_breakfast,
+      secondary_half_board,
+      secondary_full_board,
+      secondary_bathroom,
+      secondary_size,
+      secondary_beds,
+      secondary_features,
     }),
   );
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        {rooms.length > 0 && (
+        {rooms.length > 0 && groupFour && (
           <div className="flex items-center gap-4">
             <input
               type="text"
@@ -277,9 +276,11 @@ const RoomTable = () => {
         )}
 
         <div className="cursor-pointer text-blue-400">
-          <Link href="/rooms/createRoom">
-            <Plus />
-          </Link>
+          {groupFour && (
+            <Link href="/rooms/createRoom">
+              <Plus />
+            </Link>
+          )}
         </div>
       </div>
       {!loading ? (
@@ -371,40 +372,40 @@ const RoomTable = () => {
                           Secondary Max Adults
                         </th>
                         <th scope="col" className="px-6 py-3">
-                        Secondary Max Childs
+                          Secondary Max Childs
                         </th>
                         <th scope="col" className="px-6 py-3">
-                        Secondary Max People
+                          Secondary Max People
                         </th>
                         <th scope="col" className="px-6 py-3">
-                        Secondary Description
+                          Secondary Description
                         </th>
                         <th scope="col" className="px-6 py-3">
                           Secondary Short Description
                         </th>
                         <th scope="col" className="px-6 py-3">
-                        Secondary Features
+                          Secondary Features
                         </th>
                         <th scope="col" className="px-6 py-3">
-                        Secondary Beds
+                          Secondary Beds
                         </th>
                         <th scope="col" className="px-6 py-3">
-                        Secondary Size
+                          Secondary Size
                         </th>
                         <th scope="col" className="px-6 py-3">
                           Secondary Bathrooms
                         </th>
                         <th scope="col" className="px-6 py-3">
-                        Secondary Room Only
+                          Secondary Room Only
                         </th>
                         <th scope="col" className="px-6 py-3">
-                        Secondary Bread and Breakfast
+                          Secondary Bread and Breakfast
                         </th>
                         <th scope="col" className="px-6 py-3">
-                        Secondary Half Board
+                          Secondary Half Board
                         </th>
                         <th scope="col" className="px-6 py-3">
-                        Secondary Full Board
+                          Secondary Full Board
                         </th>
                         <th scope="col" className="px-6 py-3">
                           Images
@@ -415,7 +416,6 @@ const RoomTable = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      
                       {currentItems?.map((room) => (
                         <tr
                           key={room?.id}
@@ -447,7 +447,9 @@ const RoomTable = () => {
                           <td className="px-6 py-4">{room?.max_childs}</td>
                           <td className="px-6 py-4">{room?.max_people}</td>
                           <td className="px-6 py-4">{room?.description}</td>
-                          <td className="px-6 py-4">{room?.short_description}</td>
+                          <td className="px-6 py-4">
+                            {room?.short_description}
+                          </td>
                           <td className="px-6 py-4">{room?.features}</td>
                           <td className="px-6 py-4">{room?.beds}</td>
                           <td className="px-6 py-4">{room?.size}</td>
@@ -469,28 +471,62 @@ const RoomTable = () => {
                           <td className="px-6 py-4">
                             {room?.secondary_category}
                           </td>
-                          <td className="px-6 py-4">{room?.secondary_max_adults}</td>
-                          <td className="px-6 py-4">{room?.secondary_max_childs}</td>
-                          <td className="px-6 py-4">{room?.secondary_max_people}</td>
-                          <td className="px-6 py-4">{room?.secondary_description ? room.secondary_description : 'N/A'}</td>
-                          <td className="px-6 py-4">{room?.secondary_short_description? room.secondary_short_description : ' N/A'}</td>
-                          <td className="px-6 py-4">{room?.secondary_features? room.secondary_features : 'N/A'}</td>
-                          <td className="px-6 py-4">{room?.secondary_beds? room.secondary_beds : 'N/A'}</td>
-                          <td className="px-6 py-4">{room?.secondary_size? room.secondary_size : 'N/A'}</td>
-                          <td className="px-6 py-4">{room?.secondary_bathroom? room.secondary_bathroom :'N/A'}</td>
                           <td className="px-6 py-4">
-                          {room?.secondary_room_only ? room.secondary_room_only.toLocaleString() : 'N/A'}
+                            {room?.secondary_max_adults}
                           </td>
                           <td className="px-6 py-4">
-                          {room?.secondary_bread_breakfast ? room.secondary_bread_breakfast.toLocaleString() : 'N/A'}
+                            {room?.secondary_max_childs}
                           </td>
                           <td className="px-6 py-4">
-                          {room?.secondary_half_board ? room.secondary_half_board.toLocaleString() : 'N/A'}
+                            {room?.secondary_max_people}
                           </td>
                           <td className="px-6 py-4">
-                          {room?.secondary_full_board ? room.secondary_full_board.toLocaleString() : 'N/A'}
+                            {room?.secondary_description
+                              ? room.secondary_description
+                              : "N/A"}
                           </td>
-                          
+                          <td className="px-6 py-4">
+                            {room?.secondary_short_description
+                              ? room.secondary_short_description
+                              : " N/A"}
+                          </td>
+                          <td className="px-6 py-4">
+                            {room?.secondary_features
+                              ? room.secondary_features
+                              : "N/A"}
+                          </td>
+                          <td className="px-6 py-4">
+                            {room?.secondary_beds ? room.secondary_beds : "N/A"}
+                          </td>
+                          <td className="px-6 py-4">
+                            {room?.secondary_size ? room.secondary_size : "N/A"}
+                          </td>
+                          <td className="px-6 py-4">
+                            {room?.secondary_bathroom
+                              ? room.secondary_bathroom
+                              : "N/A"}
+                          </td>
+                          <td className="px-6 py-4">
+                            {room?.secondary_room_only
+                              ? room.secondary_room_only.toLocaleString()
+                              : "N/A"}
+                          </td>
+                          <td className="px-6 py-4">
+                            {room?.secondary_bread_breakfast
+                              ? room.secondary_bread_breakfast.toLocaleString()
+                              : "N/A"}
+                          </td>
+                          <td className="px-6 py-4">
+                            {room?.secondary_half_board
+                              ? room.secondary_half_board.toLocaleString()
+                              : "N/A"}
+                          </td>
+                          <td className="px-6 py-4">
+                            {room?.secondary_full_board
+                              ? room.secondary_full_board.toLocaleString()
+                              : "N/A"}
+                          </td>
+
                           <td className="min-w-[200px] overflow-x-auto px-6 py-4">
                             <div className="flex items-center gap-2">
                               {room?.images?.map((image, index) => (
@@ -499,7 +535,11 @@ const RoomTable = () => {
                                   className="h-20 w-20 flex-shrink-0 overflow-hidden"
                                 >
                                   <Image
-                                    src={image.startsWith('data:') ? image : `https://api.sueennature.com/${image}`}
+                                    src={
+                                      image.startsWith("data:")
+                                        ? image
+                                        : `https://api.sueennature.com/${image}`
+                                    }
                                     alt={room?.room_number}
                                     width={80}
                                     height={80}
@@ -508,28 +548,32 @@ const RoomTable = () => {
                                 </div>
                               ))}
                             </div>
-                          </td> 
+                          </td>
 
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-4 ">
-                              <button
-                                onClick={() => handleEditPush(room)}
-                                className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                              >
-                                <Edit />
-                              </button>
+                              {groupFour && (
+                                <button
+                                  onClick={() => handleEditPush(room)}
+                                  className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                                >
+                                  <Edit />
+                                </button>
+                              )}
                               <button
                                 onClick={() => handleViewPush(room)}
                                 className="dark:text-red-500 font-medium text-green-600 hover:underline"
                               >
                                 <Eye />
                               </button>
-                              <button
-                                className="font-medium text-rose-600  hover:underline"
-                                onClick={() => confirmDelete(room?.id)}
-                              >
-                                <Trash />
-                              </button>
+                              {groupTwo && (
+                                <button
+                                  className="font-medium text-rose-600  hover:underline"
+                                  onClick={() => confirmDelete(room?.id)}
+                                >
+                                  <Trash />
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>

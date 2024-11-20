@@ -19,16 +19,17 @@ import useAuth from "@/hooks/useAuth";
 import Swal from "sweetalert2";
 import { useAuthRedirect } from "@/utils/checkToken";
 import ReactPlayer from "react-player";
+import { useUserContext } from "@/hooks/useUserContext";
 
 interface DiscountData {
   id: number;
   title: string;
-  tags:string;
+  tags: string;
   media_type: string;
   media_urls: [];
 }
 const ViewAllCarousel = () => {
-  useAuthRedirect()
+  useAuthRedirect();
 
   const [discounts, setDiscounts] = React.useState<DiscountData[]>([]);
   const [nameFilter, setNameFilter] = React.useState<string>("");
@@ -41,7 +42,7 @@ const ViewAllCarousel = () => {
   const [idFilter, setIdFilter] = React.useState<string>("");
   const count = useSelector((state: RootState) => state.counter.value);
   const [loading, setLoading] = React.useState<boolean>(true);
-
+  const { groupFour, groupThree } = useUserContext();
   const filteredDiscounts = discounts.filter((activity) =>
     String(activity.id).toLowerCase().includes(idFilter.toLowerCase()),
   );
@@ -97,7 +98,7 @@ const ViewAllCarousel = () => {
   const prevPage = () => {
     setCurrentPage((prev) => prev - 1);
   };
-  const csvData = filteredDiscounts.map(({ id, title,tags, media_type }) => ({
+  const csvData = filteredDiscounts.map(({ id, title, tags, media_type }) => ({
     id,
     title,
     tags,
@@ -119,7 +120,7 @@ const ViewAllCarousel = () => {
           },
           params: {
             skip,
-            limit, 
+            limit,
           },
         });
         console.log(response.data.data);
@@ -186,13 +187,15 @@ const ViewAllCarousel = () => {
             />
           </div>
         )}
-        <div className="cursor-pointer text-blue-400">
-          <Link href="/carousels/create">
-            <Plus />
-          </Link>
-        </div>
+        {groupFour && (
+          <div className="cursor-pointer text-blue-400">
+            <Link href="/carousels/create">
+              <Plus />
+            </Link>
+          </div>
+        )}
       </div>
-      
+
       {!loading ? (
         <div>
           {currentItems.length > 0 ? (
@@ -268,70 +271,77 @@ const ViewAllCarousel = () => {
                           </td>
                           <td className="px-6 py-4">{activity.id}</td>
                           <td className="px-6 py-4">{activity.title}</td>
-                          <td className="px-6 py-4">{activity?.tags ? activity.tags : 'N/A'}</td>
+                          <td className="px-6 py-4">
+                            {activity?.tags ? activity.tags : "N/A"}
+                          </td>
                           <td className="px-6 py-4">{activity.media_type}</td>
-                          {activity.media_type ==="video" ? (
-                           <td className="min-w-[200px] min-h-[500px] overflow-x-auto px-6 py-4">
-                           <div className="flex items-center gap-2">
-                             {activity.media_urls?.map((video, index) => (
-                               <video
-                                 key={index}
-                                 controls
-                                 width="200"
-                                 height="240"
-                                 className="flex-shrink-0"
-                               >
-                                 <source src={`https://api.sueennature.com/${video}`} type="video/mp4" />
-                                 Your browser does not support the video tag.
-                               </video>
-                             ))}
-                           </div>
-                         </td>
-                         
+                          {activity.media_type === "video" ? (
+                            <td className="min-h-[500px] min-w-[200px] overflow-x-auto px-6 py-4">
+                              <div className="flex items-center gap-2">
+                                {activity.media_urls?.map((video, index) => (
+                                  <video
+                                    key={index}
+                                    controls
+                                    width="200"
+                                    height="240"
+                                    className="flex-shrink-0"
+                                  >
+                                    <source
+                                      src={`https://api.sueennature.com/${video}`}
+                                      type="video/mp4"
+                                    />
+                                    Your browser does not support the video tag.
+                                  </video>
+                                ))}
+                              </div>
+                            </td>
                           ) : (
- <td className="min-w-[200px] overflow-x-auto px-6 py-4">
- <div className="flex items-center gap-2">
-   {activity.media_urls?.map(
-     (image: any, index: any) => (
-       <div
-         key={index}
-         className="h-20 w-20 flex-shrink-0 overflow-hidden"
-       >
-         <Image
-           src={`https://api.sueennature.com/${image}`}
-           alt="as"
-           width={80}
-           height={80}
-           className="h-full w-full object-cover"
-         />
-       </div>
-     ),
-   )}
- </div>
-</td>
-
+                            <td className="min-w-[200px] overflow-x-auto px-6 py-4">
+                              <div className="flex items-center gap-2">
+                                {activity.media_urls?.map(
+                                  (image: any, index: any) => (
+                                    <div
+                                      key={index}
+                                      className="h-20 w-20 flex-shrink-0 overflow-hidden"
+                                    >
+                                      <Image
+                                        src={`https://api.sueennature.com/${image}`}
+                                        alt="as"
+                                        width={80}
+                                        height={80}
+                                        className="h-full w-full object-cover"
+                                      />
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </td>
                           )}
-                         
+
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-4 ">
-                              <button
-                                onClick={() => handleEditPush(activity)}
-                                className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                              >
-                                <Edit />
-                              </button>
+                              {groupFour && (
+                                <button
+                                  onClick={() => handleEditPush(activity)}
+                                  className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                                >
+                                  <Edit />
+                                </button>
+                              )}
                               <button
                                 onClick={() => handleViewPush(activity)}
                                 className="dark:text-red-500 font-medium text-green-600 hover:underline"
                               >
                                 <Eye />
                               </button>
-                              <button
-                                onClick={() => confirmDelete(activity.id)}
-                                className="font-medium text-rose-600  hover:underline"
-                              >
-                                <Trash />
-                              </button>
+                              {groupThree && (
+                                <button
+                                  onClick={() => confirmDelete(activity.id)}
+                                  className="font-medium text-rose-600  hover:underline"
+                                >
+                                  <Trash />
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>

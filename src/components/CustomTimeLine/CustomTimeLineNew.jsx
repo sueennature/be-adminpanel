@@ -5,11 +5,13 @@ import "react-calendar-timeline/lib/Timeline.css";
 import moment from "moment";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { useUserContext } from "@/hooks/useUserContext";
 
 const CustomTimeLineNew = () => {
   const [groups, setGroups] = useState([]);
   const [items, setItems] = useState([]);
   const [key, setKey] = useState(0); 
+  const { groupFour } = useUserContext();
 
   const fetchBookings = async () => {
     try {
@@ -54,13 +56,17 @@ const CustomTimeLineNew = () => {
   }, []);
 
   return (
-    <Timeline
-      key={key} 
-      groups={groups}
-      items={items}
-      defaultTimeStart={moment().add(-12, "hour")}
-      defaultTimeEnd={moment().add(12, "hour")}
-    />
+    <>
+      {groupFour && (
+        <Timeline
+          key={key}
+          groups={groups}
+          items={items}
+          defaultTimeStart={moment().add(-12, "hour")}
+          defaultTimeEnd={moment().add(12, "hour")}
+        />
+      )}
+    </>
   );
 };
 

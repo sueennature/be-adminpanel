@@ -4,7 +4,7 @@ import { parseCookies } from 'nookies';
 export async function POST(request: any) {
     try {
         const cookies = parseCookies(request);
-        console.log("COOKIES", cookies)
+        const BE_URL = process.env.BE_URL;
         const accessToken = cookies.access_token;
         console.log(accessToken);
         if (!accessToken) {
@@ -13,7 +13,7 @@ export async function POST(request: any) {
 
         const newsData = await request.json();
 
-        const response = await fetch('https://api.sueennature.com/news', {
+        const response = await fetch(`${BE_URL}/news`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
