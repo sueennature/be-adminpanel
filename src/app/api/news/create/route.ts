@@ -13,7 +13,7 @@ export async function POST(request: any) {
 
         const newsData = await request.json();
 
-        const response = await fetch(`${BE_URL}/news`, {
+        const response = await fetch(`${BE_URL}/news/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

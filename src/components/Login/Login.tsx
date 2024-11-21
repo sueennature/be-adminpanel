@@ -42,6 +42,7 @@ export default function Login() {
     
     if (data.access_token) {
         localStorage.setItem("user_role", data.user_role);
+        localStorage.setItem("user_name", data.user_name);
         setUser(data.user_role);
         setUserName(data.user_name);
         router.push("/home");

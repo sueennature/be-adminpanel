@@ -21,6 +21,8 @@ const DropdownUser = () => {
     },1500)
   };
 
+  console.log("USERNAME", userName)
+
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
       <Link

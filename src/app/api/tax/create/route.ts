@@ -12,7 +12,7 @@ export async function POST(request: any) {
 
         const guestData = await request.json();
 
-        const response = await fetch(`${BE_URL}/taxes`, {
+        const response = await fetch(`${BE_URL}/taxes/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
