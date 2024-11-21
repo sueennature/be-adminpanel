@@ -38,6 +38,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 useEffect(() => {
   if (typeof window !== "undefined") {
     setUser(localStorage.getItem("user_role"));
+    setUserName(localStorage.getItem("user_name"));
   }
 }, []);
 
@@ -45,6 +46,9 @@ useEffect(() => {
   const handleStorageChange = (event: StorageEvent) => {
     if (event.key === "user_role") {
       setUser(event.newValue);
+    }
+    if (event.key === "user_name") {
+      setUserName(event.newValue);
     }
   };
 

@@ -60,6 +60,7 @@ const RoomTable = () => {
   const [loading, setLoading] = React.useState<boolean>(true);
   const { groupFour, groupTwo } = useUserContext();
   const router = useRouter();
+  const BE_URL = process.env.BE_URL;
 
   const [idFilter, setIdFilter] = React.useState<string>("");
 
@@ -71,7 +72,7 @@ const RoomTable = () => {
       try {
         const accessToken = Cookies.get("access_token");
 
-        const response = await axios.get("https://api.sueennature.com/rooms", {
+        const response = await axios.get(`${BE_URL}/rooms/`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,

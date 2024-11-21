@@ -12,7 +12,7 @@ export async function POST(request: any) {
 
         const ActivityData = await request.json();
 
-        const response = await fetch(`${BE_URL}/activities`, {
+        const response = await fetch(`${BE_URL}/activities/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
