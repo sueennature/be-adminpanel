@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
     try {
         const guestData = await request.json();
+        const BE_URL = process.env.BE_URL;
 
-        const response = await fetch('https://api.sueennature.com/guests/', {
+        const response = await fetch(`${BE_URL}/guests/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
