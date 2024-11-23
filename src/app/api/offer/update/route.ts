@@ -17,7 +17,7 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
         }
 
-        const response = await fetch(`${BE_URL}/guests/${id}`, {
+        const response = await fetch(`${BE_URL}/offers/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
