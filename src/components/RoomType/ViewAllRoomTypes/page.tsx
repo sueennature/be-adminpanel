@@ -13,11 +13,10 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import NoData from "@/components/NoData";
 import Loader from "@/components/common/Loader";
-import ReactPlayer from "react-player";
 import { useUserContext } from "@/hooks/useUserContext";
 
-const ViewAllServices = () => {
-  const [service, setServices] = React.useState<any[]>([]);
+const ViewAllRoomTypes = () => {
+  const [roomType, setRoomTypes] = React.useState<any[]>([]);
   const [nameFilter, setNameFilter] = React.useState<string>("");
   const [newsSelection, setNewsSelection] = React.useState<number[]>([]);
   const [currentPage, setCurrentPage] = React.useState<number>(1);
@@ -27,13 +26,13 @@ const ViewAllServices = () => {
   const { groupFour, groupThree } = useUserContext();
 
   useEffect(() => {
-    const fetchServices = async () => {
+    const fetchRoomTypes = async () => {
       try {
         const accessToken = Cookies.get("access_token");
         const limit = 100;
         let skip = 0;
 
-        const response = await axios.get(`${process.env.BE_URL}/services/`, {
+        const response = await axios.get(`${process.env.BE_URL}/room_type/`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
@@ -44,8 +43,8 @@ const ViewAllServices = () => {
             limit,
           },
         });
-        console.log(response.data);
-        setServices(response.data);
+        console.log(response.data.data);
+        setRoomTypes(response.data.data);
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -53,24 +52,24 @@ const ViewAllServices = () => {
       }
     };
 
-    fetchServices();
+    fetchRoomTypes();
   }, []);
 
   const [idFilter, setIdFilter] = React.useState<string>("");
 
-  const filterednews = service?.filter(
-    (service) =>
-      service.title.toLowerCase().includes(nameFilter.toLowerCase()) &&
-      String(service.id).toLowerCase().includes(idFilter.toLowerCase()),
+  const filterednews = roomType?.filter(
+    (roomType) =>
+      roomType.category.toLowerCase().includes(nameFilter.toLowerCase()) &&
+      String(roomType.id).toLowerCase().includes(idFilter.toLowerCase()),
   );
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filterednews?.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filterednews.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      const allRoomIds = currentItems.map((service) => service.id);
+      const allRoomIds = currentItems.map((roomType) => roomType.id);
       setNewsSelection(allRoomIds);
     } else {
       setNewsSelection([]);
@@ -79,23 +78,23 @@ const ViewAllServices = () => {
 
   const handleCheckboxChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    serviceId: number,
+    roomTypeId: number,
   ) => {
     if (e.target.checked) {
-      setNewsSelection((prevSelected) => [...prevSelected, serviceId]);
+      setNewsSelection((prevSelected) => [...prevSelected, roomTypeId]);
     } else {
       setNewsSelection((prevSelected) =>
-        prevSelected.filter((id) => id !== serviceId),
+        prevSelected.filter((id) => id !== roomTypeId),
       );
     }
   };
 
-  const handleEditPush = (service: any) => {
-    router.push(`/service/update?serviceID=${service.id}`);
+  const handleEditPush = (roomType: any) => {
+    router.push(`/roomType/update?roomTypeID=${roomType.id}`);
   };
 
-  const handleViewPush = (service: any) => {
-    router.push(`/service/view/view?serviceID=${service.id}`);
+  const handleViewPush = (roomType: any) => {
+    router.push(`/roomType/view/view?roomTypeID=${roomType.id}`);
   };
 
   const handleItemsPerPageChange = (
@@ -113,30 +112,30 @@ const ViewAllServices = () => {
     setCurrentPage((prev) => prev - 1);
   };
 
-  const handleDelete = async (serviceId: number) => {
+  const handleDelete = async (roomTypeId: number) => {
     const accessToken = Cookies.get("access_token");
 
     try {
-      await axios.delete(`${process.env.BE_URL}/services/${serviceId}`, {
+      await axios.delete(`${process.env.BE_URL}/room_type/${roomTypeId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
           "x-api-key": process.env.X_API_KEY,
         },
       });
-      setServices((prevNews) =>
-        prevNews.filter((service) => service.id !== serviceId),
+      setRoomTypes((prevNews) =>
+        prevNews.filter((roomType) => roomType.id !== roomTypeId),
       );
-      toast.success("Service is Deleted Successfully");
+      toast.success("Room type is Deleted Successfully");
     } catch (err) {
       console.error(err);
       toast.error(
-        "There was an error deleting the Service. Please try again later",
+        "There was an error deleting the Room Type. Please try again later",
       );
     }
   };
 
-  const confirmDelete = (serviceId: number) => {
+  const confirmDelete = (roomTypeId: number) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -147,12 +146,12 @@ const ViewAllServices = () => {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        handleDelete(serviceId);
+        handleDelete(roomTypeId);
       }
     });
   };
 
-  const csvData = filterednews?.map(({ id, title, content }) => ({
+  const csvData = filterednews.map(({ id, title, content }) => ({
     id,
     title,
     content,
@@ -162,7 +161,7 @@ const ViewAllServices = () => {
     <div>
       <div>
         <div className="mb-4 flex items-center justify-between">
-          {service?.length > 0 && (
+          {roomType.length > 0 && (
             <div className="flex items-center gap-4">
               <input
                 type="text"
@@ -175,7 +174,7 @@ const ViewAllServices = () => {
           )}
           {groupFour && (
             <div className="cursor-pointer text-blue-400">
-              <Link href="/service/create">
+              <Link href="/roomType/create">
                 <Plus />
               </Link>
             </div>
@@ -183,7 +182,7 @@ const ViewAllServices = () => {
         </div>
         {!loading ? (
           <div>
-            {currentItems?.length > 0 ? (
+            {currentItems.length > 0 ? (
               <div>
                 <div className="bg-white">
                   <div className="overflow-x-auto shadow-md sm:rounded-lg">
@@ -213,23 +212,29 @@ const ViewAllServices = () => {
                             id
                           </th>
                           <th scope="col" className="px-6 py-3">
-                            Title
+                            Category
                           </th>
                           <th scope="col" className="px-6 py-3">
-                            Subtitle
+                            Size
                           </th>
 
                           <th scope="col" className="px-6 py-3">
-                            Description
+                            Bed
                           </th>
                           <th scope="col" className="px-6 py-3">
-                            Features
+                            Occupancy
                           </th>
                           <th scope="col" className="px-6 py-3">
-                            Details
+                            Primary Images
                           </th>
                           <th scope="col" className="px-6 py-3">
-                            Images
+                            Room Images
+                          </th>
+                          <th scope="col" className="px-6 py-3">
+                            Mountain Images
+                          </th>
+                          <th scope="col" className="px-6 py-3">
+                            Lake Images
                           </th>
                           <th scope="col" className="px-6 py-3">
                             Actions
@@ -237,91 +242,41 @@ const ViewAllServices = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {currentItems.map((service) => (
+                        {currentItems.map((roomType) => (
                           <tr
-                            key={service.id}
+                            key={roomType.id}
                             className="dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border-b bg-white text-black"
                           >
                             <td className="w-4 p-4">
                               <div className="flex items-center">
                                 <input
-                                  id={`checkbox-table-search-${service.id}`}
+                                  id={`checkbox-table-search-${roomType.id}`}
                                   type="checkbox"
-                                  checked={newsSelection.includes(service.id)}
+                                  checked={newsSelection.includes(roomType.id)}
                                   onChange={(e) =>
-                                    handleCheckboxChange(e, service.id)
+                                    handleCheckboxChange(e, roomType.id)
                                   }
                                   className="bg-gray-100 border-gray-300 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600 h-4 w-4 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
                                 />
                                 <label
-                                  htmlFor={`checkbox-table-search-${service.id}`}
+                                  htmlFor={`checkbox-table-search-${roomType.id}`}
                                   className="sr-only"
                                 >
                                   checkbox
                                 </label>
                               </div>
                             </td>
-                            <td className="px-6 py-4">{service.id}</td>
-                            <td className="px-6 py-4">{service.title}</td>
-
-                            <td className="px-6 py-4">{service.sub_title}</td>
-                            <td className="px-6 py-4">{service.description}</td>
-                            <td className="px-6 py-4">{service.features}</td>
-                            <td className="px-6 py-4">
-                              {service.details?.map(
-                                (
-                                  detail: {
-                                    title:
-                                      | string
-                                      | number
-                                      | bigint
-                                      | boolean
-                                      | React.ReactElement<
-                                          any,
-                                          | string
-                                          | React.JSXElementConstructor<any>
-                                        >
-                                      | Iterable<React.ReactNode>
-                                      | React.ReactPortal
-                                      | Promise<React.AwaitedReactNode>
-                                      | null
-                                      | undefined;
-                                    content:
-                                      | string
-                                      | number
-                                      | bigint
-                                      | boolean
-                                      | React.ReactElement<
-                                          any,
-                                          | string
-                                          | React.JSXElementConstructor<any>
-                                        >
-                                      | Iterable<React.ReactNode>
-                                      | React.ReactPortal
-                                      | Promise<React.AwaitedReactNode>
-                                      | null
-                                      | undefined;
-                                  },
-                                  index: React.Key | null | undefined,
-                                ) => (
-                                  <tr key={index}>
-                                    <td className="border-gray-300 border px-4 py-2">
-                                      {detail.title}
-                                    </td>
-                                    <td className="border-gray-300 border px-4 py-2">
-                                      {detail.content}
-                                    </td>
-                                  </tr>
-                                ),
-                              )}
-                            </td>
-
+                            <td className="px-6 py-4">{roomType.id}</td>
+                            <td className="px-6 py-4">{roomType.category}</td>
+                            <td className="px-6 py-4">{roomType.size}</td>
+                            <td className="px-6 py-4">{roomType.bed}</td>
+                            <td className="px-6 py-4">{roomType.occupancy}</td>
                             <td
                               className="px-6 py-4"
                               style={{ minWidth: "200px" }}
                             >
                               <div className="flex items-center gap-2">
-                                {service.image.map(
+                                {roomType.primary_image?.map(
                                   (
                                     image: any | StaticImport,
                                     index: React.Key | null | undefined,
@@ -333,7 +288,87 @@ const ViewAllServices = () => {
                                             ? image
                                             : `https://api.sueennature.com/${image}`
                                         }
-                                        alt={service.name}
+                                        alt={roomType.name}
+                                        width={50}
+                                        height={50}
+                                      />
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </td>
+                            <td
+                              className="px-6 py-4"
+                              style={{ minWidth: "200px" }}
+                            >
+                              <div className="flex items-center gap-2">
+                                {roomType.room_images.map(
+                                  (
+                                    image: any | StaticImport,
+                                    index: React.Key | null | undefined,
+                                  ) => (
+                                    <div key={index} className="flex-shrink-0">
+                                      <Image
+                                        src={
+                                          image.startsWith("data:")
+                                            ? image
+                                            : `https://api.sueennature.com/${image}`
+                                        }
+                                        alt={roomType.name}
+                                        width={50}
+                                        height={50}
+                                      />
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </td>
+
+                            <td
+                              className="px-6 py-4"
+                              style={{ minWidth: "200px" }}
+                            >
+                              <div className="flex items-center gap-2">
+                                {roomType.mountain.map(
+                                  (
+                                    image: any | StaticImport,
+                                    index: React.Key | null | undefined,
+                                  ) => (
+                                    <div key={index} className="flex-shrink-0">
+                                      <Image
+                                        src={
+                                          image.startsWith("data:")
+                                            ? image
+                                            : `https://api.sueennature.com/${image}`
+                                        }
+                                        alt={roomType.name}
+                                        width={50}
+                                        height={50}
+                                      />
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </td>
+
+                            <td
+                              className="px-6 py-4"
+                              style={{ minWidth: "200px" }}
+                            >
+                              <div className="flex items-center gap-2">
+                                {roomType.lake.map(
+                                  (
+                                    image: any | StaticImport,
+                                    index: React.Key | null | undefined,
+                                  ) => (
+                                    <div key={index} className="flex-shrink-0">
+                                      <Image
+                                        src={
+                                          image.startsWith("data:")
+                                            ? image
+                                            : `https://api.sueennature.com/${image}`
+                                        }
+                                        alt={roomType.name}
                                         width={50}
                                         height={50}
                                       />
@@ -347,7 +382,7 @@ const ViewAllServices = () => {
                               <div className="flex items-center gap-4 ">
                                 {groupFour && (
                                   <button
-                                    onClick={() => handleEditPush(service)}
+                                    onClick={() => handleEditPush(roomType)}
                                     className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                                   >
                                     <Edit />
@@ -355,7 +390,7 @@ const ViewAllServices = () => {
                                 )}
 
                                 <button
-                                  onClick={() => handleViewPush(service)}
+                                  onClick={() => handleViewPush(roomType)}
                                   className="dark:text-red-500 font-medium text-green-600 hover:underline"
                                 >
                                   <Eye />
@@ -364,7 +399,7 @@ const ViewAllServices = () => {
                                   <a
                                     href="#"
                                     className="font-medium text-rose-600  hover:underline"
-                                    onClick={() => confirmDelete(service.id)}
+                                    onClick={() => confirmDelete(roomType.id)}
                                   >
                                     <Trash />
                                   </a>
@@ -410,7 +445,7 @@ const ViewAllServices = () => {
                 <div className="mt-7 flex w-full justify-end ">
                   <CSVLink
                     data={csvData}
-                    filename={"service.csv"}
+                    filename={"roomType.csv"}
                     className="justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                   >
                     Export as CSV
@@ -429,4 +464,4 @@ const ViewAllServices = () => {
   );
 };
 
-export default ViewAllServices;
+export default ViewAllRoomTypes;
