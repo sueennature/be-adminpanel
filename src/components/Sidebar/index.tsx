@@ -160,7 +160,7 @@ const menuGroups = [
           </svg>
         ),
         label: "Services",
-        route: "/services",
+        route: "/service",
         access: "groupThree",
       },
       {
