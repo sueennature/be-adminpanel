@@ -303,7 +303,7 @@ const UpdateCarousel: React.FC = () => {
     const convertImagesToBase64 = async (urls: string[]): Promise<string[]> => {
       const base64Promises = urls.map((url) =>
         url.startsWith("uploads/")
-          ? urlToBase64(`https://api.sueennature.com/${url}`)
+          ? urlToBase64(`${process.env.BE_URL}/${url}`)
           : Promise.resolve(url),
       );
       return Promise.all(base64Promises);
@@ -459,7 +459,7 @@ const UpdateCarousel: React.FC = () => {
                         src={
                           image.startsWith("data:")
                             ? image
-                            : `https://api.sueennature.com/${image}`
+                            : `${process.env.BE_URL}/${image}`
                         }
                         type="video/mp4"
                       />
@@ -479,7 +479,7 @@ const UpdateCarousel: React.FC = () => {
                       src={
                         image.startsWith("data:")
                           ? image
-                          : `https://api.sueennature.com/${image}`
+                          : `${process.env.BE_URL}/${image}`
                       }
                       alt={`Preview ${index}`}
                       width={100}

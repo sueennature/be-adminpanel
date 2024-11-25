@@ -309,7 +309,7 @@ const BookingTable: React.FC<HelloWorldProps> = () => {
                     <td className="px-6 py-4">{data?.payment_method}</td>
                     <td className="px-6 py-4">
                       <a
-                        href={`https://api.sueennature.com/receipts/booking_receipt_${data?.id}.pdf`}
+                        href={`${process.env.BE_URL}/receipts/booking_receipt_${data?.id}.pdf`}
                       >
                         Download
                       </a>

@@ -4,7 +4,7 @@ export async function POST(request: Request) {
     try {
         const guestData = await request.json();
 
-        const response = await fetch('https://api.sueennature.com/users/register', {
+        const response = await fetch(`${process.env.BE_URL}/users/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

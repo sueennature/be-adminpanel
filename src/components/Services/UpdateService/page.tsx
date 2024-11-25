@@ -388,7 +388,7 @@ const UpdateService = () => {
                       src={
                         image.startsWith("data:")
                           ? image
-                          : `https://api.sueennature.com/${image}`
+                          : `${process.env.BE_URL}/${image}`
                       }
                       alt={`Preview ${index}`}
                       width={100}

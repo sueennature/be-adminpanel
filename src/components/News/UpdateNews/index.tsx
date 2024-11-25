@@ -377,7 +377,7 @@ const UpdateNews = () => {
                       src={
                         image.startsWith("data:")
                           ? image
-                          : `https://api.sueennature.com/${image}`
+                          : `${process.env.BE_URL}/${image}`
                       }
                       alt={`Preview ${index}`}
                       width={100}
@@ -428,7 +428,7 @@ const UpdateNews = () => {
                       src={
                         video.startsWith("data:")
                           ? video
-                          : `https://api.sueennature.com/${video}`
+                          : `${process.env.BE_URL}/${video}`
                       }
                       controls
                       width="140"

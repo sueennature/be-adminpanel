@@ -105,7 +105,7 @@ const ViewSingleNews = () => {
                             className="h-20 w-20 flex-shrink-0 overflow-hidden"
                           >
                             <Image
-                              src={`https://api.sueennature.com/${image}`}
+                              src={`${process.env.BE_URL}/${image}`}
                               alt={news.title}
                               width={80}
                               height={80}
@@ -132,7 +132,7 @@ const ViewSingleNews = () => {
                         >
                           <video
                             controls
-                            src={`https://api.sueennature.com/${video}`}
+                            src={`${process.env.BE_URL}/${video}`}
                             className="h-full w-full object-cover"
                             style={{ maxWidth: '100%', maxHeight: '100%' }}
                           >

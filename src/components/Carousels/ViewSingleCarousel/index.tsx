@@ -99,7 +99,7 @@ useAuthRedirect();
           className="h-20 w-20 overflow-hidden"
         >
           <Image
-            src={`https://api.sueennature.com/${image}`}
+            src={`${process.env.BE_URL}/${image}`}
             alt="Image description"
             width={80}
             height={80}

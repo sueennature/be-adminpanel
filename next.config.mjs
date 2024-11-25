@@ -4,7 +4,7 @@ export default {
       middleware: true,
     },
     images: {
-      domains: ['api.sueennature.com'], // Add your external domain here
+      domains: ['devapi.sueennature.com'], // Add your external domain here
     },
     env: {
       BE_URL: process.env.BE_URL,
