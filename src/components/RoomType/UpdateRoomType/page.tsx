@@ -241,32 +241,30 @@ const UpdateRoomType = () => {
       lake: formData.lake.map(removeImageBase64Prefix),
     };
 
-    console.log("PROCESSED DATA", processedFormData)
+    try {
+      const response = await fetch("/api/roomType/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: roomTypeID, ...processedFormData }),
+      });
 
-    // try {
-    //   const response = await fetch("/api/roomType/update", {
-    //     method: "PUT",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({ id: roomTypeID, ...processedFormData }),
-    //   });
+      const result = await response.json();
 
-    //   const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to update item");
+      }
 
-    //   if (!response.ok) {
-    //     throw new Error(result.error || "Failed to update item");
-    //   }
-
-    //   toast.success("Room Type updated successfully");
-    //   setTimeout(() => {
-    //     router.push("/roomType");
-    //   }, 1000);
-    // } catch (err) {
-    //   console.log(err);
-    //   setLoading(false);
-    //   toast.error("An error occurred");
-    // }
+      toast.success("Room Type updated successfully");
+      setTimeout(() => {
+        router.push("/roomType");
+      }, 1000);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+      toast.error("An error occurred");
+    }
   };
 
   return (
@@ -366,7 +364,7 @@ const UpdateRoomType = () => {
                       src={
                         image.startsWith("data:")
                           ? image
-                          : `https://api.sueennature.com/${image}`
+                          : `${process.env.BE_URL}/${image}`
                       }
                       alt={`Preview ${index}`}
                       width={100}
@@ -419,7 +417,7 @@ const UpdateRoomType = () => {
                       src={
                         image.startsWith("data:")
                           ? image
-                          : `https://api.sueennature.com/${image}`
+                          : `${process.env.BE_URL}/${image}`
                       }
                       alt={`Preview ${index}`}
                       width={100}
@@ -470,7 +468,7 @@ const UpdateRoomType = () => {
                       src={
                         image.startsWith("data:")
                           ? image
-                          : `https://api.sueennature.com/${image}`
+                          : `${process.env.BE_URL}/${image}`
                       }
                       alt={`Preview ${index}`}
                       width={100}
@@ -521,7 +519,7 @@ const UpdateRoomType = () => {
                       src={
                         image.startsWith("data:")
                           ? image
-                          : `https://api.sueennature.com/${image}`
+                          : `${process.env.BE_URL}/${image}`
                       }
                       alt={`Preview ${index}`}
                       width={100}

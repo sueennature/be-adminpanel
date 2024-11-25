@@ -53,8 +53,6 @@ const ViewActivity = (user: any) => {
           },
         });
 
-        // Check if response data is an array
-
         setActivities(response.data.data);
         console.log(response.data.data);
         setLoading(false);
@@ -303,7 +301,7 @@ const ViewActivity = (user: any) => {
                                         src={
                                           media.startsWith("data:")
                                             ? media
-                                            : `https://api.sueennature.com/${media}`
+                                            : `${process.env.BE_URL}/${media}`
                                         }
                                         alt={activity.name}
                                         width={80}

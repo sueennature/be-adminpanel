@@ -163,7 +163,7 @@ const ViewSingleGuest = () => {
                     className="h-20 w-20 flex-shrink-0 overflow-hidden"
                   >
                     <Image
-                      src={`https://api.sueennature.com/${image}`} // Ensure the URL is correct
+                      src={`${process.env.BE_URL}/${image}`} // Ensure the URL is correct
                       alt={guest.first_name}
                       width={80}
                       height={80}

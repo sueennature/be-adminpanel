@@ -286,7 +286,7 @@ const ViewAllRoomTypes = () => {
                                         src={
                                           image.startsWith("data:")
                                             ? image
-                                            : `https://api.sueennature.com/${image}`
+                                            : `${process.env.BE_URL}/${image}`
                                         }
                                         alt={roomType.name}
                                         width={50}
@@ -312,7 +312,7 @@ const ViewAllRoomTypes = () => {
                                         src={
                                           image.startsWith("data:")
                                             ? image
-                                            : `https://api.sueennature.com/${image}`
+                                            : `${process.env.BE_URL}/${image}`
                                         }
                                         alt={roomType.name}
                                         width={50}
@@ -339,7 +339,7 @@ const ViewAllRoomTypes = () => {
                                         src={
                                           image.startsWith("data:")
                                             ? image
-                                            : `https://api.sueennature.com/${image}`
+                                            : `${process.env.BE_URL}/${image}`
                                         }
                                         alt={roomType.name}
                                         width={50}
@@ -366,7 +366,7 @@ const ViewAllRoomTypes = () => {
                                         src={
                                           image.startsWith("data:")
                                             ? image
-                                            : `https://api.sueennature.com/${image}`
+                                            : `${process.env.BE_URL}/${image}`
                                         }
                                         alt={roomType.name}
                                         width={50}

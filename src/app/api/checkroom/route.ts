@@ -11,7 +11,7 @@ export async function POST(request: any) {
 
         const guestData = await request.json();
 
-        const response = await fetch('https://api.sueennature.com/availability', {
+        const response = await fetch(`${process.env.BE_URL}/availability`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -99,7 +99,7 @@ const ViewSingleActivity = () => {
                                   className="h-20 w-20 flex-shrink-0 overflow-hidden"
                                 >
                                   <Image
-                                    src={`https://api.sueennature.com/${media}`}
+                                    src={`${process.env.BE_URL}/${media}`}
                                     alt={activity.name}
                                     width={80}
                                     height={80}

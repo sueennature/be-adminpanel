@@ -16,7 +16,7 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
         }
 
-        const response = await fetch(`https://api.sueennature.com/users/${id}`, {
+        const response = await fetch(`${process.env.BE_URL}/users/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
