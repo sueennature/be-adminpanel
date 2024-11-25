@@ -135,7 +135,7 @@ const ViewRoomType = () => {
                             className="h-20 w-20 flex-shrink-0 overflow-hidden"
                           >
                             <Image
-                              src={`https://api.sueennature.com/${image}`}
+                              src={`${process.env.BE_URL}/${image}`}
                               alt={roomType.category}
                               width={80}
                               height={80}
@@ -165,7 +165,7 @@ const ViewRoomType = () => {
                             className="h-20 w-20 flex-shrink-0 overflow-hidden"
                           >
                             <Image
-                              src={`https://api.sueennature.com/${image}`}
+                              src={`${process.env.BE_URL}/${image}`}
                               alt={roomType.category}
                               width={80}
                               height={80}
@@ -195,7 +195,7 @@ const ViewRoomType = () => {
                             className="h-20 w-20 flex-shrink-0 overflow-hidden"
                           >
                             <Image
-                              src={`https://api.sueennature.com/${image}`}
+                              src={`${process.env.BE_URL}/${image}`}
                               alt={roomType.category}
                               width={80}
                               height={80}
@@ -225,7 +225,7 @@ const ViewRoomType = () => {
                             className="h-20 w-20 flex-shrink-0 overflow-hidden"
                           >
                             <Image
-                              src={`https://api.sueennature.com/${image}`}
+                              src={`${process.env.BE_URL}/${image}`}
                               alt={roomType.category}
                               width={80}
                               height={80}

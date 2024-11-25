@@ -162,7 +162,7 @@ const ViewService = () => {
                             className="h-20 w-20 flex-shrink-0 overflow-hidden"
                           >
                             <Image
-                              src={`https://api.sueennature.com/${image}`}
+                              src={`${process.env.BE_URL}/${image}`}
                               alt={service.title}
                               width={80}
                               height={80}

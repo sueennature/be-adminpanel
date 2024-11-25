@@ -331,7 +331,7 @@ const ViewAllServices = () => {
                                         src={
                                           image.startsWith("data:")
                                             ? image
-                                            : `https://api.sueennature.com/${image}`
+                                            : `${process.env.BE_URL}/${image}`
                                         }
                                         alt={service.name}
                                         width={50}

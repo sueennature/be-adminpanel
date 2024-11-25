@@ -340,7 +340,7 @@
 //               {imagePreviews.map((image, index) => (
 //                 <div key={index} className="relative">
 //                  <Image
-//                       src={`https://api.sueennature.com/${image}`} // Ensure the URL is correct
+//                       src={`${process.env.BE_URL}/${image}`} // Ensure the URL is correct
 //                       alt="asd"
 //                                             width={80}
 //                       height={80}
