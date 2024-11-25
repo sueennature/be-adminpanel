@@ -91,6 +91,24 @@ const menuGroups = [
         route: "/roomType",
         access: "groupOne",
       },
+      {
+        icon: (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="1em"
+            height="1em"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M12 3l8 8h-3v7h-4v-4H11v4H7v-7H4l8-8zm0-2L2 10h3v9a1 1 0 001 1h6v-5h2v5h6a1 1 0 001-1v-9h3L12 1z"
+            />
+          </svg>
+        ),
+        label: "Room Home",
+        route: "/roomHome",
+        access: "groupOne",
+      },
 
       {
         icon: (
