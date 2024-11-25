@@ -287,7 +287,7 @@ const ViewAllCarousel = () => {
                                     className="flex-shrink-0"
                                   >
                                     <source
-                                      src={`https://api.sueennature.com/${video}`}
+                                      src={`${process.env.BE_URL}/${video}`}
                                       type="video/mp4"
                                     />
                                     Your browser does not support the video tag.
@@ -305,7 +305,7 @@ const ViewAllCarousel = () => {
                                       className="h-20 w-20 flex-shrink-0 overflow-hidden"
                                     >
                                       <Image
-                                        src={`https://api.sueennature.com/${image}`}
+                                        src={`${process.env.BE_URL}/${image}`}
                                         alt="as"
                                         width={80}
                                         height={80}

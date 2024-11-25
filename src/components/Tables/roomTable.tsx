@@ -539,7 +539,7 @@ const RoomTable = () => {
                                     src={
                                       image.startsWith("data:")
                                         ? image
-                                        : `https://api.sueennature.com/${image}`
+                                        : `${process.env.BE_URL}/${image}`
                                     }
                                     alt={room?.room_number}
                                     width={80}

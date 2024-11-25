@@ -282,7 +282,7 @@ const ViewAllOffers = () => {
                                         src={
                                           image.startsWith("data:")
                                             ? image
-                                            : `https://api.sueennature.com/${image}`
+                                            : `${process.env.BE_URL}/${image}`
                                         }
                                         alt={offer.name}
                                         width={50}

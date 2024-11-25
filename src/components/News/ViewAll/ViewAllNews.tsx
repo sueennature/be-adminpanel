@@ -272,7 +272,7 @@ const ViewAllNews = () => {
                                         src={
                                           image.startsWith("data:")
                                             ? image
-                                            : `https://api.sueennature.com/${image}`
+                                            : `${process.env.BE_URL}/${image}`
                                         }
                                         alt={news.name}
                                         width={50}
@@ -298,7 +298,7 @@ const ViewAllNews = () => {
                                         src={
                                           video.startsWith("data:")
                                             ? video
-                                            : `https://api.sueennature.com/${video}`
+                                            : `${process.env.BE_URL}/${video}`
                                         }
                                         width={140}
                                         height={80}

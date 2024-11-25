@@ -318,7 +318,7 @@ const UpdateActivity = () => {
                       src={
                         media.startsWith("data:")
                           ? media
-                          : `https://api.sueennature.com/${media}`
+                          : `${process.env.BE_URL}/${media}`
                       }
                       alt={`Preview ${index}`}
                       width={100}

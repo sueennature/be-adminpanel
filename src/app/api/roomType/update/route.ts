@@ -5,6 +5,7 @@ export async function PUT(request: Request) {
     try {
         const cookies = cookie.parse(request.headers.get('cookie') || '');
         const accessToken = cookies.access_token;
+        const BE_URL = process.env.BE_URL;
 
         if (!accessToken) {
             return NextResponse.json({ error: 'Access token is missing' }, { status: 401 });
@@ -16,7 +17,7 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: 'Item ID is required' }, { status: 400 });
         }
 
-        const response = await fetch(`${process.env.BE_URL}/users/${id}`, {
+        const response = await fetch(`${BE_URL}/room_type/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

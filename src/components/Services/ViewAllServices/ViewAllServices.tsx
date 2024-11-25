@@ -127,11 +127,11 @@ const ViewAllServices = () => {
       setServices((prevNews) =>
         prevNews.filter((service) => service.id !== serviceId),
       );
-      toast.success("News is Deleted Successfully");
+      toast.success("Service is Deleted Successfully");
     } catch (err) {
       console.error(err);
       toast.error(
-        "There was an error deleting the News. Please try again later",
+        "There was an error deleting the Service. Please try again later",
       );
     }
   };
@@ -331,7 +331,7 @@ const ViewAllServices = () => {
                                         src={
                                           image.startsWith("data:")
                                             ? image
-                                            : `https://api.sueennature.com/${image}`
+                                            : `${process.env.BE_URL}/${image}`
                                         }
                                         alt={service.name}
                                         width={50}
