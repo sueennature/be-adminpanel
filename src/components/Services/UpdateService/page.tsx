@@ -15,14 +15,14 @@ const UpdateService = () => {
     title: string;
     sub_title: string;
     description: string;
-    images: string[];
+    image: string[];
     features: string[];
     details: { title: string; content: string }[];
   }>({
     title: "",
     sub_title: "",
     description: "",
-    images: [],
+    image: [],
     features: [],
     details: [{ title: "", content: "" }],
   });
@@ -79,61 +79,71 @@ const UpdateService = () => {
     validateField(name, value);
   };
 
-  const handleDeleteMedia = async (
-    index: number,
-    mediaType: "image" | "video",
-  ) => {
-    const mediaUrl = mediaType === "image" && formData.images[index];
-    if (mediaUrl) {
-      const result = await Swal.fire({
-        title: "Are you sure?",
-        text: "This action cannot be undone!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!",
+  const fileInputRef = useRef<any>(null);
+const handleDeleteImage = async (index: number) => {
+  console.log("formData:", formData);
+  console.log("formData.image:", formData?.image);
+  console.log("index:", index);
+
+  if (!Array.isArray(formData.image)) {
+    console.error("formData.image is not an array or is undefined.");
+    return;
+  }
+
+  if (index < 0 || index >= formData.image.length) {
+    console.error("Invalid index:", index);
+    return;
+  }
+
+  const imageUrl = formData.image[index];
+  if (!imageUrl) {
+    console.error(`Image URL at index ${index} is undefined.`);
+    return;
+  }
+
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "This action cannot be undone!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.delete(`${process.env.BE_URL}/services/${serviceId}/images`, {
+        data: { files_to_delete: [imageUrl] },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("access_token")}`,
+          "x-api-key": process.env.X_API_KEY,
+        },
       });
 
-      const payload = [mediaUrl];
-      console.log("Payload:", JSON.stringify(payload));
-      if (result.isConfirmed) {
-        try {
-          await axios.delete(
-            `${process.env.BE_URL}/offer/${serviceId}/media?media_type=${mediaType}`,
-            {
-              data: payload,
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${Cookies.get("access_token")}`,
-                "x-api-key": process.env.X_API_KEY,
-              },
-            },
-          );
+      // Update state
+      setImagePreviews((prevImages) =>
+        prevImages.filter((_, i) => i !== index),
+      );
+      setFormData((prevData) => ({
+        ...prevData,
+        image: prevData.image.filter((_, i) => i !== index),
+      }));
 
-          if (mediaType === "image") {
-            setImagePreviews((prevImages) =>
-              prevImages.filter((_, i) => i !== index),
-            );
-            setFormData((prevData) => ({
-              ...prevData,
-              images: prevData.images.filter((_, i) => i !== index),
-            }));
-            Swal.fire("Deleted!", "Image has been deleted.", "success");
-          } else {
-            setFormData((prevData) => ({
-              ...prevData,
-            }));
-          }
-
-          Swal.fire("Deleted!", "Video has been deleted.", "success");
-        } catch (err) {
-          console.error(`Error deleting ${mediaType}:`, err);
-          toast.error(`Error deleting ${mediaType}`);
-        }
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
+
+      Swal.fire("Deleted!", "Your image has been deleted.", "success");
+    } catch (err) {
+      console.error("Error deleting image:", err);
+      toast.error("Error deleting image");
     }
-  };
+  }
+};
+
+
 
   const router = useRouter();
 
@@ -182,14 +192,14 @@ const UpdateService = () => {
 
       Promise.all(fileReaders)
         .then((base64Strings) => {
-          console.log("base64Strings:", base64Strings); 
+          console.log("base64Strings:", base64Strings);
 
           if (type === "image") {
             setImagePreviews((prevImages) => [...prevImages, ...base64Strings]);
 
             setFormData((prevData) => ({
               ...prevData,
-              images: [...(prevData?.images || []), ...base64Strings],
+              images: [...(prevData?.image || []), ...base64Strings],
             }));
           }
         })
@@ -282,7 +292,7 @@ const UpdateService = () => {
 
     const processedFormData = {
       ...formData,
-      image: formData.images.map(removeImageBase64Prefix),
+      image: formData.image?.map(removeImageBase64Prefix),
     };
 
     try {
@@ -398,7 +408,7 @@ const UpdateService = () => {
                     {groupThree && (
                       <button
                         type="button"
-                        onClick={() => handleDeleteMedia(index, "image")}
+                        onClick={() => handleDeleteImage(index)}
                         className="bg-red-500 relative left-[80px] top-[-80px] rounded-full font-bold text-red"
                       >
                         X

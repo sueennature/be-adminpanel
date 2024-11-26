@@ -125,11 +125,11 @@ const ViewAllOffers = () => {
         },
       });
       setOffers((prevNews) => prevNews.filter((offer) => offer.id !== offerId));
-      toast.success("News is Deleted Successfully");
+      toast.success("Offer is Deleted Successfully");
     } catch (err) {
       console.error(err);
       toast.error(
-        "There was an error deleting the News. Please try again later",
+        "There was an error deleting the Offer. Please try again later",
       );
     }
   };
