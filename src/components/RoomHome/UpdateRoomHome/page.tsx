@@ -21,7 +21,7 @@ const UpdateRoomHome = () => {
 
   const searchParams = useSearchParams();
   let roomHomeID = searchParams.get("roomHomeID");
-  const [primaryImagePreviews, setPrimaryImagePreviews] = useState<string[]>(
+  const [imagePreviews, setImagePreviews] = useState<string[]>(
     [],
   );
   const [loading, setLoading] = useState(false);
@@ -32,58 +32,71 @@ const UpdateRoomHome = () => {
   >(null);
   const { groupFour, groupThree } = useUserContext();
 
-  const handleDeleteMedia = async (
-    index: number,
-    mediaType: "primary_image",
-  ) => {
-    const mediaUrl = formData[mediaType]?.[index];
+      const fileInputRef = useRef<any>(null);
 
-    if (!mediaUrl) return;
+const handleDeleteImage = async (index: number) => {
+  console.log("formData:", formData);
+  console.log("formData.primary_image:", formData?.primary_image);
+  console.log("index:", index);
 
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This action cannot be undone!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    });
+  if (!Array.isArray(formData.primary_image)) {
+    console.error("formData.primary_image is not an array or is undefined.");
+    return;
+  }
 
-    if (!result.isConfirmed) return;
+  if (index < 0 || index >= formData.primary_image.length) {
+    console.error("Invalid index:", index);
+    return;
+  }
 
+  const imageUrl = formData.primary_image[index];
+  if (!imageUrl) {
+    console.error(`Image URL at index ${index} is undefined.`);
+    return;
+  }
+
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "This action cannot be undone!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (result.isConfirmed) {
     try {
-      const payload = [mediaUrl];
-      console.log("Payload:", JSON.stringify(payload));
-
-      await axios.delete(
-        `${process.env.BE_URL}/room_home/${roomHomeID}/media?media_type=${mediaType}`,
-        {
-          data: payload,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${Cookies.get("access_token")}`,
-            "x-api-key": process.env.X_API_KEY,
-          },
+      await axios.delete(`${process.env.BE_URL}/room_home/${roomHomeID}/images`, {
+        data: { files_to_delete: [imageUrl] },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("access_token")}`,
+          "x-api-key": process.env.X_API_KEY,
         },
-      );
+      });
 
-      // Update the state to remove the deleted media
+      // Update state
+      setImagePreviews((prevImages) =>
+        prevImages.filter((_, i) => i !== index),
+      );
       setFormData((prevData) => ({
         ...prevData,
-        [mediaType]: prevData[mediaType]?.filter((_, i) => i !== index) || [],
+        primary_image: prevData.primary_image.filter((_, i) => i !== index),
       }));
 
-      Swal.fire(
-        "Deleted!",
-        `${mediaType.replace("_", " ")} has been deleted.`,
-        "success",
-      );
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      Swal.fire("Deleted!", "Your primary_image has been deleted.", "success");
     } catch (err) {
-      console.error(`Error deleting ${mediaType}:`, err);
-      toast.error(`Error deleting ${mediaType.replace("_", " ")}`);
+      console.error("Error deleting primary_image:", err);
+      toast.error("Error deleting primary_image");
     }
-  };
+  }
+};
+
 
   const router = useRouter();
 
@@ -164,7 +177,7 @@ const UpdateRoomHome = () => {
           );
 
           setFormData(response.data.data);
-          setPrimaryImagePreviews(response.data.data.primary_image);
+          setImagePreviews(response.data.data.primary_image);
         } catch (err) {
           console.log(err);
         }
@@ -176,7 +189,7 @@ const UpdateRoomHome = () => {
 
   const removeBase64Prefix = (base64String: string) => {
     // Find the prefix pattern for images and videos
-    const imagePrefixPattern = /^data:image\/(png|jpeg|jpg);base64,/;
+    const imagePrefixPattern = /^data:primary_image\/(png|jpeg|jpg);base64,/;
     const videoPrefixPattern = /^data:video\/(mp4|ogg|webm);base64,/;
 
     if (base64String.match(imagePrefixPattern)) {
@@ -200,7 +213,7 @@ const UpdateRoomHome = () => {
   };
 
   const removeImageBase64Prefix = (base64String: string) => {
-    const imagePrefixPattern = /^data:image\/(png|jpeg|jpg);base64,/;
+    const imagePrefixPattern = /^data:primary_image\/(png|jpeg|jpg);base64,/;
     return base64String.replace(imagePrefixPattern, "");
   };
 
@@ -291,13 +304,13 @@ const UpdateRoomHome = () => {
                 Image Preview
               </label>
               <div className="flex items-center gap-4">
-                {primaryImagePreviews.map((image, index) => (
+                {imagePreviews.map((primary_image, index) => (
                   <div key={index} className="relative">
                     <Image
                       src={
-                        image.startsWith("data:")
-                          ? image
-                          : `${process.env.BE_URL}/${image}`
+                        primary_image.startsWith("data:")
+                          ? primary_image
+                          : `${process.env.BE_URL}/${primary_image}`
                       }
                       alt={`Preview ${index}`}
                       width={100}
@@ -308,7 +321,7 @@ const UpdateRoomHome = () => {
                       <button
                         type="button"
                         onClick={() =>
-                          handleDeleteMedia(index, "primary_image")
+                          handleDeleteImage(index)
                         }
                         className="bg-red-500 relative left-[80px] top-[-80px] rounded-full font-bold text-red"
                       >
