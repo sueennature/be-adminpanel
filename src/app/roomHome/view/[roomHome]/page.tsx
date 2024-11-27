@@ -6,7 +6,7 @@ import React from 'react'
 const ViewRoomHomePage = () => {
   return (
     <DefaultLayout>
-      <Breadcrumb pageName={'Room Home'} pageNameTwo='Room Home' firstLink={"/room_home"}/>
+      <Breadcrumb pageName={'Room Home'} pageNameTwo='Room Home' firstLink={"/roomHome"}/>
         <ViewRoomHome/>
     </DefaultLayout>
   )
