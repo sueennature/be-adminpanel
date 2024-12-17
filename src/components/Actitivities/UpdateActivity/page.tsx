@@ -33,6 +33,7 @@ const UpdateActivity = () => {
   const [tooltipMessage, setTooltipMessage] = useState<string | null>(null); //set tooltip
   useAuthRedirect();
   const { groupThree } = useUserContext();
+  const accessToken = Cookies.get("access_token");
 
   const handleDeleteImage = async (index: number) => {
     const imageUrl = formData.media[index];
@@ -50,19 +51,20 @@ const UpdateActivity = () => {
       });
 
       if (result.isConfirmed) {
-        console.log("IMAGEURL", imageUrl);
         try {
-          const reponse = await axios.delete(
+          const response = await axios.delete(
             `${process.env.BE_URL}/activities/${activityId}/media`,
             {
               data: payload,
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${Cookies.get("access_token")}`,
+                Authorization: `Bearer ${accessToken}`,
                 "x-api-key": process.env.X_API_KEY,
               },
             },
           );
+
+          console.log("RESP", response);
 
           setImagePreviews((prevImages) =>
             prevImages.filter((_, i) => i !== index),
@@ -178,8 +180,6 @@ const UpdateActivity = () => {
     const fetchActivity = async () => {
       if (activityId) {
         try {
-          const accessToken = Cookies.get("access_token");
-
           const response = await axios.get(
             `${process.env.BE_URL}/activities/${activityId}`,
             {
@@ -245,6 +245,8 @@ const UpdateActivity = () => {
       toast.error("An error occurred");
     }
   };
+
+  console.log("INAGE", imagePreviews);
 
   return (
     <div className="flex flex-col gap-9">
@@ -312,30 +314,59 @@ const UpdateActivity = () => {
                 Image Preview
               </label>
               <div className="flex items-center gap-4">
-                {imagePreviews.map((media, index) => (
-                  <div key={index} className="relative">
-                    <Image
-                      src={
-                        media.startsWith("data:")
-                          ? media
-                          : `${process.env.BE_URL}/${media}`
-                      }
-                      alt={`Preview ${index}`}
-                      width={100}
-                      height={100}
-                      className="h-20 rounded object-cover"
-                    />
-                    {groupThree && (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteImage(index)}
-                        className="bg-red-500 relative left-[80px] top-[-80px] rounded-full font-bold text-red"
-                      >
-                        X
-                      </button>
-                    )}
-                  </div>
-                ))}
+                {imagePreviews.map((media, index) => {
+                  const isVideo =
+                    media.endsWith(".mp4") || media.includes("video");
+                  const src = media.startsWith("data:")
+                    ? media
+                    : `${process.env.BE_URL}/${media}`;
+
+                  return (
+                    <div key={index} className="relative">
+                      {isVideo ? (
+                        <>
+                          <video
+                            src={src}
+                            width={100}
+                            height={100}
+                            className="h-20 rounded object-cover"
+                            controls
+                          >
+                            Your browser does not support the video tag.
+                          </video>
+                          {groupThree && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteImage(index)}
+                              className="bg-red-500 absolute left-[80px] top-[-5px] rounded-full font-bold text-red"
+                            >
+                              X
+                            </button>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <Image
+                            src={src}
+                            alt={`Preview ${index}`}
+                            width={100}
+                            height={100}
+                            className="h-20 rounded object-cover"
+                          />
+                          {groupThree && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteImage(index)}
+                              className="bg-red-500 absolute left-[80px] top-[-5px] rounded-full font-bold text-red"
+                            >
+                              X
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <div className="mb-6">
