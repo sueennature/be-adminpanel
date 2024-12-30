@@ -108,8 +108,6 @@ const ECommerce: React.FC = () => {
       dinner: 3,
     },
   };
-
-  console.log("GROUP 4", groupFour)
   
   return (
     <>
