@@ -394,6 +394,11 @@ const menuGroups = [
         route: "/reports",
         access: "groupThree",
       },
+            {
+        label: "",
+        route: "/home",
+        access: "groupThree",
+      },
     ],
   },
 ];
