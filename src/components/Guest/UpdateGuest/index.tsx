@@ -290,9 +290,10 @@ const handleFocus = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log("HELLO")
     e.preventDefault();
     // Validate all fields including password
-    if (!formData.password.trim()) {
+    if (!formData.password?.trim()) {
       setErrors((prevErrors:any) => ({
           ...prevErrors,
           password: 'Password is required',
