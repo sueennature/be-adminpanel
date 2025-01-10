@@ -95,6 +95,13 @@ export default function BookingShow({ handleClose, open, data }: BookingShowProp
         </IconButton>
       </DialogTitle>
       <DialogContent dividers ref={componentRef}>
+      <Grid item xs={12} sm={6}>
+            <Typography style={{fontWeight: 600, marginBottom:'20px'}}>Payment Status : <span style={{color : viewData.payment_status == "pending" ? 'orange' 
+              : viewData.payment_status == "complete" ? 'green' 
+              : viewData.payment_status == "failed" ? "red" 
+              : viewData.payment_status == "Guest canceled" ? "blue" 
+              : 'black'}}>{viewData.payment_status}</span> </Typography>
+          </Grid>
         <Typography variant="h6">Guest Information</Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
@@ -176,6 +183,7 @@ export default function BookingShow({ handleClose, open, data }: BookingShowProp
           <Grid item xs={12} sm={6}>
             <Typography>Balance Amount: {viewData.balance_amount}</Typography>
           </Grid>
+          
           <Grid item xs={12} sm={6}>
             <Typography>Booking Note: {viewData.booking_note}</Typography>
           </Grid>
