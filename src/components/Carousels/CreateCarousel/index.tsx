@@ -51,10 +51,10 @@ const CreateCarousel = () => {
 
       // Determine max size based on media type
       if (formData.media_type === "image") {
-        maxSize = 1024 * 1024; // 1 MB
+        maxSize = 1024 * 1024 * 10; // 10 MB
         fileType = "Image";
       } else if (formData.media_type === "video") {
-        maxSize = 2 * 1024 * 1024; // 2 MB
+        maxSize = 2 * 1024 * 1024 * 25; // 50 MB
         fileType = "Video";
       }
 
@@ -64,7 +64,7 @@ const CreateCarousel = () => {
       if (oversizedFiles.length > 0) {
         setErrors((prevErrors: any) => ({
           ...prevErrors,
-          media_urls: `${fileType} size must be smaller than ${formData.media_type === "image" ? "1 MB" : "2 MB"}`,
+          media_urls: `${fileType} size must be smaller than ${formData.media_type === "image" ? "10 MB" : "50 MB"}`,
         }));
       } else {
         setErrors((prevErrors: any) => ({
